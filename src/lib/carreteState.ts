@@ -43,6 +43,7 @@ export interface BasketState {
   profile: BasketProfile;
   priceBase: PriceBase;
   items: BasketItem[];
+  targetDrink?: string; // "mix" | "pisco" | "cerveza" | "vino" | "gin" | "vodka" | "whisky" | "ron" | "tequila" | "mocktail"
   updatedAt: number;
 }
 
@@ -72,6 +73,7 @@ export const DEFAULT_BASKET: BasketState = {
   profile: "clasica",
   priceBase: "lider",
   items: [],
+  targetDrink: "mix",
   updatedAt: 0,
 };
 

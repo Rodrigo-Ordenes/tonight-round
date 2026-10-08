@@ -521,6 +521,162 @@
       },
       "last_verified": "2026-10-07",
       "unit_weight_g": 100
+    },
+    {
+      "id": "cerveza_baltica_lata_473",
+      "name": "Cerveza Báltica Dry Lata 473cc",
+      "category": "cervezas",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 890,
+        "jumbo": 950,
+        "botilleria_ref": 1000
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 473
+    },
+    {
+      "id": "cerveza_baltica_6pack",
+      "name": "Cerveza Báltica Dry Pack 6 Latas 473cc",
+      "category": "cervezas",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 4990,
+        "jumbo": 5290,
+        "botilleria_ref": 5700
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 2838
+    },
+    {
+      "id": "cerveza_becker_6pack",
+      "name": "Cerveza Becker Pack 6 Latas 354cc",
+      "category": "cervezas",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 4290,
+        "jumbo": 4590,
+        "botilleria_ref": 4990
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 2124
+    },
+    {
+      "id": "vino_gato_caja_2l",
+      "name": "Vino Gato Tinto / Exportación Caja 2L",
+      "category": "vinos",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 4190,
+        "jumbo": 4490,
+        "botilleria_ref": 4890
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 2000
+    },
+    {
+      "id": "vino_gato_botellon_15l",
+      "name": "Vino Gato Tinto Botellón 1.5L",
+      "category": "vinos",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 3790,
+        "jumbo": 3990,
+        "botilleria_ref": 4390
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 1500
+    },
+    {
+      "id": "vino_santa_helena_caja_2l",
+      "name": "Vino Santa Helena Tinto Caja 2L",
+      "category": "vinos",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 3990,
+        "jumbo": 4290,
+        "botilleria_ref": 4690
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 2000
+    },
+    {
+      "id": "pipeno_botellon_15l",
+      "name": "Vino Pipeño San Manuel 1.5L (Terremoto)",
+      "category": "vinos",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 2990,
+        "jumbo": 3290,
+        "botilleria_ref": 3590
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 1500
+    },
+    {
+      "id": "whisky_sandy_mac_750",
+      "name": "Whisky Sandy Mac 750cc",
+      "category": "destilados",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 8990,
+        "jumbo": 9490,
+        "botilleria_ref": 10290
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "whisky_ballantines_750",
+      "name": "Whisky Ballantine's Finest 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 11990,
+        "jumbo": 12490,
+        "botilleria_ref": 13490
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "gin_bombay_750",
+      "name": "Gin Bombay Sapphire 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 16990,
+        "jumbo": 17490,
+        "botilleria_ref": 18990
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "tequila_jose_cuervo_750",
+      "name": "Tequila José Cuervo Especial Reposado 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 14990,
+        "jumbo": 15490,
+        "botilleria_ref": 16890
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "fernet_branca_750",
+      "name": "Fernet Branca 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 11490,
+        "jumbo": 11990,
+        "botilleria_ref": 12990
+      },
+      "last_verified": "2026-10-08",
+      "unit_volume_ml": 750
     }
   ]
 }
