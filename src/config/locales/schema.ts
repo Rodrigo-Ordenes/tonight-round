@@ -1,22 +1,69 @@
-export type CurrencyCode = "CLP" | "MXN" | "USD";
+export type CountryCode = "CL" | "MX" | "US" | "JP";
+export type CurrencyCode = "CLP" | "MXN" | "USD" | "JPY";
 
 export interface CurrencyConfig {
-  code: CurrencyCode;
+  code: CurrencyCode | string;
   symbol: string;
-  decimals: number;
-  thousandSeparator: string;
-  decimalSeparator: string;
   format: (amount: number) => string;
+  slangName: string; // "lucas", "varos", "bucks", "yenes"
+  decimals?: number;
+  thousandSeparator?: string;
+  decimalSeparator?: string;
+}
+
+export interface TerminologyConfig {
+  partyName: string;        // Carrete / Peda / Party / Nomikai
+  pregameName: string;      // Previa / Precopeo / Pregame / 0次会 (Zero-kai)
+  driverTitle: string;      // Conductor Designado / Piloto / Designated Driver / Daikou (代行)
+  soberStatus: string;      // Sobrio / Ido / Wasted / Yopparai
+}
+
+export interface LegalRegulationConfig {
+  lawName: string;          // Ley Emilia / El Torito / DUI Law / Daikou Law
+  bacLimitText: string;     // "0.30 g/l" / "0.40 g/l" / "0.08%" / "0.00%"
+  disclaimer: string;
+  emergencyNumber: string;  // 131 / 911 / 911 / 119
+  lawsTitle?: string;
+  zeroToleranceLimit?: number; // g/l
+  intoxicationLimit?: number;  // g/l
+  disclaimerText?: string;
+  penaltiesSummary?: string;
+  countryName?: string;
+}
+
+export interface BankingConfig {
+  systemName: string;       // CuentaRUT / SPEI CLABE / Venmo / PayPay
+  fields: string[];         // Campos requeridos para copiar datos
+  copyTemplate: (data: any) => string;
+  commonBanks?: string[];
+  accountTypes?: string[];
+}
+
+export interface DeliveryService {
+  name: string;
+  urlTemplate: string;
+  icon?: string;
+}
+
+export interface DeliveryConfig {
+  services: DeliveryService[];
+}
+
+export interface DrinksConfig {
+  stapleName: string;       // Piscola / Paloma / Hard Seltzer / Highball
+  stapleRatioDefaults: { spirit: number; mixer: number };
+  spiritName?: string;
+  mixerName?: string;
 }
 
 export interface SlangTerms {
-  party: string;           // ej. carrete, peda, party
-  drinking: string;        // ej. tomar, chupar, beber
-  hangover: string;        // ej. caña, cruda, hangover
-  moneyUnit: string;       // ej. lucas, varos, bucks
-  friendGroup: string;     // ej. cabros, compas, crew
-  splitBill: string;       // ej. hacer la vaquita, cooperacha, split
-  signatureDrink: string;  // ej. piscola, michelada, cocktail
+  party: string;
+  drinking: string;
+  hangover: string;
+  moneyUnit: string;
+  friendGroup: string;
+  splitBill: string;
+  signatureDrink: string;
 }
 
 export interface TypicalDrinkOption {
@@ -24,32 +71,29 @@ export interface TypicalDrinkOption {
   name: string;
   shortName: string;
   category: "destilado" | "cerveza" | "vino" | "coctel" | "sin_alcohol";
-  standardAbv: number;       // Alcohol por volumen (ej: 0.35 para 35°)
-  defaultServingMl: number;  // Volumen típico consumido por unidad (ml)
-  alcoholMlPerServing: number; // ml de alcohol puro
+  standardAbv: number;
+  defaultServingMl: number;
+  alcoholMlPerServing: number;
   description: string;
-  mixerRatio?: number;       // Proporción recomendada mixer:destilado (ej. 3 para 3:1)
-}
-
-export interface LegalRegulationConfig {
-  countryName: string;
-  lawsTitle: string;         // ej: "Ley Emilia y Ley de Tolerancia Cero (Chile)"
-  zeroToleranceLimit: number;// g/l (ej: 0.30)
-  intoxicationLimit: number; // g/l (ej: 0.80)
-  disclaimerText: string;
-  penaltiesSummary: string;
-  emergencyNumber: string;   // ej: 133 Carabineros / SAMU 131
+  mixerRatio?: number;
 }
 
 export interface LocaleConfig {
-  locale: string;            // ej: "es-CL"
-  countryCode: "CL" | "MX" | "US";
+  countryCode: CountryCode;
   countryName: string;
+  flag: string;
   currency: CurrencyConfig;
-  slang: SlangTerms;
-  typicalDrinks: TypicalDrinkOption[];
+  terminology: TerminologyConfig;
   legal: LegalRegulationConfig;
-  labels: {
+  banking: BankingConfig;
+  delivery: DeliveryConfig;
+  drinks: DrinksConfig;
+
+  // Extensiones compatibles para no romper código previo
+  locale?: string;
+  slang?: SlangTerms;
+  typicalDrinks?: TypicalDrinkOption[];
+  labels?: {
     appTitle: string;
     tagline: string;
     nav: {
@@ -60,7 +104,7 @@ export interface LocaleConfig {
       dividir: string;
       mitos: string;
     };
-    moments: {
+    moments?: {
       planning: { title: string; subtitle: string };
       live: { title: string; subtitle: string };
       closing: { title: string; subtitle: string };

@@ -15,7 +15,7 @@ import {
   Droplets,
   Package
 } from "lucide-react";
-import clLocale from "@/config/locales/cl";
+import { useLocale } from "@/lib/useLocale";
 import pricesData from "@/data/prices_cl.json";
 import WhatsAppShareButton from "@/components/ui/WhatsAppShareButton";
 
@@ -33,6 +33,7 @@ interface ItemRecommendation {
 }
 
 export default function CarreteCalculator() {
+  const { locale } = useLocale();
   const [attendees, setAttendees] = useState<number>(8);
   const [durationHours, setDurationHours] = useState<number>(5);
   const [preference, setPreference] = useState<PreferenceType>("both");
@@ -287,21 +288,21 @@ export default function CarreteCalculator() {
     text += `📋 *INSUMOS CALCULADOS:*\n`;
 
     calculation.items.forEach((item) => {
-      text += `• ${item.quantity} ${item.unit} de *${item.name}* (~${clLocale.currency.format(
+      text += `• ${item.quantity} ${item.unit} de *${item.name}* (~${locale.currency.format(
         item.totalPrice
       )})\n`;
     });
 
-    text += `\n💰 *PRESUPUESTO ESTIMADO TOTAL:* ${clLocale.currency.format(
+    text += `\n💰 *PRESUPUESTO ESTIMADO TOTAL:* ${locale.currency.format(
       calculation.totalCost
     )}\n`;
-    text += `🎟️ *CUOTA ESTIMADA POR PERSONA:* ${clLocale.currency.format(
+    text += `🎟️ *CUOTA ESTIMADA POR PERSONA:* ${locale.currency.format(
       calculation.costPerPerson
     )}\n\n`;
-    text += `💡 _Calculado en base a precios retail de Chile con Tonight (Copiloto del Carrete) 🇨🇱_`;
+    text += `💡 _Calculado con Tonight (${locale.labels?.tagline || "Copiloto Social"} ${locale.flag})_`;
 
     return text;
-  }, [calculation, preference]);
+  }, [calculation, preference, locale]);
 
   // Budget status comparison
   const budgetNumber = Number(budgetInput.replace(/\D/g, "")) || 0;
@@ -457,18 +458,18 @@ export default function CarreteCalculator() {
                 }`}
               >
                 {budgetDiff >= 0
-                  ? `Sobra ${clLocale.currency.format(budgetDiff)}`
-                  : `Faltan ${clLocale.currency.format(Math.abs(budgetDiff))}`}
+                  ? `Sobra ${locale.currency.format(budgetDiff)}`
+                  : `Faltan ${locale.currency.format(Math.abs(budgetDiff))}`}
               </span>
             )}
           </div>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
-              $
+              {locale.currency.symbol}
             </span>
             <input
               type="text"
-              placeholder="Ej: 50.000 (en lucas)"
+              placeholder={`Ej: 50.000 (${locale.currency.slangName})`}
               value={budgetInput}
               onChange={(e) => {
                 const raw = e.target.value.replace(/\D/g, "");
@@ -488,7 +489,7 @@ export default function CarreteCalculator() {
               Cálculo de Cuota
             </span>
             <div className="text-2xl font-extrabold text-white mt-0.5">
-              {clLocale.currency.format(calculation.costPerPerson)}
+              {locale.currency.format(calculation.costPerPerson)}
               <span className="text-xs font-normal text-slate-400 ml-1.5">/ persona</span>
             </div>
           </div>
@@ -497,7 +498,7 @@ export default function CarreteCalculator() {
               Total Canasta
             </span>
             <div className="text-xl font-bold text-indigo-400 mt-0.5">
-              {clLocale.currency.format(calculation.totalCost)}
+              {locale.currency.format(calculation.totalCost)}
             </div>
           </div>
         </div>
@@ -532,10 +533,10 @@ export default function CarreteCalculator() {
                 </div>
                 <div className="text-right shrink-0">
                   <div className="font-bold text-slate-100">
-                    {clLocale.currency.format(item.totalPrice)}
+                    {locale.currency.format(item.totalPrice)}
                   </div>
                   <span className="text-[10px] text-slate-400">
-                    {clLocale.currency.format(item.unitPrice)} c/u
+                    {locale.currency.format(item.unitPrice)} c/u
                   </span>
                 </div>
               </div>

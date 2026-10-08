@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Copy, Check, ExternalLink, Zap, AlertCircle } from "lucide-react";
 import type { BasketItem, PriceBase } from "@/lib/carreteState";
 import { buildOrderText, STORE_LABEL } from "@/lib/basket";
+import { useLocale } from "@/lib/useLocale";
 
 interface DeliveryTextExporterProps {
   items: BasketItem[];
@@ -14,6 +15,7 @@ export default function DeliveryTextExporter({
   items,
   priceBase,
 }: DeliveryTextExporterProps) {
+  const { locale } = useLocale();
   const [copied, setCopied] = useState(false);
   const [activeMessage, setActiveMessage] = useState<string | null>(null);
 
@@ -42,26 +44,37 @@ export default function DeliveryTextExporter({
     setTimeout(() => setActiveMessage(null), 5000);
   };
 
-  const deliveryApps = [
-    {
-      name: "Rappi",
-      badge: "Turbo 10-25 min",
-      url: `https://www.rappi.cl/search?query=${searchQuery}`,
-      bgClass: "hover:bg-orange-950/40 border-orange-500/40 text-orange-400",
-    },
-    {
-      name: "PedidosYa",
-      badge: "Express 20-30 min",
-      url: `https://www.pedidosya.cl/busqueda?query=${searchQuery}`,
-      bgClass: "hover:bg-red-950/40 border-red-500/40 text-red-400",
-    },
-    {
-      name: "Uber Eats",
-      badge: "Supermercados",
-      url: `https://www.ubereats.com/cl/search?q=${searchQuery}`,
-      bgClass: "hover:bg-emerald-950/40 border-emerald-500/40 text-emerald-400",
-    },
+  const services = locale?.delivery?.services || [
+    { name: "PedidosYa", urlTemplate: "https://www.pedidosya.cl" },
+    { name: "Rappi", urlTemplate: "https://www.rappi.cl" },
+    { name: "Uber Eats", urlTemplate: "https://www.ubereats.com/cl" },
   ];
+
+  const deliveryApps = services.map((s, idx) => {
+    const isRappi = s.name.toLowerCase().includes("rappi");
+    const isPedidos = s.name.toLowerCase().includes("pedidos");
+    const isUber = s.name.toLowerCase().includes("uber");
+    const isDoorDash = s.name.toLowerCase().includes("dash");
+
+    let url = s.urlTemplate;
+    if (url.includes("rappi")) url = `${s.urlTemplate}/search?query=${searchQuery}`;
+    else if (url.includes("pedidosya")) url = `${s.urlTemplate}/busqueda?query=${searchQuery}`;
+    else if (url.includes("ubereats")) url = `${s.urlTemplate}/search?q=${searchQuery}`;
+    else if (url.includes("doordash")) url = `${s.urlTemplate}/search/store/${searchQuery}`;
+
+    return {
+      name: s.name,
+      badge: isRappi ? "Turbo 10-25 min" : isPedidos ? "Express 20-30 min" : isDoorDash ? "DoorPass" : "Supermercados",
+      url,
+      bgClass: isRappi
+        ? "hover:bg-orange-950/40 border-orange-500/40 text-orange-400"
+        : isPedidos
+        ? "hover:bg-red-950/40 border-red-500/40 text-red-400"
+        : isUber
+        ? "hover:bg-emerald-950/40 border-emerald-500/40 text-emerald-400"
+        : "hover:bg-indigo-950/40 border-indigo-500/40 text-indigo-300",
+    };
+  });
 
   return (
     <div className="p-5 rounded-3xl bg-night-900/80 border border-slate-800 space-y-4">

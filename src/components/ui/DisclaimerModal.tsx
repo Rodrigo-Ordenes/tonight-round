@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { AlertTriangle, ShieldCheck, X, Car, PhoneCall } from "lucide-react";
-import clLocale from "@/config/locales/cl";
+import { useLocale } from "@/lib/useLocale";
 
 interface DisclaimerModalProps {
   forceOpen?: boolean;
@@ -13,6 +13,7 @@ export default function DisclaimerModal({
   forceOpen = false,
   onClose,
 }: DisclaimerModalProps) {
+  const { locale } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export default function DisclaimerModal({
                 Consumo Responsable y Marco Legal
               </h3>
               <p className="text-xs font-semibold text-amber-400">
-                {clLocale.legal.lawsTitle}
+                {locale.legal.lawsTitle || locale.legal.lawName}
               </p>
             </div>
           </div>
@@ -70,43 +71,30 @@ export default function DisclaimerModal({
             <Car className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
             <div>
               <p className="font-bold text-amber-300 mb-1">
-                SI BEBES, NUNCA MANEJES. CERO TOLERANCIA.
+                SI BEBES, NUNCA MANEJES. {locale.countryCode === "CL" ? "CERO TOLERANCIA." : "ZERO TOLERANCE."}
               </p>
               <p>
-                {clLocale.legal.disclaimerText}
+                {locale.legal.disclaimerText || locale.legal.disclaimer}
               </p>
             </div>
           </div>
 
           <div className="bg-night-900/80 rounded-2xl p-4 border border-night-800 text-xs space-y-2">
             <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">
-              Límites Legales en Chile
+              Límites Legales en {locale.countryName} ({locale.legal.bacLimitText})
             </h4>
-            <div className="space-y-1.5 text-slate-300">
-              <div className="flex items-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-                <p>
-                  <strong>0.30 a 0.79 g/l:</strong> Bajo la influencia del alcohol.
-                  Sanciones penales y suspensión de licencia de 3 meses a 5 años.
-                </p>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500 mt-1.5 shrink-0" />
-                <p>
-                  <strong>≥ 0.80 g/l:</strong> Estado de ebriedad. Suspensión de 2 años
-                  hasta cancelación perpetua, con penas efectivas de cárcel bajo Ley Emilia.
-                </p>
-              </div>
+            <div className="space-y-1.5 text-slate-300 whitespace-pre-line">
+              <p>{locale.legal.penaltiesSummary || `Límite permitido de alcohol: ${locale.legal.bacLimitText}`}</p>
             </div>
           </div>
 
           <div className="flex items-center justify-between p-3 rounded-2xl bg-night-900 border border-night-800 text-xs">
             <div className="flex items-center gap-2 text-slate-300">
               <PhoneCall className="w-4 h-4 text-emerald-400" />
-              <span>Emergencias Chile:</span>
+              <span>Emergencias {locale.countryName}:</span>
             </div>
-            <span className="font-bold text-emerald-400">
-              {clLocale.legal.emergencyNumber}
+            <span className="font-bold text-emerald-400 font-mono">
+              {locale.legal.emergencyNumber}
             </span>
           </div>
         </div>

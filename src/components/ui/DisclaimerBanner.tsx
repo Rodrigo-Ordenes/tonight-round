@@ -2,19 +2,21 @@
 
 import React from "react";
 import { AlertTriangle, ShieldCheck, Car } from "lucide-react";
-import clLocale from "@/config/locales/cl";
+import { useLocale } from "@/lib/useLocale";
 
 interface DisclaimerBannerProps {
   compact?: boolean;
 }
 
 export default function DisclaimerBanner({ compact = false }: DisclaimerBannerProps) {
+  const { locale } = useLocale();
+
   if (compact) {
     return (
       <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-2.5 text-xs text-amber-200">
         <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
         <span className="leading-snug">
-          <strong>Ley Emilia & Tolerancia Cero:</strong> Prohibido conducir con $\ge 0.3$ g/l de alcohol. Si tomas, no manejes.
+          <strong>{locale.legal.lawName}:</strong> Límite {locale.legal.bacLimitText}. Si tomas, no manejes.
         </span>
       </div>
     );
@@ -29,10 +31,10 @@ export default function DisclaimerBanner({ compact = false }: DisclaimerBannerPr
         <div className="text-xs text-amber-200 leading-relaxed">
           <span className="font-extrabold text-amber-300 uppercase tracking-wide block mb-1 flex items-center gap-2">
             <Car className="w-4 h-4" />
-            <span>Marco Legal Chileno — Consumo Responsable</span>
+            <span>{locale.legal.lawsTitle || locale.legal.lawName} — Consumo Responsable</span>
           </span>
           <p>
-            {clLocale.legal.disclaimerText}
+            {locale.legal.disclaimerText || locale.legal.disclaimer}
           </p>
         </div>
       </div>

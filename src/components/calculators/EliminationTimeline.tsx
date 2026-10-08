@@ -16,7 +16,7 @@ import {
   Sparkles,
   Car
 } from "lucide-react";
-import clLocale from "@/config/locales/cl";
+import { useLocale } from "@/lib/useLocale";
 
 interface DrinkCounter {
   id: string;
@@ -28,6 +28,7 @@ interface DrinkCounter {
 }
 
 export default function EliminationTimeline() {
+  const { locale } = useLocale();
   const [gender, setGender] = useState<"male" | "female">("male");
   const [weightKg, setWeightKg] = useState<number>(75);
   const [hoursElapsed, setHoursElapsed] = useState<number>(2);
@@ -193,7 +194,7 @@ export default function EliminationTimeline() {
               AVISO LEGAL OBLIGATORIO Y REFERENCIAL
             </span>
             <p>
-              {clLocale.legal.disclaimerText}
+              {locale.legal.disclaimerText || locale.legal.disclaimer}
             </p>
           </div>
         </div>

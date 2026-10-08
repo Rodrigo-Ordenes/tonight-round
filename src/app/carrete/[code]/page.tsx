@@ -32,10 +32,12 @@ import CarreteReturnSafe from "@/components/carrete/CarreteReturnSafe";
 import CarreteResurrectionPacing from "@/components/carrete/CarreteResurrectionPacing";
 import CarreteClientController from "@/components/carrete/CarreteClientController";
 import { audioEffects } from "@/lib/audioEffects";
+import { useLocale } from "@/lib/useLocale";
 
 type Tab = "monstruometro" | "juegos" | "retorno" | "pacing";
 
 export default function CarretePage() {
+  const { locale } = useLocale();
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -85,7 +87,7 @@ export default function CarretePage() {
     return (
       <div className="min-h-[50dvh] flex flex-col items-center justify-center space-y-3">
         <div className="w-12 h-12 rounded-full border-4 border-indigo-500/30 border-t-indigo-500 animate-spin" />
-        <p className="text-sm text-slate-300 font-bold">Conectando con el carrete {codeParam}...</p>
+        <p className="text-sm text-slate-300 font-bold">Conectando con {locale.terminology.partyName.toLowerCase()} {codeParam}...</p>
       </div>
     );
   }
@@ -97,9 +99,9 @@ export default function CarretePage() {
         <div className="w-16 h-16 mx-auto rounded-full bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center text-rose-400">
           <AlertTriangle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-black text-white">Carrete No Encontrado</h2>
+        <h2 className="text-xl font-black text-white">{locale.terminology.partyName} No Encontrado</h2>
         <p className="text-sm text-rose-200">
-          El carrete <strong className="font-mono text-white tracking-widest">{codeParam}</strong> no existe. Revisa el código con el host.
+          El {locale.terminology.partyName.toLowerCase()} <strong className="font-mono text-white tracking-widest">{codeParam}</strong> no existe. Revisa el código con el host.
         </p>
         <button
           onClick={() => router.push("/")}
@@ -123,7 +125,7 @@ export default function CarretePage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 font-bold">Carrete Activo:</span>
+              <span className="text-xs text-slate-400 font-bold">{locale.terminology.partyName} Activo:</span>
               <span className="px-2.5 py-0.5 rounded-xl bg-indigo-500/20 text-indigo-300 font-mono font-black text-sm border border-indigo-500/40 tracking-wider">
                 {codeParam}
               </span>

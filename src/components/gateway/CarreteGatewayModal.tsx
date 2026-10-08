@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import { Rocket, KeyRound, Zap, AlertTriangle, Loader2, Play } from "lucide-react";
 import { SOLO, carreteExists, createCarrete, getActiveCode, setActiveCode } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
+import { useLocale } from "@/lib/useLocale";
+import CountrySelector from "@/components/navigation/CountrySelector";
 
 type Step = "main" | "join";
 
 /** Gateway de acceso a pantalla completa: crear carrete, unirse con código o modo solo. */
 export default function CarreteGatewayModal() {
   const router = useRouter();
+  const { locale } = useLocale();
   const [step, setStep] = useState<Step>("main");
   const [chars, setChars] = useState<string[]>(["", "", "", ""]);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +30,9 @@ export default function CarreteGatewayModal() {
     if (step === "join") refs.current[0]?.focus();
   }, [step]);
 
+  const partyTerm = locale?.terminology?.partyName || "Carrete";
+  const partyUpper = partyTerm.toUpperCase();
+
   const create = async () => {
     audioEffects.playPop();
     setBusy(true);
@@ -35,7 +41,7 @@ export default function CarreteGatewayModal() {
       const code = await createCarrete();
       router.push(`/carrete/${code}`);
     } catch {
-      setError("No se pudo crear el carrete. Intenta de nuevo.");
+      setError(`No se pudo crear el ${partyTerm.toLowerCase()}. Intenta de nuevo.`);
       setBusy(false);
     }
   };
@@ -77,7 +83,7 @@ export default function CarreteGatewayModal() {
     setBusy(false);
     if (!ok) {
       audioEffects.playBuzz();
-      setError(`El carrete ${code} no existe. Revisa el código con el host.`);
+      setError(`El ${partyTerm.toLowerCase()} ${code} no existe. Revisa el código con el host.`);
       return;
     }
     setActiveCode(code);
@@ -95,8 +101,13 @@ export default function CarreteGatewayModal() {
           ¿CÓMO ARRANCA LA NOCHE HOY?
         </h1>
         <p className="text-sm text-slate-300">
-          Crea un carrete para compartir juegos y gastos con tus amigos, o entra en modo planificador individual.
+          Crea un {partyTerm.toLowerCase()} para compartir juegos y gastos con tus amigos, o entra en modo planificador individual.
         </p>
+
+        {/* Selector de País e Identidad Cultural */}
+        <div className="pt-1 pb-1">
+          <CountrySelector variant="full" />
+        </div>
 
         {error && (
           <div role="alert" className="flex items-start gap-2 text-left p-3 rounded-2xl bg-rose-950/70 border border-rose-500 text-rose-200 text-sm font-semibold">
@@ -112,7 +123,7 @@ export default function CarreteGatewayModal() {
                 onClick={() => router.push(`/carrete/${resume}`)}
                 className="w-full min-h-[56px] rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm flex items-center justify-center gap-2"
               >
-                <Play className="w-5 h-5" /> CONTINUAR CARRETE {resume}
+                <Play className="w-5 h-5" /> CONTINUAR {partyUpper} {resume}
               </button>
             )}
             <button
@@ -120,7 +131,7 @@ export default function CarreteGatewayModal() {
               disabled={busy}
               className="w-full min-h-[56px] rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
             >
-              {busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <Rocket className="w-5 h-5" />} 🚀 CREAR CARRETE
+              {busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <Rocket className="w-5 h-5" />} 🚀 CREAR {partyUpper}
             </button>
             <button
               onClick={() => {
@@ -129,7 +140,7 @@ export default function CarreteGatewayModal() {
               }}
               className="w-full min-h-[56px] rounded-2xl bg-night-900 border border-indigo-500/40 hover:bg-night-800 text-white font-black text-sm flex items-center justify-center gap-2"
             >
-              <KeyRound className="w-5 h-5" /> 🔑 UNIRME AL CARRETE
+              <KeyRound className="w-5 h-5" /> 🔑 UNIRME AL {partyUpper}
             </button>
             <button
               onClick={solo}

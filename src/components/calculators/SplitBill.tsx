@@ -15,7 +15,10 @@ import {
   Building2,
   DollarSign,
 } from "lucide-react";
-import clLocale from "@/config/locales/cl";
+import clLocale, { COMMON_BANKS_CL, ACCOUNT_TYPES_CL } from "@/config/locales/cl";
+import { COMMON_BANKS_MX } from "@/config/locales/mx";
+import { COMMON_BANKS_JP } from "@/config/locales/jp";
+import { useLocale } from "@/lib/useLocale";
 import WhatsAppShare from "@/components/ui/WhatsAppShare";
 
 interface BankDetails {
@@ -25,30 +28,18 @@ interface BankDetails {
   rut: string;
   holderName: string;
   email: string;
+  // Multi-country fields
+  clabe?: string;
+  concept?: string;
+  venmo?: string;
+  zelle?: string;
+  cashapp?: string;
+  paypayId?: string;
+  linePay?: string;
 }
 
-const COMMON_BANKS_CL = [
-  "BancoEstado (CuentaRUT)",
-  "Banco de Chile / Edwards",
-  "Banco Santander",
-  "BCI / Mach",
-  "Scotiabank",
-  "Itaú",
-  "Banco Falabella",
-  "Banco Ripley",
-  "Banco BICE",
-  "Banco Security",
-  "Tenpo / Prepago",
-  "Mercado Pago",
-];
-
-const ACCOUNT_TYPES_CL = [
-  "CuentaRUT / Vista",
-  "Cuenta Corriente",
-  "Cuenta de Ahorro",
-];
-
 export default function SplitBill() {
+  const { locale } = useLocale();
   const [totalSpent, setTotalSpent] = useState<string>("45000");
   const [peopleCount, setPeopleCount] = useState<number>(6);
   const [tipPercentage, setTipPercentage] = useState<number>(0);
@@ -56,7 +47,7 @@ export default function SplitBill() {
   const [includePayer, setIncludePayer] = useState<boolean>(true);
   const [soberDriversCount, setSoberDriversCount] = useState<number>(1);
   const [alcoholPortionPercent, setAlcoholPortionPercent] = useState<number>(70); // 70% of bill is alcohol
-  const [includeSafeRideFund, setIncludeSafeRideFund] = useState<boolean>(false); // $2.000 fund
+  const [includeSafeRideFund, setIncludeSafeRideFund] = useState<boolean>(false); // safe ride fund
   const [copiedBankPayload, setCopiedBankPayload] = useState<boolean>(false);
 
   // Bank transfer info for the person who paid
@@ -137,8 +128,38 @@ export default function SplitBill() {
 
   // Banking string payload for quick copy
   const bankCompactPayload = useMemo(() => {
+    if (locale.countryCode === "MX") {
+      const parts = [
+        `Monto: ${locale.currency.format(calculation.drinkerPerPerson)}`,
+        bankInfo.holderName ? `Beneficiario: ${bankInfo.holderName}` : "",
+        bankInfo.clabe ? `CLABE: ${bankInfo.clabe}` : "",
+        bankInfo.bank ? `Banco: ${bankInfo.bank}` : "",
+        `Concepto: ${bankInfo.concept || "Peda Tonight"}`,
+      ].filter(Boolean);
+      return parts.join(" | ");
+    } else if (locale.countryCode === "US") {
+      const parts = [
+        `Amount: ${locale.currency.format(calculation.drinkerPerPerson)}`,
+        bankInfo.holderName ? `Name: ${bankInfo.holderName}` : "",
+        bankInfo.venmo ? `Venmo: ${bankInfo.venmo}` : "",
+        bankInfo.zelle ? `Zelle: ${bankInfo.zelle}` : "",
+        bankInfo.cashapp ? `CashApp: ${bankInfo.cashapp}` : "",
+      ].filter(Boolean);
+      return parts.join(" | ");
+    } else if (locale.countryCode === "JP") {
+      const parts = [
+        `金額: ${locale.currency.format(calculation.drinkerPerPerson)}`,
+        bankInfo.holderName ? `幹事: ${bankInfo.holderName}` : "",
+        bankInfo.paypayId ? `PayPay: ${bankInfo.paypayId}` : "",
+        bankInfo.linePay ? `LinePay: ${bankInfo.linePay}` : "",
+        bankInfo.bank ? `銀行: ${bankInfo.bank}` : "",
+      ].filter(Boolean);
+      return parts.join(" | ");
+    }
+
+    // Default Chile
     const parts = [
-      `Monto: ${clLocale.currency.format(calculation.drinkerPerPerson)}`,
+      `Monto: ${locale.currency.format(calculation.drinkerPerPerson)}`,
       bankInfo.holderName ? `Nombre: ${bankInfo.holderName}` : "",
       bankInfo.rut ? `RUT: ${bankInfo.rut}` : "",
       bankInfo.bank ? `${bankInfo.bank} (${bankInfo.accountType})` : "",
@@ -147,7 +168,7 @@ export default function SplitBill() {
       `Asunto: Carrete Tonight`,
     ].filter(Boolean);
     return parts.join(" | ");
-  }, [calculation.drinkerPerPerson, bankInfo]);
+  }, [calculation.drinkerPerPerson, bankInfo, locale]);
 
   const handleCopyBankPayload = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -160,27 +181,46 @@ export default function SplitBill() {
 
   // WhatsApp formatted string
   const whatsAppMessage = useMemo(() => {
-    let msg = `💸 *CUOTA DEL CARRETE* 🍻\n\n`;
-    msg += `📊 *Total compras:* ${clLocale.currency.format(calculation.grandTotal)}\n`;
+    const partyUpper = (locale.terminology.partyName || "CARRETE").toUpperCase();
+    let msg = `💸 *CUOTA DE LA ${partyUpper}* ${locale.flag}\n\n`;
+    msg += `📊 *Total compras:* ${locale.currency.format(calculation.grandTotal)}\n`;
     if (calculation.tipAmount > 0) {
-      msg += `• Propina (${tipPercentage}%): ${clLocale.currency.format(calculation.tipAmount)}\n`;
+      msg += `• Propina (${tipPercentage}%): ${locale.currency.format(calculation.tipAmount)}\n`;
     }
     if (calculation.deliveryFee > 0) {
-      msg += `• Delivery / Envío: ${clLocale.currency.format(calculation.deliveryFee)}\n`;
+      msg += `• Delivery / Envío: ${locale.currency.format(calculation.deliveryFee)}\n`;
     }
     if (calculation.safeRideTotal > 0) {
-      msg += `• Fondo Auto Seguro ($2.000 c/u): ${clLocale.currency.format(calculation.safeRideTotal)}\n`;
+      msg += `• Fondo Transporte Seguro: ${locale.currency.format(calculation.safeRideTotal)}\n`;
     }
     msg += `👥 *Total asistentes:* ${calculation.totalPeople} personas\n\n`;
 
     if (calculation.drivers > 0) {
-      msg += `🍻 *Cuota Quienes Beben (${calculation.drinkers} pers):* *${clLocale.currency.format(calculation.drinkerPerPerson)}*\n`;
-      msg += `🚗 *Cuota Conductor(es) Designado(s) (${calculation.drivers} pers - Exento de alcohol):* *${clLocale.currency.format(calculation.driverPerPerson)}*\n\n`;
+      msg += `🍻 *Cuota Quienes Beben (${calculation.drinkers} pers):* *${locale.currency.format(calculation.drinkerPerPerson)}*\n`;
+      msg += `🚗 *${locale.terminology.driverTitle} (${calculation.drivers} pers - Exento de alcohol):* *${locale.currency.format(calculation.driverPerPerson)}*\n\n`;
     } else {
-      msg += `💰 *CUOTA POR PERSONA:* *${clLocale.currency.format(calculation.drinkerPerPerson)}*\n\n`;
+      msg += `💰 *CUOTA POR PERSONA:* *${locale.currency.format(calculation.drinkerPerPerson)}*\n\n`;
     }
 
-    if (bankInfo.holderName || bankInfo.rut || bankInfo.accountNumber) {
+    if (locale.countryCode === "MX" && (bankInfo.clabe || bankInfo.holderName)) {
+      msg += `💳 *DATOS DE TRANSFERENCIA SPEI (MÉXICO):*\n`;
+      if (bankInfo.holderName) msg += `• *Beneficiario:* ${bankInfo.holderName}\n`;
+      if (bankInfo.clabe) msg += `• *CLABE (18 dígitos):* ${bankInfo.clabe}\n`;
+      if (bankInfo.bank) msg += `• *Banco:* ${bankInfo.bank}\n`;
+      msg += `• *Concepto:* ${bankInfo.concept || "Peda Tonight"}\n`;
+    } else if (locale.countryCode === "US" && (bankInfo.venmo || bankInfo.zelle || bankInfo.cashapp)) {
+      msg += `💳 *PAYMENT INFO (US):*\n`;
+      if (bankInfo.holderName) msg += `• *Host:* ${bankInfo.holderName}\n`;
+      if (bankInfo.venmo) msg += `• *Venmo:* ${bankInfo.venmo}\n`;
+      if (bankInfo.zelle) msg += `• *Zelle:* ${bankInfo.zelle}\n`;
+      if (bankInfo.cashapp) msg += `• *Cash App:* ${bankInfo.cashapp}\n`;
+    } else if (locale.countryCode === "JP" && (bankInfo.paypayId || bankInfo.linePay)) {
+      msg += `🍶 *割り勘 送金先 (JAPÓN):*\n`;
+      if (bankInfo.holderName) msg += `• *幹事:* ${bankInfo.holderName}\n`;
+      if (bankInfo.paypayId) msg += `• *PayPay ID:* ${bankInfo.paypayId}\n`;
+      if (bankInfo.linePay) msg += `• *Line Pay:* ${bankInfo.linePay}\n`;
+      if (bankInfo.bank) msg += `• *銀行:* ${bankInfo.bank}\n`;
+    } else if (bankInfo.holderName || bankInfo.rut || bankInfo.accountNumber) {
       msg += `💳 *DATOS DE TRANSFERENCIA:*\n`;
       if (bankInfo.holderName) msg += `• *Nombre:* ${bankInfo.holderName}\n`;
       if (bankInfo.rut) msg += `• *RUT:* ${bankInfo.rut}\n`;
@@ -192,9 +232,9 @@ export default function SplitBill() {
       msg += `📲 _Pídele los datos de transferencia a quien pagó para depositar su cuota._\n`;
     }
 
-    msg += `\n✨ _Calculado con Tonight (Copiloto del Carrete 🇨🇱)_`;
+    msg += `\n✨ _Calculado con Tonight (${locale.labels?.tagline || "Copiloto Social"} ${locale.flag})_`;
     return msg;
-  }, [calculation, tipPercentage, bankInfo]);
+  }, [calculation, tipPercentage, bankInfo, locale]);
 
   return (
     <div className="space-y-6">
@@ -412,97 +452,281 @@ export default function SplitBill() {
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-              Nombre de quien recibe
-            </label>
-            <input
-              type="text"
-              placeholder="Ej: Rodrigo González"
-              value={bankInfo.holderName}
-              onChange={(e) =>
-                setBankInfo({ ...bankInfo, holderName: e.target.value })
-              }
-              className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
-            />
-          </div>
+          {locale.countryCode === "MX" ? (
+            <>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Nombre del Beneficiario
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Carlos Mendoza"
+                  value={bankInfo.holderName}
+                  onChange={(e) =>
+                    setBankInfo({ ...bankInfo, holderName: e.target.value })
+                  }
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
 
-          <div>
-            <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-              RUT
-            </label>
-            <input
-              type="text"
-              placeholder="Ej: 18.234.567-8"
-              value={bankInfo.rut}
-              onChange={(e) => setBankInfo({ ...bankInfo, rut: e.target.value })}
-              className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
-            />
-          </div>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  CLABE Interbancaria (18 dígitos)
+                </label>
+                <input
+                  type="text"
+                  maxLength={18}
+                  placeholder="Ej: 012180001234567890"
+                  value={bankInfo.clabe || ""}
+                  onChange={(e) => setBankInfo({ ...bankInfo, clabe: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
 
-          <div>
-            <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-              Banco
-            </label>
-            <select
-              value={bankInfo.bank}
-              onChange={(e) => setBankInfo({ ...bankInfo, bank: e.target.value })}
-              className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
-            >
-              {COMMON_BANKS_CL.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
-          </div>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Banco (México)
+                </label>
+                <select
+                  value={bankInfo.bank}
+                  onChange={(e) => setBankInfo({ ...bankInfo, bank: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="">Selecciona Banco</option>
+                  {COMMON_BANKS_MX.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div>
-            <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-              Tipo de Cuenta
-            </label>
-            <select
-              value={bankInfo.accountType}
-              onChange={(e) =>
-                setBankInfo({ ...bankInfo, accountType: e.target.value })
-              }
-              className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
-            >
-              {ACCOUNT_TYPES_CL.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Concepto de pago sugerido
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Peda Tonight"
+                  value={bankInfo.concept || ""}
+                  onChange={(e) => setBankInfo({ ...bankInfo, concept: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+            </>
+          ) : locale.countryCode === "US" ? (
+            <>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Host / Organizer Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Alex Miller"
+                  value={bankInfo.holderName}
+                  onChange={(e) =>
+                    setBankInfo({ ...bankInfo, holderName: e.target.value })
+                  }
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
 
-          <div>
-            <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-              N° de Cuenta
-            </label>
-            <input
-              type="text"
-              placeholder="Ej: 18234567 (o RUT para CuentaRUT)"
-              value={bankInfo.accountNumber}
-              onChange={(e) =>
-                setBankInfo({ ...bankInfo, accountNumber: e.target.value })
-              }
-              className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
-            />
-          </div>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Venmo Handle (@)
+                </label>
+                <input
+                  type="text"
+                  placeholder="@your-venmo"
+                  value={bankInfo.venmo || ""}
+                  onChange={(e) => setBankInfo({ ...bankInfo, venmo: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
 
-          <div>
-            <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-              Email para comprobante
-            </label>
-            <input
-              type="email"
-              placeholder="tu.correo@gmail.com"
-              value={bankInfo.email}
-              onChange={(e) => setBankInfo({ ...bankInfo, email: e.target.value })}
-              className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
-            />
-          </div>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Zelle (Phone or Email)
+                </label>
+                <input
+                  type="text"
+                  placeholder="555-0199 or name@gmail.com"
+                  value={bankInfo.zelle || ""}
+                  onChange={(e) => setBankInfo({ ...bankInfo, zelle: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Cash App ($cashtag)
+                </label>
+                <input
+                  type="text"
+                  placeholder="$yourCashtag"
+                  value={bankInfo.cashapp || ""}
+                  onChange={(e) => setBankInfo({ ...bankInfo, cashapp: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+            </>
+          ) : locale.countryCode === "JP" ? (
+            <>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  幹事 (受取人名)
+                </label>
+                <input
+                  type="text"
+                  placeholder="例: 田中 太郎"
+                  value={bankInfo.holderName}
+                  onChange={(e) =>
+                    setBankInfo({ ...bankInfo, holderName: e.target.value })
+                  }
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  PayPay ID
+                </label>
+                <input
+                  type="text"
+                  placeholder="例: paypay_id_123"
+                  value={bankInfo.paypayId || ""}
+                  onChange={(e) => setBankInfo({ ...bankInfo, paypayId: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Line Pay
+                </label>
+                <input
+                  type="text"
+                  placeholder="例: line_id_nomikai"
+                  value={bankInfo.linePay || ""}
+                  onChange={(e) => setBankInfo({ ...bankInfo, linePay: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  銀行口座 (送金先)
+                </label>
+                <select
+                  value={bankInfo.bank}
+                  onChange={(e) => setBankInfo({ ...bankInfo, bank: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="">銀行を選択</option>
+                  {COMMON_BANKS_JP.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          ) : (
+            /* Chile (Default) */
+            <>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Nombre de quien recibe
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Rodrigo González"
+                  value={bankInfo.holderName}
+                  onChange={(e) =>
+                    setBankInfo({ ...bankInfo, holderName: e.target.value })
+                  }
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  RUT
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: 18.234.567-8"
+                  value={bankInfo.rut}
+                  onChange={(e) => setBankInfo({ ...bankInfo, rut: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Banco
+                </label>
+                <select
+                  value={bankInfo.bank}
+                  onChange={(e) => setBankInfo({ ...bankInfo, bank: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                >
+                  {COMMON_BANKS_CL.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Tipo de Cuenta
+                </label>
+                <select
+                  value={bankInfo.accountType}
+                  onChange={(e) =>
+                    setBankInfo({ ...bankInfo, accountType: e.target.value })
+                  }
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                >
+                  {ACCOUNT_TYPES_CL.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  N° de Cuenta
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: 18234567 (o RUT para CuentaRUT)"
+                  value={bankInfo.accountNumber}
+                  onChange={(e) =>
+                    setBankInfo({ ...bankInfo, accountNumber: e.target.value })
+                  }
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Email para comprobante
+                </label>
+                <input
+                  type="email"
+                  placeholder="tu.correo@gmail.com"
+                  value={bankInfo.email}
+                  onChange={(e) => setBankInfo({ ...bankInfo, email: e.target.value })}
+                  className="w-full min-h-[44px] bg-night-900 border border-night-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -514,11 +738,11 @@ export default function SplitBill() {
               {calculation.drivers > 0 ? "Cuota Quienes Beben" : "Cuota por persona"}
             </span>
             <div className="text-3xl font-extrabold text-emerald-400 mt-1">
-              {clLocale.currency.format(calculation.drinkerPerPerson)}
+              {locale.currency.format(calculation.drinkerPerPerson)}
             </div>
             {calculation.drivers > 0 && (
               <span className="text-xs text-emerald-300 font-bold block mt-1">
-                🚗 Conductor(es) paga(n): {clLocale.currency.format(calculation.driverPerPerson)} (exento de alcohol)
+                🚗 {locale.terminology.driverTitle}: {locale.currency.format(calculation.driverPerPerson)} (exento de alcohol)
               </span>
             )}
           </div>
@@ -527,10 +751,10 @@ export default function SplitBill() {
               Total compras + extras
             </span>
             <div className="text-xl font-bold text-white mt-1">
-              {clLocale.currency.format(calculation.grandTotal)}
+              {locale.currency.format(calculation.grandTotal)}
             </div>
             <span className="text-[11px] text-slate-400">
-              {calculation.totalPeople} personas en la junta
+              {calculation.totalPeople} personas en la reunión
             </span>
           </div>
         </div>
@@ -540,7 +764,7 @@ export default function SplitBill() {
           <div className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-night-900 border border-slate-700 text-xs">
             <div className="min-w-0 pr-2">
               <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                Copia rápida para app bancaria (CuentaRUT / MACH / Tenpo):
+                Copia rápida para app ({locale.banking.systemName}):
               </span>
               <span className="font-mono text-slate-200 truncate block text-[11px]">
                 {bankCompactPayload}

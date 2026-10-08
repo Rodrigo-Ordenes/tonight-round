@@ -4,16 +4,81 @@ export const usLocale: LocaleConfig = {
   locale: "en-US",
   countryCode: "US",
   countryName: "United States",
+  flag: "🇺🇸",
+
   currency: {
     code: "USD",
     symbol: "$",
     decimals: 2,
     thousandSeparator: ",",
     decimalSeparator: ".",
+    slangName: "bucks",
     format: (amount: number) => {
       return `$${amount.toFixed(2)} USD`;
     },
   },
+
+  terminology: {
+    partyName: "Party",
+    pregameName: "Pregame",
+    driverTitle: "Designated Driver (DD)",
+    soberStatus: "Sober / Good to drive",
+  },
+
+  legal: {
+    lawName: "DUI Federal & State Laws (BAC 0.08% Limit)",
+    lawsTitle: "DUI Laws (BAC 0.08% Legal Limit & Zero Tolerance Under 21)",
+    bacLimitText: "0.08% BAC",
+    zeroToleranceLimit: 0.08,
+    intoxicationLimit: 0.15,
+    disclaimer:
+      "In the United States, driving with a BAC of 0.08% or higher is illegal in all 50 states (0.05% in Utah). Strict Zero Tolerance applies to drivers under 21 (0.00% to 0.02%). Never drink and drive.",
+    disclaimerText:
+      "This calculator is strictly educational. Driving with a Blood Alcohol Concentration (BAC) of 0.08% or higher is a criminal offense in all 50 states (0.05% in Utah). Drivers under the age of 21 face strict Zero Tolerance laws (0.00% - 0.02%). Biological alcohol metabolism depends on multiple unique factors. Never drive under the influence.",
+    penaltiesSummary:
+      "• 1st offense DUI: Driver's license suspension (3-12 months), mandatory alcohol education, fines up to $2,000, and potential jail time.",
+    emergencyNumber: "911 (US Emergency Services)",
+    countryName: "United States",
+  },
+
+  banking: {
+    systemName: "Venmo / Zelle / Cash App",
+    fields: ["Venmo Handle (@)", "Zelle (Phone or Email)", "Cash App ($cashtag)"],
+    copyTemplate: (data: {
+      venmo?: string;
+      zelle?: string;
+      cashapp?: string;
+      amount?: number;
+      holderName?: string;
+    }) => {
+      const lines = [
+        "🍕 *PARTY SPLIT TAB REQUEST* 🇺🇸",
+        data.amount ? `💵 Split per person: $${data.amount.toFixed(2)} USD` : "",
+        data.holderName ? `👤 Host: ${data.holderName}` : "",
+        data.venmo ? `📱 Venmo: ${data.venmo}` : "",
+        data.zelle ? `🏦 Zelle: ${data.zelle}` : "",
+        data.cashapp ? `💸 Cash App: ${data.cashapp}` : "",
+        "\n_Send your split via Venmo, Zelle or Cash App._",
+      ];
+      return lines.filter(Boolean).join("\n");
+    },
+  },
+
+  delivery: {
+    services: [
+      { name: "DoorDash", urlTemplate: "https://www.doordash.com" },
+      { name: "Uber Eats US", urlTemplate: "https://www.ubereats.com" },
+      { name: "Instacart", urlTemplate: "https://www.instacart.com" },
+    ],
+  },
+
+  drinks: {
+    stapleName: "Hard Seltzer / Bourbon & Coke",
+    stapleRatioDefaults: { spirit: 30, mixer: 70 },
+    spiritName: "Bourbon / Vodka",
+    mixerName: "Soda / Seltzer / Cola",
+  },
+
   slang: {
     party: "party / pregame",
     drinking: "drinking / partying",
@@ -23,6 +88,7 @@ export const usLocale: LocaleConfig = {
     splitBill: "split the tab / Venmo request",
     signatureDrink: "hard seltzer / craft IPA",
   },
+
   typicalDrinks: [
     {
       id: "hard_seltzer",
@@ -54,42 +120,28 @@ export const usLocale: LocaleConfig = {
       alcoholMlPerServing: 14.08,
       description: "Standard American 1.5oz shot.",
     },
+    {
+      id: "vodka_soda",
+      name: "Vodka Soda with Lime (1.5oz spirit, ~12% ABV)",
+      shortName: "Vodka Soda",
+      category: "coctel",
+      standardAbv: 0.12,
+      defaultServingMl: 200,
+      alcoholMlPerServing: 17.6,
+      description: "Vodka with club soda and fresh lime wedge.",
+    },
   ],
-  legal: {
-    countryName: "United States",
-    lawsTitle: "DUI Laws (BAC 0.08% Legal Limit & Zero Tolerance Under 21)",
-    zeroToleranceLimit: 0.02,
-    intoxicationLimit: 0.08,
-    disclaimerText:
-      "This calculator is strictly educational. In the United States, driving with a BAC of 0.08% or higher is illegal across all 50 states (DUI/DWI), carrying immediate license suspension, steep fines, and mandatory jail time. Strict Zero Tolerance applies to drivers under 21. Never drink and drive.",
-    penaltiesSummary:
-      "• BAC ≥ 0.08%: Criminal DUI arrest, license suspension, ignition interlock device, and high insurance penalties.",
-    emergencyNumber: "911 (US Emergency Services)",
-  },
+
   labels: {
     appTitle: "Tonight",
-    tagline: "The Ultimate Party Copilot",
+    tagline: "The Party Copilot",
     nav: {
       home: "Home",
-      armar: "Party Plan",
+      armar: "Plan Party",
       juegos: "Games",
-      tiempo: "BAC Timer",
+      tiempo: "Sober Clock",
       dividir: "Split Tab",
       mitos: "Hangover Myths",
-    },
-    moments: {
-      planning: {
-        title: "Afternoon / Pregame Prep",
-        subtitle: "Calculate drinks, mixers, ice and per-person cost.",
-      },
-      live: {
-        title: "Night / At the Party",
-        subtitle: "Interactive games, Smart TV sync and driver protection.",
-      },
-      closing: {
-        title: "Late Night / Heading Home",
-        subtitle: "Split the tab on Venmo, hail an Uber and safe check-in.",
-      },
     },
   },
 };

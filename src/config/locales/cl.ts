@@ -1,20 +1,112 @@
 import { LocaleConfig } from "./schema";
 
+export const COMMON_BANKS_CL = [
+  "BancoEstado (CuentaRUT)",
+  "Banco de Chile / Edwards",
+  "Banco Santander",
+  "BCI / Mach",
+  "Scotiabank",
+  "Itaú",
+  "Banco Falabella",
+  "Banco Ripley",
+  "Banco BICE",
+  "Banco Security",
+  "Tenpo / Prepago",
+  "Mercado Pago",
+];
+
+export const ACCOUNT_TYPES_CL = [
+  "CuentaRUT / Vista",
+  "Cuenta Corriente",
+  "Cuenta de Ahorro",
+];
+
 export const clLocale: LocaleConfig = {
   locale: "es-CL",
   countryCode: "CL",
   countryName: "Chile",
+  flag: "🇨🇱",
+
   currency: {
     code: "CLP",
     symbol: "$",
     decimals: 0,
     thousandSeparator: ".",
     decimalSeparator: ",",
+    slangName: "lucas",
     format: (amount: number) => {
       const rounded = Math.round(amount);
       return `$${rounded.toLocaleString("es-CL")}`;
     },
   },
+
+  terminology: {
+    partyName: "Carrete",
+    pregameName: "Previa",
+    driverTitle: "Piloto 0.0 (Conductor Designado)",
+    soberStatus: "Sobrio",
+  },
+
+  legal: {
+    lawName: "Ley Emilia y Ley de Tolerancia Cero (Chile)",
+    lawsTitle: "Ley Emilia y Ley de Tolerancia Cero (Chile)",
+    bacLimitText: "0.30 g/l",
+    zeroToleranceLimit: 0.3,
+    intoxicationLimit: 0.8,
+    disclaimer:
+      "Esta calculadora es pedagógica y de divulgación. En Chile rige Tolerancia Cero (Ley N° 20.580) y Ley Emilia (Ley N° 20.770). Cualquier concentración desde 0.30 g/l conlleva sanciones penales y retiro inmediato de licencia. Nunca manejes si has consumido alcohol.",
+    disclaimerText:
+      "Esta calculadora es exclusivamente pedagógica y referencial. La metabolización varía según factores biológicos individuales (enzimas hepáticas, masa magra, alimentación, hidratación, etc.). Bajo la legislación chilena (Ley Emilia y Tolerancia Cero), cualquier concentración desde 0.3 g/l es penalizada con retiro de licencia y sanciones penales. NUNCA uses esta estimación para determinar si puedes conducir. Si bebes, no manejes.",
+    penaltiesSummary:
+      "• 0.30 a 0.79 g/l: Bajo la influencia del alcohol (suspensión de licencia por 3 meses a 5 años según reincidencia y daños).\n• ≥ 0.80 g/l: Estado de ebriedad (suspensión de 2 años hasta cancelación perpetua de licencia, además de penas de cárcel de 3 años y un día a 10 años en caso de lesiones graves o muerte bajo Ley Emilia).",
+    emergencyNumber: "131 (SAMU) / 133 (Carabineros)",
+    countryName: "Chile",
+  },
+
+  banking: {
+    systemName: "BancoEstado (CuentaRUT) / Transferencia",
+    fields: ["Titular", "RUT", "Banco", "Tipo de Cuenta", "N° de Cuenta", "Email"],
+    commonBanks: COMMON_BANKS_CL,
+    accountTypes: ACCOUNT_TYPES_CL,
+    copyTemplate: (data: {
+      holderName?: string;
+      rut?: string;
+      bank?: string;
+      accountType?: string;
+      accountNumber?: string;
+      email?: string;
+      amount?: number;
+    }) => {
+      const lines = [
+        "🍻 *DATOS DE TRANSFERENCIA (CUOTA CARRETE)* 🇨🇱",
+        data.amount ? `💰 Monto por persona: $${Math.round(data.amount).toLocaleString("es-CL")}` : "",
+        data.holderName ? `👤 Nombre: ${data.holderName}` : "",
+        data.rut ? `🆔 RUT: ${data.rut}` : "",
+        data.bank ? `🏦 Banco: ${data.bank}` : "",
+        data.accountType ? `📋 Tipo: ${data.accountType}` : "",
+        data.accountNumber ? `🔢 Cuenta: ${data.accountNumber}` : "",
+        data.email ? `✉️ Correo: ${data.email}` : "",
+        "\n_Copia y pega en tu app bancaria (BancoEstado, Santander, Mach, etc.)_",
+      ];
+      return lines.filter(Boolean).join("\n");
+    },
+  },
+
+  delivery: {
+    services: [
+      { name: "PedidosYa", urlTemplate: "https://www.pedidosya.cl" },
+      { name: "Rappi Chile", urlTemplate: "https://www.rappi.cl" },
+      { name: "Uber Eats", urlTemplate: "https://www.ubereats.com/cl" },
+    ],
+  },
+
+  drinks: {
+    stapleName: "Piscola",
+    stapleRatioDefaults: { spirit: 30, mixer: 70 },
+    spiritName: "Pisco 35° / 40°",
+    mixerName: "Bebida Cola",
+  },
+
   slang: {
     party: "carrete",
     drinking: "tomar / chupar",
@@ -24,6 +116,7 @@ export const clLocale: LocaleConfig = {
     splitBill: "hacer la vaca / pagar la cuota",
     signatureDrink: "piscola",
   },
+
   typicalDrinks: [
     {
       id: "piscola_35",
@@ -31,7 +124,7 @@ export const clLocale: LocaleConfig = {
       shortName: "Piscola 35°",
       category: "destilado",
       standardAbv: 0.35,
-      defaultServingMl: 60, // 60ml de pisco en vaso de 350-500cc
+      defaultServingMl: 60,
       alcoholMlPerServing: 21,
       mixerRatio: 3,
       description: "El trago insignia de Chile: pisco chileno de 35° con bebida cola y hielo.",
@@ -121,17 +214,7 @@ export const clLocale: LocaleConfig = {
       description: "Pipeño con helado de piña y toque de granadina o fernet.",
     },
   ],
-  legal: {
-    countryName: "Chile",
-    lawsTitle: "Ley Emilia y Ley de Tolerancia Cero (Chile)",
-    zeroToleranceLimit: 0.3,
-    intoxicationLimit: 0.8,
-    disclaimerText:
-      "Esta calculadora es exclusivamente pedagógica y referencial. La metabolización varía según factores biológicos individuales (enzimas hepáticas, masa magra, alimentación, hidratación, etc.). Bajo la legislación chilena (Ley Emilia y Tolerancia Cero), cualquier concentración desde 0.3 g/l es penalizada con retiro de licencia y sanciones penales. NUNCA uses esta estimación para determinar si puedes conducir. Si bebes, no manejes.",
-    penaltiesSummary:
-      "• 0.30 a 0.79 g/l: Bajo la influencia del alcohol (suspensión de licencia por 3 meses a 5 años según reincidencia y daños).\n• ≥ 0.80 g/l: Estado de ebriedad (suspensión de 2 años hasta cancelación perpetua de licencia, además de penas de cárcel de 3 años y un día a 10 años en caso de lesiones graves o muerte bajo Ley Emilia).",
-    emergencyNumber: "133 (Carabineros) / 131 (SAMU)",
-  },
+
   labels: {
     appTitle: "Tonight",
     tagline: "Copiloto del Carrete",

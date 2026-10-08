@@ -7,6 +7,8 @@ import { ArrowLeft, ChevronRight, Home, ShoppingCart, GlassWater, Gamepad2, Rece
 import { useActiveCode } from "@/lib/useActiveCode";
 import { SOLO, setActiveCode } from "@/store/useCarreteStore";
 
+import CountrySelector from "./CountrySelector";
+
 const SECTION_LABEL: Record<string, string> = {
   armar: "Armar",
   bar: "Bar",
@@ -72,7 +74,7 @@ export default function GlobalNavbar() {
             <span className="text-xl">🌙</span>
             <span>TONIGHT</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
-              V8
+              V9
             </span>
           </Link>
 
@@ -95,18 +97,22 @@ export default function GlobalNavbar() {
             </nav>
           )}
 
-          <div className="ml-auto hidden md:flex items-center gap-1">
-            {NAV.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`min-h-[48px] px-3 rounded-xl text-sm font-bold flex items-center ${
-                  pathname.startsWith(href) ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-white/10"
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
+          <div className="ml-auto flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1">
+              {NAV.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`min-h-[48px] px-3 rounded-xl text-sm font-bold flex items-center ${
+                    pathname.startsWith(href) ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-white/10"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            <CountrySelector variant="compact" />
           </div>
         </div>
       </header>
