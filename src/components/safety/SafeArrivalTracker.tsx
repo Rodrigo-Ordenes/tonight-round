@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import confetti from "canvas-confetti";
+import { fireConfetti } from "@/lib/confetti";
 import { Home, Navigation, CheckCircle2, Users, Heart } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
@@ -16,7 +16,7 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
   const handleTransitStatus = (pId: string, status: "party" | "transit" | "safe") => {
     if (status === "safe") {
       audioEffects.playSuccessChime();
-      confetti({
+      fireConfetti({
         particleCount: 65,
         spread: 75,
         origin: { y: 0.75 },

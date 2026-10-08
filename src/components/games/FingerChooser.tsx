@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import confetti from "canvas-confetti";
+import { fireConfetti } from "@/lib/confetti";
 import { 
   Hand, 
   RotateCcw, 
@@ -111,7 +111,7 @@ export default function FingerChooser() {
 
           triggerHaptic([100, 80, 200]);
 
-          confetti({
+          fireConfetti({
             particleCount: 70,
             spread: 60,
             origin: {
@@ -221,7 +221,7 @@ export default function FingerChooser() {
           setSelectedFingerId(chosen.id);
           setCountdown(null);
 
-          confetti({
+          fireConfetti({
             particleCount: 60,
             spread: 60,
             colors: [chosen.color, "#ffffff", "#f59e0b"],

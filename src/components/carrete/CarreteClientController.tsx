@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import confetti from "canvas-confetti";
+import { fireConfetti } from "@/lib/confetti";
 import {
   Smartphone,
   Car,
@@ -90,7 +90,7 @@ export default function CarreteClientController({ store }: CarreteClientControll
   const handleSafeCheckIn = () => {
     if (!currentParticipant) return;
     audioEffects.playSuccessChime();
-    confetti({
+    fireConfetti({
       particleCount: 50,
       spread: 60,
       origin: { y: 0.8 },
