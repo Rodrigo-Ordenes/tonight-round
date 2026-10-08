@@ -1,127 +1,199 @@
-# 🌙 Tonight / Round — Sistema Operativo de la Vida Social Nocturna (V3 Global) 🌐
+# 🌙 Tonight / Copiloto del Carrete — Sistema Operativo Social Nocturno (V9 Master Blueprint) 🌐
 
-Web app gratuita, ultra-rápida, mobile-first y optimizada para Smart TV sin muros de pago ni registros forzados. Transforma una simple calculadora en una **plataforma social sincrónica para carretes, fiestas y reuniones en todo el mundo**.
+Web application gratuita, ultra-rápida, mobile-first y optimizada para Smart TV sin muros de pago ni registros forzados. Transforma la clásica calculadora de insumos en una **plataforma social sincrónica para carretes, fiestas y reuniones en todo el mundo**.
 
 > *"Todo lo que necesitas para organizar, gozar y cuidar la noche, en un solo lugar."*
 
 ---
 
-## 🏆 Diagnóstico & Visión Estratégica V3
+## 🧭 Invariantes y Principios de Diseño
 
-Las webs de fiestas tradicionales fracasan porque son **herramientas desechables** (el usuario entra 3 minutos a calcular botellas, cierra la pestaña y nunca más regresa). 
-
-**Tonight V3** supera este riesgo convirtiéndose en el **sistema operativo de la fiesta**, combinando:
-1. La practicidad de división de gastos y cobro de **Splitwise**.
-2. El efecto multijugador viral de salas y controles de **Jackbox Games**.
-3. La logística en 1 clic de carritos y delivery express de **Partiful / Drizly**.
-4. La seguridad y cuidado mutuo con conductor designado y check-in seguro de **Uber**.
+1. **Cero Fricción:** 100% gratuita, sin pantallas de login forzado, descargas obligatorias de tiendas ni muros de pago.
+2. **Identidad Chilena Intacta (Default Cultural):** Preservación total del lore chileno (Piscola 70/30 y 60/40, lucas, CuentaRUT, BancoEstado, Ley Emilia y Ley de Tolerancia Cero), desacoplado limpiamente para coexistir con México 🇲🇽, EE.UU. 🇺🇸 y Japón 🇯🇵.
+3. **Dark Mode OLED:** Paleta Obsidian (`#060911` / `#090d16`), tarjetas Midnight (`#0D1322`) y acentos neón calibrados (Violeta, Fucsia, Esmeralda, Ámbar y Rojo).
+4. **Marco Legal Estricto y Educación:** Advertencias de tolerancia cero al volante. Los cálculos biológicos de Widmark son estrictamente educativos y **nunca** emiten un "visto bueno" o veredicto de aptitud para conducir.
+5. **Scraping Batch Offline:** Los precios y canastas se consultan desde datos estáticos optimizados (`src/data/prices_cl.json`), garantizando disponibilidad y rapidez inmediata sin scraping frágil en el navegador.
 
 ---
 
-## 🚀 Los 4 Pilares Estratégicos de la Plataforma Global
+## 🚀 Módulos y Arquitectura de Navegación
 
-### 1. 📺 Sincronización en Vivo sin Registro ("Efecto Jackbox" / Salas Efímeras `/sala`)
-- **Código de 4 Letras o QR:** El anfitrión crea una sala en segundos (ej. `tonight.app/sala/LIT1`).
-- **Pantalla de Smart TV / Monitor = Host Central:** Muestra el código de sala, el código QR gigante, el estado de los amigos conectados y las dinámicas en juego.
-- **Celulares de los Invitados = Mandos de Control:** Cada participante se une desde su smartphone, suma sus tragos a su ficha, envía preguntas de confesión anónimas y marca su check-in.
-- **Factor Viral (K > 2.5):** Un anfitrión expone la app directamente a 10-15 personas que la juegan activamente en su propio smartphone.
+### 1. 🚪 Gateway de Entrada (`/`)
+- **Aislamiento de Sesión:** Cada usuario inicia en un portal limpio sin arrastrar datos residuales de sesiones previas.
+- **Creación de Carrete:** Generación instantánea de códigos alfanuméricos de 4 caracteres (ej. `PREV`, `LIT1`).
+- **Unión por PIN:** Input táctil segmentado con auto-focus secuencial y transformación a mayúsculas.
+- **Modo Solo / Planificador:** Acceso instantáneo a las calculadoras y simuladores sin necesidad de sincronizar con otros dispositivos.
+- **Selector Dinámico de País:** Selector visual para alternar en cualquier momento entre Chile 🇨🇱, México 🇲🇽, EE.UU. 🇺🇸 y Japón 🇯🇵.
 
-### 2. ⚡ Logística de Compra en 1 Clic (Deep Links a Delivery)
-- Integra accesos directos con búsqueda pre-cargada a las principales apps de delivery:
-  - 🇨🇱 **Chile:** Rappi, PedidosYa, Uber Eats Express.
-  - 🇲🇽 **México:** Rappi, Uber Eats, Didi Food.
-  - 🇺🇸 **Estados Unidos:** Uber Eats / Drizly, Instacart.
-- Tiempos de entrega estimados en 25-40 min para no cortar el ambiente del carrete.
+### 2. 📺 Carrete Sincrónico (`/carrete/[code]` & `/carrete/tv`)
+- **Doble Perspectiva:**
+  - **Modo Host / TV (`/carrete/[code]` o `/carrete/tv`):** Diseñado para Smart TVs, proyectores o iPads sobre la mesa. Muestra el código de carrete en alta resolución, QR proyectable, el **Monstruómetro** colectivo y el tablero de seguridad.
+  - **Modo Celular (`/carrete/[code]?modo=celular`):** Interfaz táctil ergonómica con safe-areas (`100dvh`), targets mínimos de 48px, botón de consumo rápido ("+1 Trago"), envío de confesiones y confirmación de llegada segura.
+- **Sincronización en Red con Fallback Offline:**
+  - Endpoint de sincronización HTTP: `src/app/api/carrete/[code]/route.ts`. Actúa como bus de sincronización en memoria con resolución Last-Write-Wins (LWW) para permitir emparejar celulares y Smart TV en la misma red local o remota.
+  - Fallback resiliente en `localStorage` bajo `carrete_[CODE]` para operación continua sin conexión.
 
-### 3. 🏠 Seguridad Proactiva y Retorno Seguro (`/seguridad`)
-- **Botón "Pedir Viaje Seguro":** Deep links instantáneos a **Uber**, **Cabify** y **DiDi** con un toque.
-- **Tablero de Llegada Segura ("Llegué a Salvo"):** Los asistentes confirman en 1 clic cuando llegan a su casa, actualizando el tablero en vivo para tranquilidad de todo el grupo.
-- **🚨 Alerta Penal para Conductores Designados:** Si un conductor bebe, el sistema activa una alerta roja permanente y despliega la opción inmediata de pedirle un auto.
+### 3. 🧪 Monstruómetro Exacto (Monsters Inc. Canisters)
+- **Visualización Tipo Contenedor de Sustos:** Cilindros con escala graduada, burbujas dinámicas y colorimetría reactiva (Verde Neón $\to$ Amarillo Ámbar $\to$ Rojo Crítico).
+- **Métricas Científicas Rigurosas:**
+  $$\text{Alcohol Puro (g)} = \text{Volumen (ml)} \times \frac{\text{ABV}}{100} \times 0.8$$
+- **Estimación Educativa de Alcoholemia (BAC en g/l):** Basada en la fórmula de Widmark ajustada por sexo biológico y peso corporal.
+- **Tanque Piloto 0.0%:** Contenedor exclusivo para el Conductor Designado, con advertencia roja inmediata en caso de registrar consumo de alcohol.
+- **Banner de Halloween:** Banner reactivo temático con interruptor de activación para ambientación nocturna.
 
-### 4. 🎮 Game Studio Digital Integrado
-- **💣 La Bomba de Tiempo:** Cronómetro de 10 segundos bajo tensión acelerada. Quien tenga el teléfono al momento de la detonación paga la penitencia.
-- **🎭 Ruleta Rusa de Confesiones:** Preguntas atrevidas y dilemas con votación grupal en vivo.
-- **Modo Proyector / Smart TV:** Vista a pantalla completa con atajos de teclado para controles remotos.
+### 4. 🍸 Bar Visual Fusionado (`/bar`)
+- **Vaso Interactivo SVG:** Renderiza dinámicamente capas de líquido coloreadas según los licores y mezcladores seleccionados.
+- **Cálculo de Graduación Alcohólica (% ABV):** Ponderación exacta por volumen en tiempo real.
+- **Veredicto Organoléptico:** Evaluador que clasifica la combinación en *Aprobado*, *Extraño* o *Peligro*.
+- **Selector de Hielo:** Control de dilución y sugerencia de hielo en cubos.
+
+### 5. 🛒 Planificador de Canasta & Delivery (`/armar`)
+- **3 Perfiles de Carrete:** *Económico*, *Clásico* y *Premium / Mocktail*.
+- **Comparador Multitienda:** Referencia de precios offline de retail (Líder, Jumbo, Botillería de barrio).
+- **Delivery en 1 Clic:** Deep links inteligentes con búsqueda pre-cargada adaptados al país seleccionado (Rappi, PedidosYa, Uber Eats, Didi Food, Instacart).
+
+### 6. 🎮 Game Studio Digital (`/juegos`)
+- **💣 La Bomba:** Cronómetro dinámico con tensión visual y auditiva. Utiliza el algoritmo de **Fisher-Yates** para garantizar categorías no repetitivas.
+- **🎯 Ruleta de Retos:** Ruleta interactiva con posibilidad de editar participantes y desafíos en vivo.
+- **🤫 Yo Nunca:** Banco de afirmaciones con barajado aleatorio en un toque.
+- **Atajos de Teclado:** Soporte para mandos a distancia y teclados numéricos en pantalla Smart TV.
+
+### 7. 💸 Cobro y División de Gastos (`/dividir`)
+- **Soporte Fintech Multi-País:**
+  - 🇨🇱 **Chile:** BancoEstado CuentaRUT, MACH, Khipu.
+  - 🇲🇽 **México:** Clave Interbancaria SPEI (CLABE 18 dígitos).
+  - 🇺🇸 **EE.UU.:** Venmo, Zelle, Cash App.
+  - 🇯🇵 **Japón:** PayPay, LINE Pay, Warikan (割り勘).
+- **Copia a WhatsApp en 1 Clic:** Plantilla de mensaje lista para enviar con detalle exacto del cobro y datos de transferencia.
+
+### 8. 🛡️ Seguridad Proactiva y Retorno Seguro (`/seguridad`)
+- **Deep Links a Viaje Seguro:** Accesos inmediatos a Uber, Cabify, DiDi y Daikou (Japón).
+- **Tablero "Llegué a Salvo":** Los asistentes confirman con un solo toque su llegada a casa para tranquilidad del grupo.
+- **Protocolo Ley Emilia / Conductor Designado:** Recordatorio activo de las consecuencias legales y penales al conducir bajo la influencia del alcohol.
+
+### 9. 🧠 Mitos Científicos (`/mitos`)
+- Fichas interactivas basadas en farmacocinética y evidencia médica real (desmintiendo mitos populares como tomar café para bajar la borrachera o mezclar con bebidas energéticas).
 
 ---
 
-## 🌍 Localización Cultural Radical
+## 🌍 Arquitectura de Internacionalización (i18n Dinámico)
 
-Tonight V3 incorpora un selector dinámico de país y moneda en la barra de navegación:
-- 🇨🇱 **Chile (CLP):** Piscola 35°/40° (ratios 3:1), cerveza en lata, hielo 4kg, CuentaRUT, Ley Emilia y Ley de Tolerancia Cero (0.30 g/l).
-- 🇲🇽 **México (MXN):** Tequila, mezcal, caguamas, micheladas con clamato, coperacha y reglamento de "El Torito" (0.40 g/l).
-- 🇺🇸 **Estados Unidos (USD):** Hard Seltzers (White Claw), Craft IPAs, shots de 1.5oz, Beer Pong, BYOB, Venmo y DUI Limit (BAC 0.08%).
+Toda la terminología cultural, divisas, regulaciones de tránsito y métodos de pago están desacoplados a través de `src/config/locales/` y se consumen mediante el hook reactivo `useLocale()`:
+
+| Parámetro | 🇨🇱 Chile | 🇲🇽 México | 🇺🇸 Estados Unidos | 🇯🇵 Japón |
+| :--- | :--- | :--- | :--- | :--- |
+| **Término Fiesta** | Carrete / Junta | Peda / Fiesta | Party / Pre-game | Nomikai (飲み会) |
+| **Moneda** | CLP (\$) / *lucas* | MXN (\$) / *varos* | USD (\$) / *bucks* | JPY (¥) / *yenes* |
+| **Tragos Típicos** | Piscola, Terremoto, Cerveza | Tequila, Michelada, Mezcal | Hard Seltzer, Craft IPA, Bourbon | Highball, Lemon Sour, Sake |
+| **Límite Legal Alcoholemia** | 0.30 g/l (Tolerancia Cero) | 0.40 g/l ("El Torito") | 0.08% BAC (DUI) | 0.00 mg/l (Tolerancia Absoluta) |
+| **Leyes de Tránsito** | Ley Emilia & Ley N° 20.580 | Reglamento de Tránsito CDMX | Implied Consent & DUI Laws | Ley de Tráfico Vial (Daikou) |
+| **Fintech de Cobro** | CuentaRUT / MACH | SPEI CLABE (18 dígitos) | Venmo / Zelle / Cash App | PayPay / LINE Pay / Warikan |
+| **Delivery Apps** | Rappi, PedidosYa, Uber Eats | Rappi, Uber Eats, Didi Food | Uber Eats, Instacart, DoorDash | Uber Eats Japan, Wolt, Demae-can |
 
 ---
 
-## 📂 Arquitectura de Archivos V3
+## 📂 Estructura del Proyecto
 
 ```
 Round/
-├── scraper/
-│   ├── scraper.py                 # Extractor multitienda (Líder, Jumbo, Botillería)
-│   ├── targets.json               # Canasta de 40 SKUs críticos
-│   └── requirements.txt           # requests, beautifulsoup4
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx             # Root layout responsive (max-w-7xl)
-│   │   ├── page.tsx               # Hub interactivo V3
-│   │   ├── armar/page.tsx         # Cotizador multitienda con delivery en 1 clic
-│   │   ├── sala/page.tsx          # Lobby de Salas Efímeras (Jackbox style)
-│   │   ├── sala/[code]/page.tsx   # Sala sincrónica (Modo Host TV vs Mando Celular)
-│   │   ├── grupo/page.tsx         # Tablero grupal y conductor designado
-│   │   ├── juegos/page.tsx        # Game Studio y Smart TV
-│   │   ├── seguridad/page.tsx     # Retorno seguro en Uber/Cabify y check-in 🏠
-│   │   ├── tiempo/page.tsx        # Simulador biológico de Widmark
-│   │   ├── dividir/page.tsx       # División de cuenta bancaria
-│   │   └── mitos/page.tsx         # Fichas científicas
+│   │   ├── layout.tsx                 # Root layout OLED, metadatos y viewport seguro
+│   │   ├── page.tsx                   # Gateway principal y selector de carrete
+│   │   ├── api/
+│   │   │   └── carrete/[code]/route.ts# Bus de sincronización en servidor (GET/POST/PUT)
+│   │   ├── carrete/
+│   │   │   ├── page.tsx               # Redirección de fallback a Gateway
+│   │   │   ├── tv/page.tsx            # Modo proyector / Smart TV
+│   │   │   └── [code]/page.tsx        # Carrete sincrónico (TV vs Modo Celular)
+│   │   ├── bar/page.tsx               # Bar Visual interactivo con vaso SVG
+│   │   ├── armar/page.tsx             # Planificador de canasta y delivery
+│   │   ├── dividir/page.tsx           # División de cuenta con fintech local
+│   │   ├── juegos/page.tsx            # Game Studio (La Bomba, Ruleta, Yo Nunca)
+│   │   ├── seguridad/page.tsx         # Retorno seguro y tablero de llegada
+│   │   ├── mitos/page.tsx             # Mitos científicos de la fiesta
+│   │   └── tiempo/page.tsx            # Calculadora de eliminación metabólica
 │   ├── components/
+│   │   ├── gateway/
+│   │   │   └── CarreteGatewayModal.tsx# Modal de acceso, creación y PIN
+│   │   ├── navigation/
+│   │   │   ├── GlobalNavbar.tsx       # Navbar con retorno confiable y selector i18n
+│   │   │   └── CountrySelector.tsx    # Selector de banderas interactivo
+│   │   ├── bar/
+│   │   │   └── VisualCocktailGlass.tsx# Vaso SVG con cálculo de ABV y veredicto
+│   │   ├── monsters/
+│   │   │   └── MonstersCanisterLeaderboard.tsx # Canisters Monsters Inc. y métricas exactas
 │   │   ├── calculators/
-│   │   │   ├── BasketOptimizer.tsx    # 3 perfiles (Ahorro, Clásica, Mocktail)
-│   │   │   ├── PriceComparator.tsx    # Comparativa Líder vs Jumbo vs Boti
-│   │   │   └── SplitBill.tsx          # Cobro y transferencia
-│   │   ├── delivery/
-│   │   │   └── DeliveryDeepLinks.tsx  # Rappi, PedidosYa, Uber Eats en 1 clic
-│   │   ├── safety/
-│   │   │   └── SafeReturnHub.tsx      # Ride hailing y check-in "Llegué a salvo"
-│   │   ├── group/
-│   │   │   ├── GroupTracker.tsx       # Tablero colectivo
-│   │   │   ├── UserAlcoholCard.tsx    # Tarjeta de 1-clic por persona
-│   │   │   └── DriverAlertModal.tsx   # Alerta Ley Emilia para conductores
+│   │   │   ├── BasketOptimizer.tsx    # Canastas inteligente
+│   │   │   ├── CarreteCalculator.tsx  # Calculadora unificada de consumo
+│   │   │   ├── SplitBill.tsx          # Formulario bancario localizado
+│   │   │   └── DeliveryTextExporter.tsx# Exportador de compras a WhatsApp
 │   │   ├── games/
-│   │   │   ├── TimeBombGame.tsx       # La Bomba de Tiempo (10s)
-│   │   │   ├── ConfessionsGame.tsx    # Ruleta Rusa de Confesiones
-│   │   │   ├── TVGameMode.tsx         # Vista Smart TV en pantalla completa
-│   │   │   └── GameDeck.tsx           # Catálogo y ruleta de retos
-│   │   └── common/
-│   │       └── Navbar.tsx             # Selector de país (🇨🇱 🇲🇽 🇺🇸) y navegación
-│   ├── store/
-│   │   ├── usePartyStore.ts       # Estado persistente de junta y canasta
-│   │   └── useRoomStore.ts        # Sincronización en vivo de salas efímeras
+│   │   │   ├── TimeBombGame.tsx       # Juego de La Bomba con Fisher-Yates
+│   │   │   ├── ConfessionsGame.tsx    # Ruleta de confesiones interactiva
+│   │   │   └── NeverHaveIEverGame.tsx # Yo Nunca aleatorio
+│   │   └── ui/
+│   │       ├── DisclaimerBanner.tsx   # Banner legal persistente por país
+│   │       └── DisclaimerModal.tsx    # Modal de marco legal y advertencia penal
 │   ├── config/
 │   │   └── locales/
-│   │       ├── cl.ts              # Chile
-│   │       ├── mx.ts              # México
-│   │       ├── us.ts              # Estados Unidos
-│   │       └── index.ts           # Selector dinámico de locales
+│   │       ├── schema.ts              # Esquema TypeScript estricto de localización
+│   │       ├── cl.ts                  # Configuración completa de Chile 🇨🇱
+│   │       ├── mx.ts                  # Configuración completa de México 🇲🇽
+│   │       ├── us.ts                  # Configuración completa de EE.UU. 🇺🇸
+│   │       ├── jp.ts                  # Configuración completa de Japón 🇯🇵
+│   │       └── index.ts               # Diccionario y utilidades de país
+│   ├── lib/
+│   │   ├── useLocale.ts               # Hook de i18n con persistencia en localStorage
+│   │   ├── carreteState.ts            # Tipos y función de merge LWW para sincronización
+│   │   └── widmark.ts                 # Algoritmo metabólico de Widmark
 │   └── data/
-│       ├── prices_cl.json         # Snapshot multitienda de retail
-│       ├── games.json             # Catálogo de juegos
-│       └── myths.json             # Evidencia científica
+│       ├── cocktail_recipes.json      # Catálogo de cócteles chilenos e internacionales
+│       ├── prices_cl.json             # Catálogo offline de precios retail
+│       ├── games.json                 # Banco de preguntas y categorías
+│       └── myths.json                 # Evidencia farmacológica de mitos
 ├── package.json
 └── README.md
 ```
 
 ---
 
-## ⚡ Puesta en Marcha
+## ⚡ Instalación y Puesta en Marcha
 
+### Prerrequisitos
+- Node.js 18+ o superior
+- npm / pnpm / yarn
+
+### Instalación
 ```bash
-# Servidor de desarrollo
-npm run dev
+# Clonar el repositorio
+git clone https://github.com/Rodrigo-Ordenes/tonight-round.git
+cd Round
 
-# Compilación de producción
-npm run build
+# Instalar dependencias
+npm install
 ```
 
-Acceso local: `http://localhost:3000`
+### Ejecución en Desarrollo
+```bash
+npm run dev
+```
+La aplicación estará disponible de inmediato en [http://localhost:3000](http://localhost:3000).
+
+### Compilación para Producción
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## ⚖️ Marco Legal y Responsabilidad
+
+Tonight es una herramienta de entretenimiento, planificación logística y bienestar social.
+- **Chile:** Ley N° 20.580 (Tolerancia Cero) y Ley N° 20.770 (Ley Emilia). El límite penal es de 0.30 g/l.
+- **México:** Reglamento de Tránsito y sanciones del Centro de Sanciones Administrativas ("El Torito", 0.40 g/l).
+- **Estados Unidos:** Leyes estatales de DUI con límite estricto de 0.08% BAC.
+- **Japón:** Ley de Tráfico Vial (Tolerancia Cero Absoluta 0.00 mg/l) y responsabilidad penal extendida a acompañantes.
+
+> **Advertencia:** Las estimaciones de alcoholemia son puramente didácticas y aproximadas según modelos farmacocinéticos teóricos. La absorción real varía según el metabolismo individual, ingesta de alimentos, hidratación y factores biológicos. **Si vas a conducir, la única cifra segura de consumo es Cero (0.00). Pasa las llaves o pide un auto de regreso.**

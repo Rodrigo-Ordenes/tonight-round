@@ -822,5 +822,65 @@
       "Rellena con Sprite helada.",
       "Agrega el Curacao Azul al final despacio para lograr un efecto degradé oceánico."
     ]
+  },
+  {
+    "id": "paloma_mexicana",
+    "name": "Paloma Mexicana Clásica",
+    "category": "Tequila",
+    "spirit": "tequila",
+    "required": [
+      "tequila",
+      "sprite",
+      "limon",
+      "sal",
+      "hielo"
+    ],
+    "optional": [
+      "agua_gas"
+    ],
+    "proportions": "50ml Tequila blanco o reposado, 150ml refresco de toronja o lima-limón (Sprite), jugo de limón fresco y escarchado con sal",
+    "ratio": "1:3",
+    "abv_estimated": 12,
+    "difficulty": "Fácil",
+    "glass": "Vaso alto escarchado",
+    "description": "El cóctel más popular y refrescante de México. La combinación perfecta de tequila de agave, efervescencia cítrica y el toque mineral de la sal.",
+    "chilean_lore": "Infaltable en celebraciones con comida mexicana o cuando se busca una alternativa ligera al trago dulce.",
+    "history": "Creado en Tequila, Jalisco, atribuido a Don Javier Delgado Corona, legendario cantinero de La Capilla.",
+    "steps": [
+      "Pasa medio limón por el borde del vaso y escarcha con sal.",
+      "Llena el vaso con abundante hielo en cubos.",
+      "Vierte el tequila y el jugo de limón recién exprimido.",
+      "Completa con refresco de toronja o Sprite bien helada.",
+      "Revuelve suavemente una sola vez para no perder la carbonatación."
+    ]
+  },
+  {
+    "id": "japanese_highball",
+    "name": "Japanese Highball (ハイボール)",
+    "category": "Whisky",
+    "spirit": "whisky",
+    "required": [
+      "whisky",
+      "agua_gas",
+      "hielo"
+    ],
+    "optional": [
+      "limon"
+    ],
+    "proportions": "45ml Whisky (preferencia japonés o suave), 135ml Agua con gas extra carbonatada, twist de limón",
+    "ratio": "1:3",
+    "abv_estimated": 10,
+    "difficulty": "Fácil",
+    "glass": "Vaso highball helado",
+    "description": "La bebida reina de las izakayas y nomikais en Japón. Ligera, chispeante, seca y perfecta para acompañar la comida.",
+    "chilean_lore": "El cóctel predilecto de quienes buscan un trago elegante sin azúcar ni exceso calórico.",
+    "history": "Popularizado masivamente en Japón en los años 50 por bares Torys de Suntory como la alternativa refrescante a la cerveza.",
+    "steps": [
+      "Enfría el vaso y llénalo de hielo cristalino en cubos grandes.",
+      "Vierte el whisky y revuelve 13 veces y media para enfriar el destilado.",
+      "Agrega más hielo si es necesario para compensar la dilución.",
+      "Vierte el agua con gas lentamente por el borde sin golpear el hielo.",
+      "Da un solo movimiento vertical con la cuchara de bar para integrar sin romper las burbujas."
+    ]
   }
 ]
