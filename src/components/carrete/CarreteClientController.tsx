@@ -25,12 +25,14 @@ import {
   type DrinkPreset,
 } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
+import { useLocale } from "@/lib/useLocale";
 
 interface CarreteClientControllerProps {
   store: CarreteStore;
 }
 
 export default function CarreteClientController({ store }: CarreteClientControllerProps) {
+  const { locale } = useLocale();
   const {
     participants,
     meId,
@@ -129,14 +131,14 @@ export default function CarreteClientController({ store }: CarreteClientControll
               onChange={(e) => setNewIsDriver(e.target.checked)}
               className="w-4 h-4"
             />
-            <span>🚗 Soy Conductor Designado (Piloto 0.0%)</span>
+            <span>🚗 Soy {locale.terminology.driverTitle} (0.0)</span>
           </label>
 
           <button
             type="submit"
             className="w-full min-h-[50px] rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm shadow-md"
           >
-            Entrar a la Ronda
+            Entrar al {locale.terminology.partyName}
           </button>
         </form>
       </div>
@@ -184,7 +186,7 @@ export default function CarreteClientController({ store }: CarreteClientControll
         {isDriverBreached && (
           <div className="p-2 -mx-5 -mt-5 mb-3 rounded-t-3xl bg-rose-600 text-white text-[10px] font-black uppercase text-center flex items-center justify-center gap-1">
             <ShieldAlert className="w-3.5 h-3.5" />
-            <span>ALERTA LEY EMILIA: Conductor con alcohol — NO CONDUZCAS</span>
+            <span>ALERTA {locale.legal.lawName.toUpperCase()}: {locale.terminology.driverTitle} con alcohol — NO CONDUZCAS</span>
           </div>
         )}
 

@@ -61,6 +61,14 @@ export default function EliminationTimeline() {
       count: 0,
     },
     {
+      id: "gin_tonic",
+      name: "Gin Tonic (vaso con 50cc gin, 40°)",
+      abv: 0.40,
+      volumeMl: 50,
+      gramsAlcohol: 50 * 0.40 * 0.8, // 16.0g
+      count: 0,
+    },
+    {
       id: "copa_vino",
       name: "Copa de Vino (150cc, 13°)",
       abv: 0.13,
@@ -407,7 +415,7 @@ export default function EliminationTimeline() {
         <div className="p-3.5 rounded-2xl bg-night-900/90 border border-night-800 text-xs text-slate-300 space-y-1.5">
           <div className="flex items-center gap-2 font-bold text-slate-200">
             <Car className="w-4 h-4 text-carrete-danger" />
-            <span>Marco Legal Chileno:</span>
+            <span>Marco Legal ({locale.countryName}):</span>
           </div>
           <p className="leading-relaxed text-slate-400">
             {stats.legalClassification.description}
@@ -432,12 +440,12 @@ export default function EliminationTimeline() {
 
           <div className="p-4 rounded-2xl bg-night-900 border border-night-800">
             <span className="text-[11px] text-slate-400 block mb-1">
-              Bajo umbral penal (&lt; 0.3 g/l)
+              Bajo umbral penal (&lt; {locale.legal.bacLimitText})
             </span>
             <div className="text-xl font-extrabold text-amber-300">
               {stats.hoursToUnder03 > 0
                 ? `~${stats.hoursToUnder03} horas`
-                : "Bajo 0.3 g/l"}
+                : `Bajo ${locale.legal.bacLimitText}`}
             </div>
             <span className="text-[10px] text-slate-400 mt-1 block">
               Aún así, ¡no conduzcas!

@@ -13,6 +13,7 @@ import {
   ChevronUp
 } from "lucide-react";
 import mythsData from "@/data/myths.json";
+import { useLocale } from "@/lib/useLocale";
 
 interface MythItem {
   id: string;
@@ -26,6 +27,7 @@ interface MythItem {
 }
 
 export default function MitosPage() {
+  const { locale } = useLocale();
   const [filterType, setFilterType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -79,7 +81,7 @@ export default function MitosPage() {
           <div>
             <h1 className="text-xl font-extrabold text-white">Mitos y Verdades</h1>
             <p className="text-xs text-slate-400">
-              Desmitificando el carrete y la caña con evidencia médica y científica
+              Desmitificando {locale.slang?.party ? `el ${locale.slang.party}` : "la fiesta"} y {locale.slang?.hangover ? `la ${locale.slang.hangover}` : "la resaca"} con evidencia médica y científica ({locale.countryName})
             </p>
           </div>
         </div>

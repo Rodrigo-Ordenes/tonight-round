@@ -9,10 +9,12 @@ import PiscolometerSlider from "@/components/bar/PiscolometerSlider";
 import DrinkEncyclopedia from "@/components/bar/DrinkEncyclopedia";
 import { analyzeMix, matchRecipes } from "@/lib/mixology";
 import { audioEffects } from "@/lib/audioEffects";
+import { useLocale } from "@/lib/useLocale";
 
 type BarTab = "mix" | "piscolometer" | "encyclopedia";
 
 export default function BarPage() {
+  const { locale } = useLocale();
   const [activeTab, setActiveTab] = useState<BarTab>("mix");
 
   // Estado del vaso de mezclas visual
@@ -80,7 +82,7 @@ export default function BarPage() {
           }`}
         >
           <Flame className="w-4 h-4 text-rose-300" />
-          <span>El Piscolómetro</span>
+          <span>{locale.countryCode === "CL" ? "El Piscolómetro" : `El ${locale.drinks.stapleName}`}</span>
         </button>
 
         <button

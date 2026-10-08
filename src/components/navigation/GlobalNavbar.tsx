@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, ChevronRight, Home, ShoppingCart, GlassWater, Gamepad2, Receipt, ShieldCheck } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { SOLO, setActiveCode } from "@/store/useCarreteStore";
+import { useLocale } from "@/lib/useLocale";
 
 import CountrySelector from "./CountrySelector";
 
@@ -32,6 +33,7 @@ export default function GlobalNavbar() {
   const pathname = usePathname() || "/";
   const router = useRouter();
   const { code } = useActiveCode();
+  const { locale } = useLocale();
   const [confirmLeave, setConfirmLeave] = useState(false);
 
   const hasRealCarrete = code !== SOLO;
@@ -86,7 +88,7 @@ export default function GlobalNavbar() {
               </Link>
               <ChevronRight className="w-3 h-3" />
               <Link href={home} className="hover:text-white truncate">
-                {hasRealCarrete ? `Mi Carrete ${code}` : "Modo Solo"}
+                {hasRealCarrete ? `Mi ${locale.terminology.partyName} ${code}` : "Modo Solo"}
               </Link>
               {section && (
                 <>
@@ -141,7 +143,7 @@ export default function GlobalNavbar() {
       {confirmLeave && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
           <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-3xl bg-night-900 border border-indigo-500/30 p-6 space-y-4 text-center">
-            <h3 className="text-lg font-black text-white">¿Salir del carrete?</h3>
+            <h3 className="text-lg font-black text-white">¿Salir del {locale.terminology.partyName.toLowerCase()}?</h3>
             <p className="text-sm text-slate-300">
               Tu sesión se mantendrá guardada con el código{" "}
               <span className="font-black text-indigo-300 tracking-widest">{code}</span>.
@@ -161,7 +163,7 @@ export default function GlobalNavbar() {
               }}
               className="min-h-[48px] text-xs text-slate-400 underline"
             >
-              Salir y olvidar este carrete en este dispositivo
+              Salir y olvidar este {locale.terminology.partyName.toLowerCase()} en este dispositivo
             </button>
           </div>
         </div>

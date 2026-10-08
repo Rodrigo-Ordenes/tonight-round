@@ -304,6 +304,29 @@ export function useCarreteStore(codeRaw: string) {
     [update]
   );
 
+  const resetAllConsumptions = useCallback(
+    () =>
+      update((s) => ({
+        ...s,
+        participants: s.participants.map((p) => ({
+          ...p,
+          consumptions: [],
+          waterCount: 0,
+          updatedAt: Date.now(),
+        })),
+      })),
+    [update]
+  );
+
+  const resetCarrete = useCallback(
+    () => {
+      const fresh = emptyCarrete(code);
+      commit({ ...fresh, updatedAt: Date.now() });
+      if (!isSolo) void push();
+    },
+    [code, isSolo, commit, push]
+  );
+
   const participants = state.participants.filter((p) => !p.deleted);
 
   return {
@@ -325,6 +348,8 @@ export function useCarreteStore(codeRaw: string) {
     addConsumption,
     removeLastConsumption,
     addWater,
+    resetAllConsumptions,
+    resetCarrete,
     patchBasket,
     patchGames,
   };

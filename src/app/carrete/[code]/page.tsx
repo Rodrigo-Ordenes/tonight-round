@@ -212,10 +212,10 @@ export default function CarretePage() {
                 <div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-black uppercase mb-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>Carrete Sincronizado en Vivo</span>
+                    <span>{locale.terminology.partyName} Sincronizado en Vivo</span>
                   </div>
                   <h1 className="text-xl sm:text-2xl font-black text-white">
-                    Pizarra Grupal del Carrete
+                    Pizarra Grupal ({locale.terminology.partyName})
                   </h1>
                   <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
                     Proyecta esta pantalla en tu Smart TV o monitor. Tus amigos pueden escanear el QR con su cámara para registrar consumos, jugar Yo Nunca y chequear su estado biológico sin descargar ninguna app.

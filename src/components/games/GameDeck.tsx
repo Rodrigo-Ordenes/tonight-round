@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { Dices, Search, Bomb, Shuffle, Hand, BookOpen, Sparkles } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore } from "@/store/useCarreteStore";
+import { useLocale } from "@/lib/useLocale";
 import gamesData from "@/data/games.json";
 import GameCard, { GameItem } from "./GameCard";
 import CustomizableRoulette from "./CustomizableRoulette";
@@ -16,6 +17,7 @@ type GameTab = "ruleta" | "bomba" | "nunca" | "dedazo" | "catalogo";
 
 export default function GameDeck() {
   const { code } = useActiveCode();
+  const { locale } = useLocale();
   const store = useCarreteStore(code);
 
   const [activeTab, setActiveTab] = useState<GameTab>("ruleta");
@@ -42,13 +44,15 @@ export default function GameDeck() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-bold mb-1">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Game Studio Carrete</span>
+            <span>Game Studio {locale.terminology.partyName}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white">
             Dinámicas & Juegos Sociales
           </h1>
           <p className="text-xs text-slate-400">
-            {code !== "SOLO" ? `Sincronizado con Carrete ${code}` : "Modo individual / Juegos de mesa"}
+            {code !== "SOLO"
+              ? `Sincronizado con ${locale.terminology.partyName} ${code}`
+              : "Modo individual / Juegos sociales"}
           </p>
         </div>
       </div>

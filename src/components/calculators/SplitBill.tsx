@@ -245,9 +245,9 @@ export default function SplitBill() {
             <Receipt className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-white">Dividir Cuenta</h1>
+            <h1 className="text-xl font-extrabold text-white">Dividir Cuenta ({locale.countryName})</h1>
             <p className="text-xs text-slate-400">
-              Cobra la cuota rápido a los cabros con cobro directo para WhatsApp
+              Cobra la cuota rápido a {locale.slang?.friendGroup || "los amigos"} con cobro directo para WhatsApp
             </p>
           </div>
         </div>
@@ -263,11 +263,11 @@ export default function SplitBill() {
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
             <span>Monto total gastado en compras</span>
-            <span className="text-[11px] text-slate-400 font-normal">En pesos chilenos</span>
+            <span className="text-[11px] text-slate-400 font-normal">En {locale.currency.slangName} ({locale.currency.code})</span>
           </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 font-extrabold text-base">
-              $
+              {locale.currency.symbol}
             </span>
             <input
               type="text"

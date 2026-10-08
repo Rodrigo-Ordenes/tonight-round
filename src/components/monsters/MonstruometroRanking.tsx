@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Trophy, Droplet, Plus, RotateCcw, ShieldAlert, Car, UserPlus, X, Zap, Trash2 } from "lucide-react";
+import { Trophy, Droplet, Plus, RotateCcw, ShieldAlert, Car, UserPlus, X, Zap, Trash2, RefreshCw } from "lucide-react";
 import CanisterGlassMeter from "./CanisterGlassMeter";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { useTheme } from "@/lib/theme";
 import { audioEffects } from "@/lib/audioEffects";
+import { useLocale } from "@/lib/useLocale";
 import {
   DRINK_PRESETS,
   computeBac,
@@ -31,16 +32,30 @@ interface Props {
 }
 
 export default function MonstruometroRanking({ store, readOnly = false }: Props) {
-  const { participants, addConsumption, removeLastConsumption, addWater, addParticipant, removeParticipant } = store;
+  const {
+    participants,
+    addConsumption,
+    removeLastConsumption,
+    addWater,
+    addParticipant,
+    removeParticipant,
+    resetAllConsumptions,
+  } = store;
   const { theme } = useTheme();
+  const { locale } = useLocale();
   const [now, setNow] = useState(() => Date.now());
   const [driverWarning, setDriverWarning] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"M" | "F">("M");
   const [weight, setWeight] = useState(75);
   const [isDriver, setIsDriver] = useState(false);
   const [pickerFor, setPickerFor] = useState<string | null>(null);
+  const [customFor, setCustomFor] = useState<string | null>(null);
+  const [customLabel, setCustomLabel] = useState("Gin Tonic 40°");
+  const [customMl, setCustomMl] = useState(50);
+  const [customAbv, setCustomAbv] = useState(40);
 
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now()), 15000);
@@ -78,25 +93,65 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
             <Zap className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl font-black text-white">MONSTRUÓMETRO • RANKING DE CANISTERS</h2>
+            <h2 className="text-lg sm:text-xl font-black text-white">
+              MONSTRUÓMETRO • RANKING DE CANISTERS ({locale.terminology.partyName.toUpperCase()})
+            </h2>
             <p className="text-xs text-slate-300">
               Alcohol puro real por persona (ml × grado × 0.8) y alcoholemia estimada (Widmark).
             </p>
           </div>
         </div>
         {!readOnly && (
-          <button
-            onClick={() => setShowAdd(true)}
-            className="min-h-[48px] px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm flex items-center gap-2 shrink-0"
-          >
-            <UserPlus className="w-4 h-4" /> Sumar participante
-          </button>
+          <div className="flex items-center gap-2">
+            {rows.some((x) => x.p.consumptions.length > 0) && (
+              <button
+                onClick={() => setShowResetConfirm(true)}
+                title="Reiniciar todos los consumos y medidores a 0"
+                className="min-h-[48px] px-3.5 rounded-2xl bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 border border-slate-700 hover:border-rose-500/50 font-bold text-xs flex items-center gap-1.5 shrink-0 transition-colors"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Reiniciar Consumos
+              </button>
+            )}
+            <button
+              onClick={() => setShowAdd(true)}
+              className="min-h-[48px] px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm flex items-center gap-2 shrink-0 shadow-md shadow-indigo-600/30"
+            >
+              <UserPlus className="w-4 h-4" /> Sumar participante
+            </button>
+          </div>
         )}
       </div>
 
+      {showResetConfirm && (
+        <div className="p-4 rounded-2xl bg-rose-950/60 border border-rose-500/70 text-rose-200 text-xs flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0" />
+            <span>¿Reiniciar todos los contadores de alcohol y cilindros de energía a 0 para todos los participantes?</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                audioEffects.playPop();
+                resetAllConsumptions();
+                setShowResetConfirm(false);
+              }}
+              className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs"
+            >
+              Sí, reiniciar todo
+            </button>
+            <button
+              onClick={() => setShowResetConfirm(false)}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
       {rows.length === 0 && (
         <p className="text-center text-sm text-slate-400 py-10 rounded-3xl border border-dashed border-slate-700">
-          Aún no hay participantes en este carrete. Suma el primero para encender los canisters.
+          Aún no hay participantes en este {locale.terminology.partyName.toLowerCase()}. Suma el primero para encender los canisters.
         </p>
       )}
 
@@ -189,19 +244,90 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                     <Plus className="w-4 h-4" /> Agregar consumo
                   </button>
                   {pickerFor === p.id && (
-                    <div className="grid grid-cols-2 gap-2">
-                      {DRINK_PRESETS.map((d) => (
+                    <div className="space-y-2 p-2 rounded-2xl bg-slate-950/80 border border-slate-800">
+                      <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+                        {DRINK_PRESETS.map((d) => (
+                          <button
+                            key={d.key}
+                            onClick={() => drink(p, d)}
+                            className="min-h-[48px] rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white p-2 text-left transition-colors active:scale-95"
+                          >
+                            <span className="block truncate">{d.emoji} {d.label}</span>
+                            <span className="block text-[10px] text-slate-400 font-normal">
+                              {d.ml}ml · {Math.round(d.abv * 1000) / 10}%
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+
+                      {customFor !== p.id ? (
                         <button
-                          key={d.key}
-                          onClick={() => drink(p, d)}
-                          className="min-h-[48px] rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white px-2"
+                          type="button"
+                          onClick={() => setCustomFor(p.id)}
+                          className="w-full min-h-[36px] py-1.5 rounded-xl bg-indigo-950/70 hover:bg-indigo-900 border border-indigo-500/40 text-indigo-300 font-bold text-[11px] flex items-center justify-center gap-1 transition-colors"
                         >
-                          {d.emoji} {d.label}
-                          <span className="block text-[10px] text-slate-400 font-normal">
-                            {d.ml}ml · {Math.round(d.abv * 1000) / 10}%
-                          </span>
+                          <Plus className="w-3.5 h-3.5" /> + Trago Personalizado (ml y grado)
                         </button>
-                      ))}
+                      ) : (
+                        <div className="p-3 rounded-xl bg-slate-900 border border-indigo-500/50 space-y-2 text-left">
+                          <span className="text-[11px] font-bold text-white block">Crear trago a medida:</span>
+                          <input
+                            type="text"
+                            value={customLabel}
+                            onChange={(e) => setCustomLabel(e.target.value)}
+                            placeholder="Nombre (ej: Gin Tonic Doble)"
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs outline-none focus:border-indigo-500"
+                          />
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <span className="text-[10px] text-slate-400 block">Volumen (ml):</span>
+                              <input
+                                type="number"
+                                min={10}
+                                max={1000}
+                                value={customMl}
+                                onChange={(e) => setCustomMl(Number(e.target.value))}
+                                className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs"
+                              />
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-slate-400 block">Graduación (° ABV):</span>
+                              <input
+                                type="number"
+                                min={1}
+                                max={100}
+                                value={customAbv}
+                                onChange={(e) => setCustomAbv(Number(e.target.value))}
+                                className="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!customLabel.trim()) return;
+                                drink(p, {
+                                  label: customLabel.trim(),
+                                  ml: customMl,
+                                  abv: customAbv / 100,
+                                });
+                                setCustomFor(null);
+                              }}
+                              className="flex-1 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-xs"
+                            >
+                              Agregar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCustomFor(null)}
+                              className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 text-xs"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   <div className="flex gap-2">
@@ -238,21 +364,20 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
       </div>
 
       <p className="text-[11px] text-slate-500 text-center">
-        Estimación referencial. Ley Emilia (Ley N° 20.580): Tolerancia Cero al conducir. Si bebiste, no manejes.
+        Estimación referencial pedagógica. {locale.legal.lawName}: {locale.legal.bacLimitText}. Si bebiste, no manejes.
       </p>
 
       {driverWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
           <div className="w-full max-w-md rounded-3xl bg-slate-900 border-2 border-rose-500 p-6 text-center space-y-4">
             <ShieldAlert className="w-10 h-10 mx-auto text-rose-400 animate-bounce" />
-            <h3 className="text-xl font-black text-white">¡RUPTURA DE CONTENCIÓN: {driverWarning.toUpperCase()}!</h3>
+            <h3 className="text-xl font-black text-white">¡ALERTA CRÍTICA: {driverWarning.toUpperCase()}!</h3>
             <div className="p-3 rounded-2xl bg-rose-950/50 border border-rose-500/40 text-xs text-rose-200 text-left space-y-2">
-              <p className="font-bold">⚠️ TOLERANCIA CERO (Ley N° 20.580 / Ley Emilia)</p>
+              <p className="font-bold">⚠️ {locale.legal.lawsTitle || locale.legal.lawName}</p>
               <p>
-                El conductor designado registró alcohol. En Chile conducir con cualquier graduación sobre 0.0 g/l es
-                ilegal.
+                {locale.legal.disclaimer}
               </p>
-              <p className="font-semibold text-white">🛑 Designa un nuevo piloto o pide un auto (Uber / Cabify / DiDi).</p>
+              <p className="font-semibold text-white">🛑 {locale.terminology.driverTitle}: Entrega las llaves o pide un transporte seguro.</p>
             </div>
             <button
               onClick={() => setDriverWarning(null)}
@@ -308,10 +433,10 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
             </label>
             <label className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/60 min-h-[48px] text-xs font-semibold text-slate-200 cursor-pointer">
               <input type="checkbox" checked={isDriver} onChange={(e) => setIsDriver(e.target.checked)} className="w-5 h-5" />
-              🚗 Conductor designado (Piloto 0.0)
+              🚗 {locale.terminology.driverTitle}
             </label>
             <button type="submit" className="w-full min-h-[48px] rounded-xl bg-indigo-600 text-white font-black text-sm">
-              Agregar al carrete
+              Agregar al {locale.terminology.partyName.toLowerCase()}
             </button>
           </form>
         </div>

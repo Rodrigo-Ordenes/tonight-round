@@ -28,9 +28,11 @@ import SearchableProductModal from "./SearchableProductModal";
 import MultiStoreCompare from "./MultiStoreCompare";
 import DeliveryTextExporter from "./DeliveryTextExporter";
 import { audioEffects } from "@/lib/audioEffects";
+import { useLocale } from "@/lib/useLocale";
 
 export default function CarreteBasketView() {
   const { code } = useActiveCode();
+  const { locale, formatCurrency } = useLocale();
   const store = useCarreteStore(code);
   const { basket, patchBasket } = store;
 
@@ -103,13 +105,13 @@ export default function CarreteBasketView() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold mb-1">
             <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Armar Canasta de Carrete</span>
+            <span>Armar Canasta de {locale.terminology.partyName}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white">
             Planificador & Cotizador Dinámico
           </h1>
           <p className="text-xs text-slate-400">
-            {code !== "SOLO" ? `Vinculado al Carrete ${code}` : "Modo Solo / Planificador libre"}
+            {code !== "SOLO" ? `Vinculado a ${locale.terminology.partyName} ${code}` : "Modo Solo / Planificador libre"}
           </p>
         </div>
 
@@ -186,7 +188,7 @@ export default function CarreteBasketView() {
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block">Presupuesto</span>
               <span className="text-sm font-black text-white font-mono">
-                ${basket.budget.toLocaleString("es-CL")} CLP
+                {formatCurrency(basket.budget)}
               </span>
             </div>
           </div>

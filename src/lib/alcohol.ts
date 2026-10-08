@@ -22,10 +22,17 @@ export interface DrinkPreset {
 
 export const DRINK_PRESETS: DrinkPreset[] = [
   { key: "piscola", label: "Piscola 35°", emoji: "🥃", ml: 60, abv: 0.35 },
+  { key: "gin", label: "Gin Tonic 40°", emoji: "🍸", ml: 50, abv: 0.4 },
   { key: "cerveza", label: "Cerveza", emoji: "🍺", ml: 350, abv: 0.05 },
-  { key: "shot", label: "Shot 40°", emoji: "🔥", ml: 45, abv: 0.4 },
+  { key: "vodka", label: "Vodka / Energy 40°", emoji: "🧊", ml: 50, abv: 0.4 },
+  { key: "tequila", label: "Tequila / Shot 38°", emoji: "🌵", ml: 45, abv: 0.38 },
+  { key: "whisky", label: "Whisky / Highball 40°", emoji: "🥃", ml: 50, abv: 0.4 },
+  { key: "ron", label: "Ron / Cuba Libre 38°", emoji: "🍹", ml: 50, abv: 0.38 },
+  { key: "fernet", label: "Fernet 39°", emoji: "🌿", ml: 50, abv: 0.39 },
   { key: "vino", label: "Copa de vino", emoji: "🍷", ml: 150, abv: 0.12 },
   { key: "espumante", label: "Espumante", emoji: "🥂", ml: 120, abv: 0.115 },
+  { key: "terremoto", label: "Terremoto", emoji: "🍧", ml: 250, abv: 0.12 },
+  { key: "shot", label: "Shot puro 40°", emoji: "🔥", ml: 45, abv: 0.4 },
 ];
 
 export const BETA = 0.15;

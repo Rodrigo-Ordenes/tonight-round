@@ -7,10 +7,12 @@ import { useRouter } from "next/navigation";
 import { Tv, Maximize2, Minimize2, ArrowLeft, AlertCircle } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore, SOLO } from "@/store/useCarreteStore";
+import { useLocale } from "@/lib/useLocale";
 import MonstruometroRanking from "@/components/monsters/MonstruometroRanking";
 
 export default function CarreteTVPage() {
   const router = useRouter();
+  const { locale } = useLocale();
   const { code, hydrated } = useActiveCode();
   const store = useCarreteStore(code);
   const [qrUri, setQrUri] = useState<string>("");
@@ -60,15 +62,15 @@ export default function CarreteTVPage() {
         <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-amber-400">
           <AlertCircle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-black text-white">Modo TV Requiere un Carrete</h2>
+        <h2 className="text-xl font-black text-white">Modo TV Requiere un {locale.terminology.partyName}</h2>
         <p className="text-xs sm:text-sm text-amber-200 leading-relaxed">
-          Debes crear o ingresar a un carrete antes de activar el Modo TV para proyectar los tanques y el QR de tus amigos.
+          Debes crear o ingresar a un {locale.terminology.partyName.toLowerCase()} antes de activar el Modo TV para proyectar los tanques y el QR de tus amigos.
         </p>
         <button
           onClick={() => router.push("/")}
           className="w-full min-h-[48px] rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm"
         >
-          Crear o Unirme a un Carrete
+          Crear o Unirme a un {locale.terminology.partyName}
         </button>
       </div>
     );

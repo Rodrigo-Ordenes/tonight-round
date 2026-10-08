@@ -175,7 +175,7 @@ export default function CarreteGatewayModal() {
               disabled={busy}
               className="w-full min-h-[56px] rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white font-black text-sm flex items-center justify-center gap-2"
             >
-              {busy && <Loader2 className="w-5 h-5 animate-spin" />} ENTRAR AL CARRETE
+              {busy && <Loader2 className="w-5 h-5 animate-spin" />} ENTRAR AL {partyUpper}
             </button>
             <button
               onClick={() => {
@@ -190,7 +190,7 @@ export default function CarreteGatewayModal() {
         )}
 
         <p className="text-[11px] text-slate-500">
-          Sin registro. Ley Emilia (Ley N° 20.580): Tolerancia Cero. Si bebes, no manejes.
+          Sin registro obligatorio. {locale.legal.lawName}: {locale.legal.bacLimitText}. Si bebes, no manejes.
         </p>
       </div>
     </section>
