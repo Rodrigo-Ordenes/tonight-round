@@ -1,0 +1,82 @@
+[
+  {
+    "id": "cafe_para_bajar_la_curadera",
+    "title": "¿El café cargado o una ducha fría te baja la borrachera?",
+    "verdict": "Falso",
+    "verdict_type": "false",
+    "short_explanation": "El café contiene cafeína que actúa como estimulante del sistema nervioso central, pero no acelera la velocidad a la que el hígado metaboliza el alcohol.",
+    "scientific_details": "La enzima alcohol deshidrogenasa (ADH) del hígado metaboliza el etanol a una tasa fija biológica de aproximadamente 0.1 a 0.15 g/l por hora. La cafeína puede hacer que la persona se sienta más despierta y engañosamente alerta, pero los reflejos psicomotores, el tiempo de reacción y la concentración de alcohol en sangre (BAC) siguen exactamente igual de alterados.",
+    "scientific_source": "National Institute on Alcohol Abuse and Alcoholism (NIAAA), Harvard Health Publishing",
+    "recommendation": "Solo el tiempo y el metabolismo hepático eliminan el alcohol. Dale descanso a tu cuerpo y mantén la hidratación."
+  },
+  {
+    "id": "mezclar_alcoholes",
+    "title": "¿Mezclar diferentes tipos de alcohol emborracha más o da peor caña?",
+    "verdict": "Matiz",
+    "verdict_type": "nuance",
+    "short_explanation": "La concentración de alcohol en sangre depende exclusivamente de los gramos totales de etanol consumidos, no de la combinación. Sin embargo, los congéneres y la pérdida de noción de cantidad sí empeoran la resaca.",
+    "scientific_details": "Biológicamente, 30 gramos de alcohol puro son 30 gramos, provengan de cerveza, vino o pisco. Lo que ocurre es que al mezclar suele consumirse más volumen sin darse cuenta. Además, bebidas oscuras con alto contenido de congéneres (como whisky, ron añejo o pisco oscuro) producen mayor toxicidad matutina por acetaldehído y metanol residual.",
+    "scientific_source": "British Medical Journal (BMJ), The American Journal of Clinical Nutrition",
+    "recommendation": "Si vas a tomar, mantén el ritmo con un mismo tipo o vigila cuántas unidades estándar llevas en total."
+  },
+  {
+    "id": "tomar_agua_evita_la_resaca",
+    "title": "¿Tomar un vaso de agua por cada vaso de alcohol reduce la resaca?",
+    "verdict": "Verdadero",
+    "verdict_type": "true",
+    "short_explanation": "El alcohol inhibe la hormona antidiurética (vasopresina), forzando a los riñones a eliminar hasta 4 veces más líquido del ingerido. El agua mitiga la deshidratación severa y reduce el dolor de cabeza.",
+    "scientific_details": "Por cada 250 ml de bebida con 40% de alcohol, el cuerpo excreta entre 800 y 1000 ml de agua. La deshidratación celular encoge temporalmente las meninges craneales, originando la clásica cefalea punzante de la caña. Además, alternar agua reduce la velocidad de consumo de etanol y permite que el estómago retarde la absorción gástrica.",
+    "scientific_source": "Journal of Clinical Medicine, Mayo Clinic Guide to Hangover Prevention",
+    "recommendation": "Aplica la regla de oro 1:1: por cada piscola o lata de cerveza, toma un vaso de agua de 250cc."
+  },
+  {
+    "id": "vomitar_baja_el_alcohol_en_sangre",
+    "title": "¿Vomitar hace que se te baje el alcohol en la sangre inmediatamente?",
+    "verdict": "Falso",
+    "verdict_type": "false",
+    "short_explanation": "Vomitar solo expulsa el alcohol que aún reside en el estómago, pero no afecta en lo absoluto el alcohol que ya pasó al torrente sanguíneo e hígado.",
+    "scientific_details": "Aproximadamente el 80% del alcohol se absorbe rápidamente en el duodeno e intestino delgado en los primeros 20 a 45 minutos. Si el alcohol ya fue absorbido, vomitar no disminuye el BAC medido en un alcotest y deshidrata aún más al organismo, irritando el esófago y perdiendo electrolitos clave como potasio y sodio.",
+    "scientific_source": "American Addiction Centers, Clinical Toxicology Review",
+    "recommendation": "Si tu cuerpo tiene náuseas es un reflejo de defensa tóxica, pero no lo provoques intencionalmente como 'truco' para manejar o seguir tomando."
+  },
+  {
+    "id": "grasa_antes_de_tomar",
+    "title": "¿Comer algo grasoso antes de salir 'forra' el estómago?",
+    "verdict": "Verdadero",
+    "verdict_type": "true",
+    "short_explanation": "La comida con proteínas y grasas ralentiza el vaciado gástrico hacia el intestino delgado, reduciendo los picos repentinos de alcohol en sangre.",
+    "scientific_details": "El esfínter pilórico se cierra para digerir grasas, proteínas y carbohidratos complejos. Al retrasar el paso del bolo alimenticio al intestino delgado (donde la absorción de alcohol es exponencialmente más rápida), la concentración máxima de alcohol en sangre (Cmax) se reduce entre un 20% y un 30%, permitiendo al hígado procesar el alcohol de forma más homogénea.",
+    "scientific_source": "Alcohol and Alcoholism Journal, Oxford Academic",
+    "recommendation": "Nunca bebas con el estómago vacío. Cena bien antes de la junta con comida rica en proteínas, carbohidratos o grasas saludables."
+  },
+  {
+    "id": "cerveza_despues_de_destilado",
+    "title": "¿'Cerveza después de pisco, muerte de disco; pisco después de cerveza, no duele la cabeza'?",
+    "verdict": "Falso",
+    "verdict_type": "false",
+    "short_explanation": "El orden cronológico en el que consumes las bebidas no tiene relevancia fisiológica comprobada en la absorción.",
+    "scientific_details": "Estudios clínicos controlados con voluntarios midieron los niveles de acetaldehído y síntomas de resaca alternando cerveza y vino/licor en distinto orden frente a un grupo de control. Los resultados mostraron que la intensidad de la resaca y el alcoholemia final fueron idénticos independientemente de cuál bebida se tomó primero.",
+    "scientific_source": "The American Journal of Clinical Nutrition (Estudio Hensel et al., 2019)",
+    "recommendation": "No te fíes de los refranes populares: lo crucial es la cantidad total de gramos de alcohol y la velocidad de consumo."
+  },
+  {
+    "id": "dormir_baja_la_curadera_mas_rapido",
+    "title": "¿Dormir profundamente hace que el alcohol se procese más rápido?",
+    "verdict": "Falso",
+    "verdict_type": "false",
+    "short_explanation": "Durante el sueño profundo, los procesos metabólicos y el flujo sanguíneo hepático disminuyen ligeramente en comparación con el estado de vigilia.",
+    "scientific_details": "El aclaramiento metabólico del etanol puede ser ligeramente más lento durante el sueño. Además, el alcohol fragmenta el sueño REM, provocando despertares frecuentes, deshidratación y taquicardias nocturnas. Por eso al despertar 6 horas después muchas personas aún marcan positivo en alcotest matutino.",
+    "scientific_source": "Sleep Medicine Reviews, Johns Hopkins Medicine",
+    "recommendation": "Si te vas a dormir tras haber bebido en exceso, no asumas que al despertar temprano estarás en cero. Planifica tu transporte sin vehículo."
+  },
+  {
+    "id": "trago_a_la_manana_cura_la_resaca",
+    "title": "¿Tomarse una cerveza o trago a la mañana siguiente ('el pelo de la perra') cura la caña?",
+    "verdict": "Falso",
+    "verdict_type": "false",
+    "short_explanation": "Solo adormece temporalmente los síntomas de abstinencia aguda y acumula más toxicidad hepática para más tarde.",
+    "scientific_details": "Al reintroducir alcohol, el cerebro vuelve a recibir estimulación GABAérgica que atenúa la hiperexcitabilidad de la resaca, pero es un espejismo: prolonga el ciclo tóxico, deshidrata más y sobrecarga al hígado que aún no termina de eliminar los subproductos del día anterior.",
+    "scientific_source": "Cleveland Clinic Health Essentials, Harvard Medical School",
+    "recommendation": "Trátate con abundante agua, sales rehidratantes, comida blanda nutritiva y descanso."
+  }
+]

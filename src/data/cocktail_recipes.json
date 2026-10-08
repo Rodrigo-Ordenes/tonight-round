@@ -1,0 +1,826 @@
+[
+  {
+    "id": "pisco_sour_catedral",
+    "name": "Pisco Sour Catedral (Tradicional Chileno)",
+    "category": "Pisco Sour",
+    "spirit": "pisco",
+    "required": [
+      "pisco",
+      "limon",
+      "jarabe_goma",
+      "clara_huevo",
+      "hielo"
+    ],
+    "optional": [
+      "angostura"
+    ],
+    "proportions": "3 partes Pisco 35° o 40°, 1 parte Jugo de limón de pica colado, 1 parte Jarabe de goma (3:1:1), 1 clara de huevo y 3 gotas de Amargo de Angostura",
+    "abv_estimated": 22,
+    "difficulty": "Medio",
+    "glass": "Copa flauta o vaso catedral",
+    "description": "El rey de los aperitivos chilenos. Batido enérgico en coctelera durante 20 segundos para lograr una corona de espuma densa, sedosa y persistente, finalizada con tres gotas de amargo para atrapar los aromas.",
+    "chilean_lore": "El aperitivo protocolar del asado de domingo y la previa elegante.",
+    "ratio": "3 partes Pisco 35° o 40°",
+    "history": "El aperitivo protocolar del asado de domingo y la previa elegante.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "pisco_sour_comercial",
+    "name": "Pisco Sour Comercial / Botella Preparada",
+    "category": "Pisco Sour",
+    "spirit": "pisco",
+    "required": [
+      "sour_comercial",
+      "hielo"
+    ],
+    "optional": [
+      "limon",
+      "angostura"
+    ],
+    "proportions": "Botella de Pisco Sour preparado 14°-16° (formatos 750ml o 1L) servido directo sobre hielo frappé o licuado 5 segundos",
+    "abv_estimated": 14.5,
+    "difficulty": "Fácil",
+    "glass": "Copa corta o vaso bajo",
+    "description": "La solución rápida y rendidora del carrete chileno (Campanario, Mistral Sour, etc.). Se guarda en el congelador 1 hora antes y se licúa con hielo picado para una textura frappé inigualable.",
+    "chilean_lore": "El comodín de cualquier cumpleaños donde nadie quiere pasar 20 minutos exprimiendo limones.",
+    "ratio": "Botella de Pisco Sour preparado 14°-16° (formatos 750ml o 1L) servido directo sobre hielo frappé o licuado 5 segundos",
+    "history": "El comodín de cualquier cumpleaños donde nadie quiere pasar 20 minutos exprimiendo limones.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "piscola_clasica",
+    "name": "Piscola Clásica (70/30)",
+    "category": "Destilados",
+    "spirit": "pisco",
+    "required": [
+      "pisco",
+      "bebida_cola",
+      "hielo"
+    ],
+    "optional": [
+      "limon"
+    ],
+    "proportions": "70% Coca-Cola, 30% Pisco 35° o 40°",
+    "abv_estimated": 12,
+    "difficulty": "Fácil",
+    "glass": "Vaso piscolero / highball",
+    "description": "El estandarte indiscutido de la noche chilena. Hielo en cubos grandes hasta arriba, pisco hasta el inicio del relieve y Coca-Cola fría servida despacio.",
+    "chilean_lore": "Patrimonio cultural informal. El 8 de febrero se celebra su día nacional.",
+    "ratio": "70% Coca-Cola",
+    "history": "Patrimonio cultural informal. El 8 de febrero se celebra su día nacional.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "piscola_blanca",
+    "name": "Piscola Blanca",
+    "category": "Destilados",
+    "spirit": "pisco",
+    "required": [
+      "pisco",
+      "sprite",
+      "hielo"
+    ],
+    "optional": [
+      "limon",
+      "menta"
+    ],
+    "proportions": "70% Sprite o Ginger Ale, 30% Pisco",
+    "abv_estimated": 12,
+    "difficulty": "Fácil",
+    "glass": "Vaso piscolero",
+    "description": "Alternativa más fresca y cítrica. Excelente con un gajo de limón exprimido al fondo.",
+    "chilean_lore": "Opción veraniega o para quienes prefieren evitar la cafeína de la bebida cola.",
+    "ratio": "70% Sprite o Ginger Ale",
+    "history": "Opción veraniega o para quienes prefieren evitar la cafeína de la bebida cola.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "terremoto_tipico",
+    "name": "Terremoto Típico Chileno",
+    "category": "Vinos Chilenos",
+    "spirit": "pipeño",
+    "required": [
+      "pipeño",
+      "helado_pina",
+      "granadina"
+    ],
+    "optional": [
+      "pisco",
+      "fernet"
+    ],
+    "proportions": "80% Vino Pipeño blanco helado, 2 grandes bolas de helado de piña y 1 chorro generoso de jarabe de granadina",
+    "abv_estimated": 9.5,
+    "difficulty": "Fácil",
+    "glass": "Vaso caña o vaso parrillero de 500cc",
+    "description": "El ícono republicano de las fiestas patrias y el carrete popular. Se sirve con bombilla gruesa y se remueve suavemente para que el helado se funda con el dulzor del pipeño.",
+    "chilean_lore": "Nacido en El Hoyo en 1985 tras el sismo de Valparaíso. El segundo se llama Réplica y el tercero es Tsunami.",
+    "ratio": "80% Vino Pipeño blanco helado",
+    "history": "Nacido en El Hoyo en 1985 tras el sismo de Valparaíso. El segundo se llama Réplica y el tercero es Tsunami.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "borgona_tradicional",
+    "name": "Borgoña Tradicional de Frutillas",
+    "category": "Vinos Chilenos",
+    "spirit": "vino_tinto",
+    "required": [
+      "vino_tinto",
+      "frutillas",
+      "azucar",
+      "hielo"
+    ],
+    "optional": [],
+    "proportions": "1 botella de Vino Tinto Carménère o Cabernet Sauvignon, 500g de frutillas naturales picadas maceradas con 4 cucharadas de azúcar durante 1 hora",
+    "abv_estimated": 10,
+    "difficulty": "Medio",
+    "glass": "Copa balón o jarra de vidrio",
+    "description": "Una de las tradiciones más nobles del campo y la bohemia chilena. La fruta macerada suelta un almíbar carmesí que endulza naturalmente el tinto, equilibrando los taninos.",
+    "chilean_lore": "El rey de las tardes de primavera en el Valle Central. Las frutillas del fondo se comen con cuchara.",
+    "ratio": "1 botella de Vino Tinto Carménère o Cabernet Sauvignon",
+    "history": "El rey de las tardes de primavera en el Valle Central. Las frutillas del fondo se comen con cuchara.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "clery_verano",
+    "name": "Clery de Verano",
+    "category": "Vinos Chilenos",
+    "spirit": "vino_blanco",
+    "required": [
+      "vino_blanco",
+      "frutillas",
+      "azucar",
+      "hielo"
+    ],
+    "optional": [
+      "sprite"
+    ],
+    "proportions": "1 botella de Vino Blanco Sauvignon Blanc o Late Harvest, 400g frutillas frescas en rodajas maceradas con azúcar y toque opcional de Sprite",
+    "abv_estimated": 9,
+    "difficulty": "Fácil",
+    "glass": "Copa o jarra con hielo",
+    "description": "El primo frutal y veraniego del Borgoña, preparado con vino blanco bien helado. Extremadamente refrescante y suave al paladar.",
+    "chilean_lore": "Trago típico de la costa chilena y las sobremesas estivales.",
+    "ratio": "1 botella de Vino Blanco Sauvignon Blanc o Late Harvest",
+    "history": "Trago típico de la costa chilena y las sobremesas estivales.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "sangria_previa",
+    "name": "Sangría de Previa Chilena",
+    "category": "Vinos Chilenos",
+    "spirit": "vino_tinto",
+    "required": [
+      "vino_tinto",
+      "fanta",
+      "naranja",
+      "fruta",
+      "hielo"
+    ],
+    "optional": [
+      "canela"
+    ],
+    "proportions": "1 litro de Vino Tinto, 500ml Fanta o Sprite, rodajas de naranja, manzana picada y canela",
+    "abv_estimated": 8,
+    "difficulty": "Fácil",
+    "glass": "Jarra de vidrio y vasos anchos",
+    "description": "Rendidora, económica y deliciosa para grupos grandes. Las rodajas de naranja aportan acidez y aroma a los taninos del vino.",
+    "chilean_lore": "La salvación de los presupuestos universitarios en juntadas de 10+ personas.",
+    "ratio": "1 litro de Vino Tinto",
+    "history": "La salvación de los presupuestos universitarios en juntadas de 10+ personas.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "vino_navegado",
+    "name": "Vino Navegado (Navega'o Invernal)",
+    "category": "Vinos Chilenos",
+    "spirit": "vino_tinto",
+    "required": [
+      "vino_tinto",
+      "naranja",
+      "canela",
+      "clavo_olor",
+      "azucar"
+    ],
+    "optional": [],
+    "proportions": "1 botella de Vino Tinto caliente, rodajas de naranja con cáscara, 2 ramas de canela, 4 clavos de olor y 3 cucharadas de azúcar (sin hervir)",
+    "abv_estimated": 9,
+    "difficulty": "Medio",
+    "glass": "Taza de greda o vaso térmico",
+    "description": "Calentado suavemente a fuego lento para infusionar las especias y caramelizar la naranja. Se sirve humeante.",
+    "chilean_lore": "La cura oficial contra el frío del sur de Chile y las noches de niebla.",
+    "ratio": "1 botella de Vino Tinto caliente",
+    "history": "La cura oficial contra el frío del sur de Chile y las noches de niebla.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "vodka_tonica",
+    "name": "Vodka Tonic Clásico",
+    "category": "Vodka",
+    "spirit": "vodka",
+    "required": [
+      "vodka",
+      "tonica",
+      "hielo"
+    ],
+    "optional": [
+      "limon"
+    ],
+    "proportions": "50ml Vodka neutro, 150ml Tónica, gajo de limón",
+    "abv_estimated": 13,
+    "difficulty": "Fácil",
+    "glass": "Vaso highball",
+    "description": "Trago neutro, seco y muy refrescante. Casi sin olor ni azúcar añadida excesiva.",
+    "chilean_lore": "Preferido por quienes buscan una resaca más piola y menos azúcar.",
+    "ratio": "50ml Vodka neutro",
+    "history": "Preferido por quienes buscan una resaca más piola y menos azúcar.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "screwdriver_destornillador",
+    "name": "Destornillador (Screwdriver)",
+    "category": "Vodka",
+    "spirit": "vodka",
+    "required": [
+      "vodka",
+      "jugo_naranja",
+      "hielo"
+    ],
+    "optional": [
+      "naranja"
+    ],
+    "proportions": "50ml Vodka neutro, 150ml Jugo de naranja natural o en caja",
+    "abv_estimated": 11.5,
+    "difficulty": "Fácil",
+    "glass": "Vaso largo",
+    "description": "Cítrico, frutal y fácil de beber. La vitamina C y la pulpa de naranja disimulan la fuerza alcohólica del vodka.",
+    "chilean_lore": "Peligro: pasa como néctar. Se recomienda alternar con vasos de agua.",
+    "ratio": "50ml Vodka neutro",
+    "history": "Peligro: pasa como néctar. Se recomienda alternar con vasos de agua.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "caipiroska_express",
+    "name": "Caipiroska Express",
+    "category": "Vodka",
+    "spirit": "vodka",
+    "required": [
+      "vodka",
+      "limon",
+      "azucar",
+      "hielo"
+    ],
+    "optional": [],
+    "proportions": "60ml Vodka neutro, 1 limón cortado en gajos machacado con 2 cucharadas de azúcar en el vaso, hielo frappé",
+    "abv_estimated": 16,
+    "difficulty": "Medio",
+    "glass": "Vaso corto y ancho (old fashioned)",
+    "description": "Versión con vodka de la clásica caipirinha brasileña. Machacar el limón para extraer sus aceites esenciales antes de añadir el licor.",
+    "chilean_lore": "El cóctel preferido en previas veraniegas con buena música.",
+    "ratio": "60ml Vodka neutro",
+    "history": "El cóctel preferido en previas veraniegas con buena música.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "vodka_sabores_frambuesa",
+    "name": "Vodka Frambuesa Frizz",
+    "category": "Vodka Sabores",
+    "spirit": "vodka_sabores",
+    "required": [
+      "vodka_frambuesa",
+      "sprite",
+      "hielo"
+    ],
+    "optional": [
+      "limon"
+    ],
+    "proportions": "50ml Vodka de Frambuesa (Absolut Raspberri o similar), 150ml Sprite Zero o Regular, hielo abundante",
+    "abv_estimated": 11.5,
+    "difficulty": "Fácil",
+    "glass": "Vaso largo",
+    "description": "Aroma intenso a berries silvestres, dulce y efervescente. Un chorrito de jugo de limón corta el exceso de dulzor.",
+    "chilean_lore": "Muy popular en previas juveniles por su sabor suave y frutoso.",
+    "ratio": "50ml Vodka de Frambuesa (Absolut Raspberri o similar)",
+    "history": "Muy popular en previas juveniles por su sabor suave y frutoso.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "vodka_sabores_vainilla_ginger",
+    "name": "Vodka Vainilla & Ginger Ale",
+    "category": "Vodka Sabores",
+    "spirit": "vodka_sabores",
+    "required": [
+      "vodka_vainilla",
+      "ginger_ale",
+      "hielo"
+    ],
+    "optional": [
+      "limon"
+    ],
+    "proportions": "50ml Vodka de Vainilla, 150ml Ginger Ale helada, rodaja de limón",
+    "abv_estimated": 12,
+    "difficulty": "Fácil",
+    "glass": "Vaso highball",
+    "description": "Combinación aromática que recuerda al caramelo suave con el picor burbujeante del jengibre.",
+    "chilean_lore": "Para los que buscan salir de la piscola clásica con un perfil más dulce.",
+    "ratio": "50ml Vodka de Vainilla",
+    "history": "Para los que buscan salir de la piscola clásica con un perfil más dulce.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "vodka_sabores_manzana_tonica",
+    "name": "Vodka Manzana Verde & Tónica",
+    "category": "Vodka Sabores",
+    "spirit": "vodka_sabores",
+    "required": [
+      "vodka_manzana",
+      "tonica",
+      "hielo"
+    ],
+    "optional": [
+      "pepino"
+    ],
+    "proportions": "50ml Vodka sabor manzana verde, 150ml Tónica amarga, láminas de manzana o pepino",
+    "abv_estimated": 12,
+    "difficulty": "Fácil",
+    "glass": "Copa balón o vaso ancho",
+    "description": "Súper crujiente y fresco. La quinina de la tónica neutraliza la acidez de la manzana verde.",
+    "chilean_lore": "Refrescante trago de terraza veraniega.",
+    "ratio": "50ml Vodka sabor manzana verde",
+    "history": "Refrescante trago de terraza veraniega.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "vodka_sabores_citron_fizz",
+    "name": "Vodka Citron Limonada Frizz",
+    "category": "Vodka Sabores",
+    "spirit": "vodka_sabores",
+    "required": [
+      "vodka_citron",
+      "sprite",
+      "limon",
+      "hielo"
+    ],
+    "optional": [
+      "menta"
+    ],
+    "proportions": "50ml Vodka Citron, jugo de medio limón, relleno con Sprite y hojas de menta",
+    "abv_estimated": 11,
+    "difficulty": "Fácil",
+    "glass": "Vaso largo",
+    "description": "Explosión cítrica doble con los aceites de limón del vodka y la efervescencia de la bebida.",
+    "chilean_lore": "Ideal para días de calor sofocante en Santiago.",
+    "ratio": "50ml Vodka Citron",
+    "history": "Ideal para días de calor sofocante en Santiago.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "gin_tonic_express",
+    "name": "Gin Tonic Express",
+    "category": "Destilados",
+    "spirit": "gin",
+    "required": [
+      "gin",
+      "tonica",
+      "hielo"
+    ],
+    "optional": [
+      "limon",
+      "pepino"
+    ],
+    "proportions": "60ml Gin, 150ml Tónica",
+    "abv_estimated": 13.5,
+    "difficulty": "Fácil",
+    "glass": "Copa balón o vaso ancho",
+    "description": "El trago más aromático y balanceado de la mesa. La quinina de la tónica equilibra los botánicos del gin.",
+    "chilean_lore": "El salvador de las previas con onda chill.",
+    "ratio": "60ml Gin",
+    "history": "El salvador de las previas con onda chill.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "cuba_libre",
+    "name": "Cuba Libre",
+    "category": "Destilados",
+    "spirit": "ron",
+    "required": [
+      "ron",
+      "bebida_cola",
+      "limon",
+      "hielo"
+    ],
+    "optional": [],
+    "proportions": "50ml Ron añejo o dorado, 150ml Cola, gajo de limón",
+    "abv_estimated": 12.5,
+    "difficulty": "Fácil",
+    "glass": "Vaso largo",
+    "description": "El clásico caribeño. El limón exprimido y dejado en el vaso corta el dulzor del ron.",
+    "chilean_lore": "El favorito de las previas con salsa y reggaetón vieja escuela.",
+    "ratio": "50ml Ron añejo o dorado",
+    "history": "El favorito de las previas con salsa y reggaetón vieja escuela.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "michelada_chilena",
+    "name": "Michelada Chilena",
+    "category": "Cervezas",
+    "spirit": "cerveza",
+    "required": [
+      "cerveza",
+      "limon",
+      "sal",
+      "hielo"
+    ],
+    "optional": [
+      "aji_tabasco"
+    ],
+    "proportions": "1 Cerveza lager fría, jugo de 1-2 limones, copa escarchada con sal",
+    "abv_estimated": 4.5,
+    "difficulty": "Fácil",
+    "glass": "Shopero o vaso escarchado",
+    "description": "La reina de la mañana siguiente y la tarde calurosa. Sal en el borde, jugo de limón al fondo y cerveza lager bien helada.",
+    "chilean_lore": "El mejor revitalizador conocido por la ciencia popular chilena.",
+    "ratio": "1 Cerveza lager fría",
+    "history": "El mejor revitalizador conocido por la ciencia popular chilena.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "fernet_con_coca",
+    "name": "Fernet con Coca (70/30)",
+    "category": "Destilados",
+    "spirit": "fernet",
+    "required": [
+      "fernet",
+      "bebida_cola",
+      "hielo"
+    ],
+    "optional": [],
+    "proportions": "70% Coca-Cola, 30% Fernet con espuma cremosa",
+    "abv_estimated": 12,
+    "difficulty": "Medio",
+    "glass": "Vaso largo o vaso cortado",
+    "description": "Herencia cordobesa adoptada en todo el cono sur. Amargo, herbal y digestivo.",
+    "chilean_lore": "El secreto: servir la Coca-Cola inclinando el vaso para no generar espuma excesiva al inicio.",
+    "ratio": "70% Coca-Cola",
+    "history": "El secreto: servir la Coca-Cola inclinando el vaso para no generar espuma excesiva al inicio.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "whisky_ginger_ale",
+    "name": "Whisky con Ginger Ale",
+    "category": "Destilados",
+    "spirit": "whisky",
+    "required": [
+      "whisky",
+      "ginger_ale",
+      "hielo"
+    ],
+    "optional": [
+      "limon"
+    ],
+    "proportions": "50ml Whisky, 150ml Ginger Ale, piel de limón",
+    "abv_estimated": 12.5,
+    "difficulty": "Fácil",
+    "glass": "Vaso corto o highball",
+    "description": "El toque picante y dulce del jengibre armoniza de inmediato las notas de madera y malta del whisky.",
+    "chilean_lore": "El favorito de las previas con juego de cartas o conversación larga.",
+    "ratio": "50ml Whisky",
+    "history": "El favorito de las previas con juego de cartas o conversación larga.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "espumante_mimosa",
+    "name": "Mimosa de Previa",
+    "category": "Fermentados",
+    "spirit": "espumante",
+    "required": [
+      "espumante",
+      "jugo_naranja"
+    ],
+    "optional": [
+      "hielo"
+    ],
+    "proportions": "50% Espumante Brut o Demi-sec, 50% Jugo de naranja",
+    "abv_estimated": 6.5,
+    "difficulty": "Fácil",
+    "glass": "Copa flauta o vaso",
+    "description": "Fresco, burbujeante y festivo. Perfecto para brindar al comienzo de la noche.",
+    "chilean_lore": "El trago que eleva cualquier cumpleaños al instante.",
+    "ratio": "50% Espumante Brut o Demi-sec",
+    "history": "El trago que eleva cualquier cumpleaños al instante.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "virgin_mojito_mocktail",
+    "name": "Virgin Mojito (Sin Alcohol)",
+    "category": "Mocktail",
+    "spirit": "sin_alcohol",
+    "required": [
+      "sprite",
+      "limon",
+      "menta",
+      "hielo"
+    ],
+    "optional": [
+      "azucar"
+    ],
+    "proportions": "Hojas de menta maceradas con limón, hielo abundante y Sprite",
+    "abv_estimated": 0,
+    "difficulty": "Fácil",
+    "glass": "Vaso largo",
+    "description": "100% libre de alcohol, ultra refrescante y con toda la onda de un cóctel de autor.",
+    "chilean_lore": "El trago del Conductor Designado con honores.",
+    "ratio": "Hojas de menta maceradas con limón",
+    "history": "El trago del Conductor Designado con honores.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "limonada_menta_jengibre",
+    "name": "Limonada Frizz con Menta",
+    "category": "Mocktail",
+    "spirit": "sin_alcohol",
+    "required": [
+      "ginger_ale",
+      "limon",
+      "menta",
+      "hielo"
+    ],
+    "optional": [],
+    "proportions": "Jugo de limón, menta fresca y Ginger Ale helada",
+    "abv_estimated": 0,
+    "difficulty": "Fácil",
+    "glass": "Vaso largo",
+    "description": "Cítrico, burbujeante y digestivo. Excelente para alternar durante la ronda de agua.",
+    "chilean_lore": "Excelente para mantenerse hidratado sin aburrirse con agua sola.",
+    "ratio": "Jugo de limón",
+    "history": "Excelente para mantenerse hidratado sin aburrirse con agua sola.",
+    "steps": [
+      "Llena el vaso con hielo abundante hasta el borde.",
+      "Agrega los licores y destilados base.",
+      "Completa con los mezcladores o jugos fríos.",
+      "Revuelve suavemente con bombilla o cuchara de bar."
+    ]
+  },
+  {
+    "id": "piscola_80_20",
+    "name": "Piscola Fuerte (80/20 o 60/40 Pesada)",
+    "category": "Destilados",
+    "spirit": "pisco",
+    "required": [
+      "pisco",
+      "bebida_cola",
+      "hielo"
+    ],
+    "optional": [
+      "limon"
+    ],
+    "proportions": "40% a 50% Pisco 35° o 40°, 50% a 60% Bebida Cola, 3 cubos de hielo",
+    "ratio": "60/40",
+    "abv_estimated": 18.5,
+    "difficulty": "Fácil",
+    "glass": "Vaso piscolero grueso",
+    "description": "La versión cargada para los que buscan un sabor a destilado más pronunciado. Muy popular al final de la previa.",
+    "chilean_lore": "La clásica «piscola con cariño» servida por el dueño de casa.",
+    "history": "Variante de la piscola tradicional nacida en juntas universitarias donde el hielo y la coca se sirven con mesura para destacar el roble del pisco.",
+    "steps": [
+      "Agrega solo 2 o 3 hielos grandes en el vaso piscolero.",
+      "Sirve pisco hasta la mitad o más del vaso (40% a 50%).",
+      "Completa con un toque de Coca-Cola helada sin revolver excesivamente."
+    ]
+  },
+  {
+    "id": "moscow_mule",
+    "name": "Moscow Mule Express",
+    "category": "Vodka",
+    "spirit": "vodka",
+    "required": [
+      "vodka",
+      "ginger_ale",
+      "limon",
+      "hielo"
+    ],
+    "optional": [
+      "menta"
+    ],
+    "proportions": "60ml Vodka, 15ml Jugo de limón recién exprimido, completar con Ginger Ale o Ginger Beer",
+    "ratio": "1:3",
+    "abv_estimated": 13,
+    "difficulty": "Fácil",
+    "glass": "Tazón de cobre o vaso bajo",
+    "description": "Fresco, efervescente y especiado por el jengibre. En carretes se prepara con Ginger Ale Canada Dry y limón de pica.",
+    "chilean_lore": "El cóctel preferido en terrazas de Providencia y Bellavista para capear el calor veraniego.",
+    "history": "Creado en EE.UU. en los años 40 para popularizar el vodka y la cerveza de jengibre, servido emblemáticamente en jarro de cobre.",
+    "steps": [
+      "Llena el tazón o vaso con hielo picado o cubos.",
+      "Añade 60ml de vodka y exprime medio limón fresco.",
+      "Rellena con Ginger Ale bien fría.",
+      "Decora con una rodaja de limón y una ramita de menta si hay a mano."
+    ]
+  },
+  {
+    "id": "mojito_clasico",
+    "name": "Mojito Cubano Clásico",
+    "category": "Ron",
+    "spirit": "ron",
+    "required": [
+      "ron",
+      "menta",
+      "limon",
+      "azucar",
+      "agua_gas",
+      "hielo"
+    ],
+    "optional": [
+      "sprite"
+    ],
+    "proportions": "60ml Ron blanco o añejo, 8-10 hojas de menta fresca, 20ml jugo de limón, 2 cditas azúcar, agua con gas",
+    "ratio": "1:2",
+    "abv_estimated": 11.5,
+    "difficulty": "Medio",
+    "glass": "Vaso alto (Collins)",
+    "description": "El cóctel de menta y lima por excelencia. Machacado suave para extraer los aceites de la menta sin amargar.",
+    "chilean_lore": "Infaltable en celebraciones de año nuevo y previas de verano.",
+    "history": "Originario de La Habana, Cuba. Famoso por ser uno de los tragos predilectos de Ernest Hemingway en La Bodeguita del Medio.",
+    "steps": [
+      "En el fondo del vaso coloca la menta, el jugo de limón y 2 cucharaditas de azúcar.",
+      "Presiona suavemente con mortero para liberar aromas (sin romper las hojas).",
+      "Agrega hielo picado o cubos hasta arriba.",
+      "Vierte 60ml de ron y completa con un chorro de agua con gas o Sprite.",
+      "Remueve de abajo hacia arriba."
+    ]
+  },
+  {
+    "id": "margarita_clasica",
+    "name": "Margarita Clásica",
+    "category": "Tequila",
+    "spirit": "tequila",
+    "required": [
+      "tequila",
+      "limon",
+      "sal",
+      "hielo"
+    ],
+    "optional": [
+      "triple_sec",
+      "azucar"
+    ],
+    "proportions": "50ml Tequila, 25ml Jugo de limón de pica, 20ml licor de naranja o almíbar, borde con sal",
+    "ratio": "2:1:1",
+    "abv_estimated": 20,
+    "difficulty": "Medio",
+    "glass": "Copa Margarita o vaso bajo",
+    "description": "Equilibrio perfecto entre la fuerza del agave, la acidez del limón y el contraste de la sal en el borde.",
+    "chilean_lore": "El cóctel estrella cuando en el carrete aparece una botella de tequila traída de México o duty-free.",
+    "history": "Nacido en México en los años 30 o 40, es uno de los cócteles más versionados y aclamados del mundo.",
+    "steps": [
+      "Pasa un trozo de limón por el borde del vaso y escárchalo en un plato con sal fina.",
+      "En una coctelera o vaso mezclador con hielo, añade tequila, limón y almíbar/triple sec.",
+      "Agita enérgicamente por 15 segundos.",
+      "Cuela en la copa escarchada con cuidado de no tocar la sal."
+    ]
+  },
+  {
+    "id": "blue_lagoon_express",
+    "name": "Blue Lagoon Express",
+    "category": "Vodka",
+    "spirit": "vodka",
+    "required": [
+      "vodka",
+      "sprite",
+      "limon",
+      "hielo"
+    ],
+    "optional": [
+      "curacao_azul",
+      "tonica"
+    ],
+    "proportions": "50ml Vodka, 20ml Curacao Azul (o licor cítrico), jugo de medio limón, completar con Sprite",
+    "ratio": "1:3",
+    "abv_estimated": 12,
+    "difficulty": "Fácil",
+    "glass": "Vaso alto / tubo",
+    "description": "Color azul eléctrico vibrante, refrescante y muy dulce. Muy solicitado en fiestas temáticas y carretes nocturnos.",
+    "chilean_lore": "El trago visualmente más llamativo de la barra universitaria.",
+    "history": "Inventado por Andy MacElhone en el Harry’s New York Bar de París en los años 70.",
+    "steps": [
+      "Llena el vaso con hielo hasta el tope.",
+      "Agrega el vodka y el jugo de limón.",
+      "Rellena con Sprite helada.",
+      "Agrega el Curacao Azul al final despacio para lograr un efecto degradé oceánico."
+    ]
+  }
+]

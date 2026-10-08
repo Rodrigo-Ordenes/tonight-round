@@ -1,0 +1,141 @@
+{
+  "never_have_i_ever": {
+    "categories": [
+      {
+        "id": "mechona",
+        "name": "Previa Mechona / Piola",
+        "icon": "🎒",
+        "description": "Anécdotas cotidianas, colegio, primeras fiestas y vergüenzas ligeras",
+        "questions": [
+          "Yo nunca nunca me he quedado dormido en una fiesta antes de las 12.",
+          "Yo nunca nunca he tomado el bus o micro equivocado al volver de un carrete.",
+          "Yo nunca nunca le he mentido a mis papás diciendo que me quedaba en casa de un amigo para ir a otro lado.",
+          "Yo nunca nunca me he tropezado en la pista de baile y fingí que era parte del paso.",
+          "Yo nunca nunca he tomado piscola en vaso de plumavit o cortado.",
+          "Yo nunca nunca he stalkeado a alguien y se me escapó un like en una foto de hace 4 años.",
+          "Yo nunca nunca he fingido conocer una canción solo porque todos la estaban cantando con el alma.",
+          "Yo nunca nunca he perdido mi billetera o celular en una noche y apareció en el lugar más absurdo."
+        ]
+      },
+      {
+        "id": "universitario",
+        "name": "Universitario Salvaje",
+        "icon": "🎓",
+        "description": "Carretes intensos, trasnoches de examen, fogatas y experimentos etílicos",
+        "questions": [
+          "Yo nunca nunca he ido a dar un certamen o examen sin dormir después de un carrete.",
+          "Yo nunca nunca he probado un trago preparado en un balde, melón o sandía con pisco.",
+          "Yo nunca nunca he aplicado 'bomba de humo' (irme sin despedirme de nadie).",
+          "Yo nunca nunca he prometido 'hoy no tomo nada' y terminé cerrando el local.",
+          "Yo nunca nunca me he despertado sin saber en qué cama o sillón estaba.",
+          "Yo nunca nunca he llevado una botella vacía o barata a una fiesta y me tomé el copete caro de otro.",
+          "Yo nunca nunca he tenido que pagar una cuota de carrete tres días después porque me quedé sin saldo.",
+          "Yo nunca nunca he vomitado en una planta o patio disimuladamente."
+        ]
+      },
+      {
+        "id": "picante",
+        "name": "Picante & Confesiones",
+        "icon": "🌶️",
+        "description": "Tinder, exparejas, romances prohibidos y mensajes enviados a las 3 AM",
+        "questions": [
+          "Yo nunca nunca le he mandado un audio o mensaje a un ex después de las 2 de la mañana con alcohol.",
+          "Yo nunca nunca me he besado con alguien del grupo de amigos de mi ex.",
+          "Yo nunca nunca he salido con dos personas que se conocen entre sí sin que lo supieran.",
+          "Yo nunca nunca he hecho match en Tinder con alguien de esta misma mesa o junta.",
+          "Yo nunca nunca he tenido un crush secreto con alguien de este grupo.",
+          "Yo nunca nunca he inventado una emergencia médica para escapar de una cita desastrosa.",
+          "Yo nunca nunca he besado a alguien en una fiesta y al día siguiente no recordaba su nombre.",
+          "Yo nunca nunca me he arrepentido de una historia de Instagram al verla a la mañana siguiente con caña moral."
+        ]
+      },
+      {
+        "id": "toxico",
+        "name": "Tóxico / Expuestos",
+        "icon": "☣️",
+        "description": "Secretos oscuros, celos, trampas y verdades que duelen",
+        "questions": [
+          "Yo nunca nunca le he revisado el teléfono a mi pareja mientras dormía o se duchaba.",
+          "Yo nunca nunca he fingido que no me llegó un mensaje en WhatsApp desactivando los vistos azules.",
+          "Yo nunca nunca he tenido una cuenta falsa de Instagram para vigilar a alguien.",
+          "Yo nunca nunca he fingido estar borracho para decir una verdad incómoda.",
+          "Yo nunca nunca he hablado mal de alguien que está presente en esta junta.",
+          "Yo nunca nunca he borrado un chat entero por miedo a que alguien lo leyera.",
+          "Yo nunca nunca me he metido a un carrete al que no estaba invitado.",
+          "Yo nunca nunca he fingido ser el Conductor Designado solo para que me llevaran gratis."
+        ]
+      }
+    ]
+  },
+  "time_bomb_categories": [
+    "Marcas de cerveza chilena o extranjera",
+    "Excusas para llegar tarde al trabajo o a la universidad",
+    "Cosas que encuentras en un refrigerador de carrete a las 3 AM",
+    "Tragos que se pueden preparar con pisco",
+    "Mentiras típicas que le dices a tu ex",
+    "Ciudades o pueblos de Chile donde el carrete es legendario",
+    "Comidas chatarras que salvan la caña al día siguiente",
+    "Frases que dice alguien que jura de guata que está sobrio",
+    "Bandas o cantantes que no pueden faltar en un carrete chileno",
+    "Cosas que se pierden con facilidad en una noche de fiesta",
+    "Marcas de cerveza",
+    "Canciones de reggaetón",
+    "Comunas de Santiago",
+    "Insultos chilenos suaves",
+    "Cosas que se llevan a un carrete",
+    "Ex de la pandilla",
+    "Series de Netflix",
+    "Equipos de fútbol chilenos",
+    "Platos de fiestas patrias",
+    "Marcas de pisco"
+  ],
+  "roulette": {
+    "categories": [
+      {
+        "id": "penitencias",
+        "name": "Penitencias leves",
+        "icon": "😈",
+        "phrases": [
+          "Habla con acento extranjero por 2 rondas",
+          "Cuenta tu peor cita en 30 segundos",
+          "Imita a otro jugador hasta tu próximo turno",
+          "Canta el coro de una canción elegida por el grupo",
+          "Baila 20 segundos sin música",
+          "Deja que el grupo escriba un emoji en tu mano",
+          "Di un cumplido sincero a cada persona",
+          "Haz 10 sentadillas con agua en la mano"
+        ]
+      },
+      {
+        "id": "desafios",
+        "name": "Desafíos grupales",
+        "icon": "🤝",
+        "phrases": [
+          "Todos toman agua al mismo tiempo",
+          "Foto grupal con la peor cara posible",
+          "El grupo elige tu próxima canción",
+          "Mímica: el grupo adivina en 30 segundos",
+          "Cadena de palabras: nadie puede repetir",
+          "Todos apuntan a quien creen que llega último a casa",
+          "Ronda de aplausos para el más calmado",
+          "Brindis grupal con agua o bebida sin alcohol"
+        ]
+      },
+      {
+        "id": "picantes",
+        "name": "Preguntas picantes",
+        "icon": "🌶️",
+        "phrases": [
+          "¿Quién del grupo es el más celoso?",
+          "¿Cuál fue tu mejor carrete y por qué?",
+          "¿A quién de la mesa le pedirías un consejo amoroso?",
+          "¿Qué es lo más loco que hiciste por amor?",
+          "¿Qué apodo vergonzoso tuviste?",
+          "¿Quién crees que se enamora más rápido?",
+          "Cuenta un secreto inofensivo que nadie sepa",
+          "¿Qué canción te hace llorar o bailar sin pudor?"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,526 @@
+{
+  "updated_at": "2026-10-07T19:51:48.724045+00:00",
+  "currency": "CLP",
+  "items": [
+    {
+      "id": "pisco_alto_35_750",
+      "name": "Pisco Alto del Carmen 35° 750cc",
+      "category": "destilados",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 6990,
+        "jumbo": 7290,
+        "botilleria_ref": 7990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "pisco_alto_35_1l",
+      "name": "Pisco Alto del Carmen 35° 1L",
+      "category": "destilados",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 8990,
+        "jumbo": 9290,
+        "botilleria_ref": 9990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1000
+    },
+    {
+      "id": "pisco_mistral_35_750",
+      "name": "Pisco Mistral 35° 750cc",
+      "category": "destilados",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 7190,
+        "jumbo": 7490,
+        "botilleria_ref": 8200
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "pisco_mistral_35_1l",
+      "name": "Pisco Mistral 35° 1L",
+      "category": "destilados",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 9290,
+        "jumbo": 9690,
+        "botilleria_ref": 10490
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1000
+    },
+    {
+      "id": "pisco_alto_40_750",
+      "name": "Pisco Alto del Carmen Reservado 40° 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 8690,
+        "jumbo": 8990,
+        "botilleria_ref": 9990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "pisco_mistral_40_750",
+      "name": "Pisco Mistral Gran Nobel / 40° 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 8990,
+        "jumbo": 9390,
+        "botilleria_ref": 10290
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "pisco_horcon_quemado_40",
+      "name": "Pisco Horcón Quemado 40° 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 13490,
+        "jumbo": 13990,
+        "botilleria_ref": 15490
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "vodka_stolichnaya_750",
+      "name": "Vodka Stolichnaya Premium 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 10990,
+        "jumbo": 11490,
+        "botilleria_ref": 12590
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "vodka_absolut_750",
+      "name": "Vodka Absolut Blue 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 12490,
+        "jumbo": 12990,
+        "botilleria_ref": 14290
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "gin_beefeater_750",
+      "name": "Gin Beefeater London Dry 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 13990,
+        "jumbo": 14490,
+        "botilleria_ref": 15990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "gin_tanqueray_750",
+      "name": "Gin Tanqueray London Dry 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 15990,
+        "jumbo": 16490,
+        "botilleria_ref": 17990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "ron_havana_especial_750",
+      "name": "Ron Havana Club Añejo Especial 750cc",
+      "category": "destilados",
+      "tier": "clasica",
+      "prices": {
+        "lider": 10490,
+        "jumbo": 10890,
+        "botilleria_ref": 11990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 750
+    },
+    {
+      "id": "cerveza_cristal_6pack",
+      "name": "Cerveza Cristal Pack 6 Latas 350cc",
+      "category": "cervezas",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 4490,
+        "jumbo": 4790,
+        "botilleria_ref": 5200
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 2100
+    },
+    {
+      "id": "cerveza_cristal_24pack",
+      "name": "Cerveza Cristal Pack 24 Latas 350cc",
+      "category": "cervezas",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 15990,
+        "jumbo": 16990,
+        "botilleria_ref": 18490
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 8400
+    },
+    {
+      "id": "cerveza_escudo_6pack",
+      "name": "Cerveza Escudo Silver Pack 6 Latas 350cc",
+      "category": "cervezas",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 4590,
+        "jumbo": 4890,
+        "botilleria_ref": 5300
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 2100
+    },
+    {
+      "id": "cerveza_royal_6pack",
+      "name": "Cerveza Royal Guard Pack 6 Latas 350cc",
+      "category": "cervezas",
+      "tier": "clasica",
+      "prices": {
+        "lider": 5490,
+        "jumbo": 5790,
+        "botilleria_ref": 6290
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 2100
+    },
+    {
+      "id": "cerveza_royal_24pack",
+      "name": "Cerveza Royal Guard Pack 24 Latas 350cc",
+      "category": "cervezas",
+      "tier": "clasica",
+      "prices": {
+        "lider": 19990,
+        "jumbo": 20990,
+        "botilleria_ref": 22990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 8400
+    },
+    {
+      "id": "cerveza_heineken_6pack",
+      "name": "Cerveza Heineken Pack 6 Latas 350cc",
+      "category": "cervezas",
+      "tier": "clasica",
+      "prices": {
+        "lider": 5990,
+        "jumbo": 6290,
+        "botilleria_ref": 6890
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 2100
+    },
+    {
+      "id": "cerveza_heineken_24pack",
+      "name": "Cerveza Heineken Pack 24 Latas 350cc",
+      "category": "cervezas",
+      "tier": "clasica",
+      "prices": {
+        "lider": 22490,
+        "jumbo": 23490,
+        "botilleria_ref": 25890
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 8400
+    },
+    {
+      "id": "cerveza_corona_6pack",
+      "name": "Cerveza Corona Extra 6 Botellas 330cc",
+      "category": "cervezas",
+      "tier": "clasica",
+      "prices": {
+        "lider": 6490,
+        "jumbo": 6790,
+        "botilleria_ref": 7490
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1980
+    },
+    {
+      "id": "cerveza_kross_ipa_4pack",
+      "name": "Cerveza Kross IPA Pack 4 Botellas 330cc",
+      "category": "cervezas",
+      "tier": "clasica",
+      "prices": {
+        "lider": 6990,
+        "jumbo": 7390,
+        "botilleria_ref": 7990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1320
+    },
+    {
+      "id": "cerveza_kunstmann_torobayo_6pack",
+      "name": "Cerveza Kunstmann Torobayo 6 Botellas 330cc",
+      "category": "cervezas",
+      "tier": "clasica",
+      "prices": {
+        "lider": 8490,
+        "jumbo": 8890,
+        "botilleria_ref": 9790
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1980
+    },
+    {
+      "id": "bebida_coca_cola_3l",
+      "name": "Bebida Coca-Cola Original 3L",
+      "category": "mezcladores",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 2990,
+        "jumbo": 3190,
+        "botilleria_ref": 3500
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 3000
+    },
+    {
+      "id": "bebida_coca_cola_25l",
+      "name": "Bebida Coca-Cola Original 2.5L",
+      "category": "mezcladores",
+      "tier": "clasica",
+      "prices": {
+        "lider": 2490,
+        "jumbo": 2690,
+        "botilleria_ref": 2900
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 2500
+    },
+    {
+      "id": "bebida_coca_zero_25l",
+      "name": "Bebida Coca-Cola Sin Azúcar 2.5L",
+      "category": "mezcladores",
+      "tier": "clasica",
+      "prices": {
+        "lider": 2490,
+        "jumbo": 2690,
+        "botilleria_ref": 2900
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 2500
+    },
+    {
+      "id": "bebida_sprite_25l",
+      "name": "Bebida Sprite Lima-Limón 2.5L",
+      "category": "mezcladores",
+      "tier": "clasica",
+      "prices": {
+        "lider": 2390,
+        "jumbo": 2590,
+        "botilleria_ref": 2800
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 2500
+    },
+    {
+      "id": "tonica_nordic_15l",
+      "name": "Agua Tónica Nordic Mist 1.5L",
+      "category": "mezcladores",
+      "tier": "mocktail",
+      "prices": {
+        "lider": 1890,
+        "jumbo": 1990,
+        "botilleria_ref": 2200
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1500
+    },
+    {
+      "id": "ginger_ale_canada_dry_15l",
+      "name": "Ginger Ale Canada Dry 1.5L",
+      "category": "mezcladores",
+      "tier": "mocktail",
+      "prices": {
+        "lider": 1790,
+        "jumbo": 1890,
+        "botilleria_ref": 2100
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1500
+    },
+    {
+      "id": "jugo_watts_naranja_15l",
+      "name": "Jugo Néctar Naranja Watts 1.5L",
+      "category": "mezcladores",
+      "tier": "mocktail",
+      "prices": {
+        "lider": 1790,
+        "jumbo": 1890,
+        "botilleria_ref": 2100
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1500
+    },
+    {
+      "id": "jugo_guallarauco_frutas_1l",
+      "name": "Jugo Guallarauco 100% Fruta 1L",
+      "category": "mezcladores",
+      "tier": "mocktail",
+      "prices": {
+        "lider": 2490,
+        "jumbo": 2690,
+        "botilleria_ref": 2990
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 1000
+    },
+    {
+      "id": "jarabe_granadina_mitjans_900ml",
+      "name": "Jarabe Granadina Mitjans 900ml",
+      "category": "mezcladores",
+      "tier": "mocktail",
+      "prices": {
+        "lider": 2290,
+        "jumbo": 2490,
+        "botilleria_ref": 2790
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 900
+    },
+    {
+      "id": "hielo_2kg",
+      "name": "Bolsa de Hielo en Cubos 2kg",
+      "category": "insumos",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 1890,
+        "jumbo": 1990,
+        "botilleria_ref": 2200
+      },
+      "last_verified": "2026-10-07",
+      "unit_weight_g": 2000
+    },
+    {
+      "id": "hielo_4kg",
+      "name": "Bolsa de Hielo en Cubos 4kg",
+      "category": "insumos",
+      "tier": "clasica",
+      "prices": {
+        "lider": 3290,
+        "jumbo": 3490,
+        "botilleria_ref": 3890
+      },
+      "last_verified": "2026-10-07",
+      "unit_weight_g": 4000
+    },
+    {
+      "id": "vasos_plasticos_500cc_50u",
+      "name": "Vasos Plásticos 500cc (50 Unidades)",
+      "category": "insumos",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 3490,
+        "jumbo": 3690,
+        "botilleria_ref": 4190
+      },
+      "last_verified": "2026-10-07",
+      "unit_weight_g": 400
+    },
+    {
+      "id": "papas_lays_380g",
+      "name": "Papas Fritas Lay's Corte Americano 380g",
+      "category": "insumos",
+      "tier": "clasica",
+      "prices": {
+        "lider": 3290,
+        "jumbo": 3490,
+        "botilleria_ref": 3890
+      },
+      "last_verified": "2026-10-07",
+      "unit_weight_g": 380
+    },
+    {
+      "id": "doritos_mega_220g",
+      "name": "Doritos Mega Queso 220g",
+      "category": "insumos",
+      "tier": "clasica",
+      "prices": {
+        "lider": 2690,
+        "jumbo": 2890,
+        "botilleria_ref": 3190
+      },
+      "last_verified": "2026-10-07",
+      "unit_weight_g": 220
+    },
+    {
+      "id": "mani_salado_180g",
+      "name": "Maní Salado Evercrisp 180g",
+      "category": "insumos",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 1490,
+        "jumbo": 1590,
+        "botilleria_ref": 1790
+      },
+      "last_verified": "2026-10-07",
+      "unit_weight_g": 180
+    },
+    {
+      "id": "agua_vital_sin_gas_2l",
+      "name": "Agua Mineral Vital Sin Gas 2L",
+      "category": "insumos",
+      "tier": "ahorro",
+      "prices": {
+        "lider": 1190,
+        "jumbo": 1290,
+        "botilleria_ref": 1490
+      },
+      "last_verified": "2026-10-07",
+      "unit_volume_ml": 2000
+    },
+    {
+      "id": "limon_malla_1kg",
+      "name": "Malla de Limones 1kg (Cítricos Mocktails)",
+      "category": "insumos",
+      "tier": "mocktail",
+      "prices": {
+        "lider": 1690,
+        "jumbo": 1890,
+        "botilleria_ref": 2100
+      },
+      "last_verified": "2026-10-07",
+      "unit_weight_g": 1000
+    },
+    {
+      "id": "menta_fresca_atado",
+      "name": "Atado de Menta Fresca / Hierbabuena",
+      "category": "insumos",
+      "tier": "mocktail",
+      "prices": {
+        "lider": 990,
+        "jumbo": 1190,
+        "botilleria_ref": 1390
+      },
+      "last_verified": "2026-10-07",
+      "unit_weight_g": 100
+    }
+  ]
+}

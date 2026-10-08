@@ -1,0 +1,152 @@
+[
+  {
+    "id": "cultura_chupistica",
+    "name": "Cultura Chupística",
+    "players": "3 a 15 personas",
+    "materials": "Ninguno",
+    "duration": "10-20 min",
+    "tags": ["Sin materiales", "Rompehielos", "Clásico"],
+    "description": "El clásico infaltable de los carretes chilenos donde se pone a prueba la rapidez mental bajo presión.",
+    "rules": [
+      "El moderador parte con el canto: 'Cultura chupística pide nombres de...' (ej. marcas de auto, excusas para no ir a trabajar, tragos con pisco).",
+      "Cada participante dice un elemento por turno en sentido horario sin repetir ni demorar más de 3 segundos.",
+      "Quien repite, tarda o se equivoca toma 1 sorbo (o pierde 1 vida en la versión por puntos)."
+    ],
+    "non_alcoholic_variant": "Juega con sistema de 3 vidas. Cada error resta una vida y quien quede sin vidas paga una penitencia divertida o lava los vasos."
+  },
+  {
+    "id": "piramide_cartas",
+    "name": "La Pirámide de Cartas",
+    "players": "3 a 8 personas",
+    "materials": "Mazo inglés o español",
+    "duration": "20-30 min",
+    "tags": ["Cartas", "Dinámico", "Estrategia"],
+    "description": "Construcción piramidal boca abajo donde regalas y recibes tragos según la coincidencia con tus cartas.",
+    "rules": [
+      "Fase 1: Cada jugador recibe 4 cartas secretas. Se arma una pirámide de cartas boca abajo sobre la mesa (5 cartas en la base hasta 1 en la cima).",
+      "Fase 2: Se van revelando las cartas de la pirámide fila por fila de abajo hacia arriba. Si tienes la misma carta en mano, mandas a tomar tantos sorbos como el nivel de la fila (nivel 1 = 1 sorbo, nivel 5 = 5 sorbos).",
+      "Fase 3: Quien quede con más cartas al final sube a 'la cima del volcán' adivinando cartas consecutivas."
+    ],
+    "non_alcoholic_variant": "En vez de sorbos, se reparten puntos de penitencia acumulables o monedas simbólicas."
+  },
+  {
+    "id": "yo_nunca_nunca",
+    "name": "Yo Nunca Nunca",
+    "players": "3 a 20 personas",
+    "materials": "Ninguno",
+    "duration": "15-25 min",
+    "tags": ["Sin materiales", "Rompehielos", "Confesiones"],
+    "description": "Para sacar verdades a la luz y conocer anécdotas insólitas del grupo.",
+    "rules": [
+      "Un participante dice una frase comenzando con 'Yo nunca nunca...' relatando algo que jamás haya hecho.",
+      "Todos los que sí lo hayan hecho en su vida deben beber un trago.",
+      "Si nadie en el grupo lo ha hecho, quien hizo la afirmación bebe por inventar algo imposible."
+    ],
+    "non_alcoholic_variant": "Cada jugador empieza levantando 5 o 10 dedos. Cada vez que alguien haya hecho la acción, baja un dedo. El primero en quedarse sin dedos responde una pregunta secreta elegida por el grupo."
+  },
+  {
+    "id": "mayor_o_menor",
+    "name": "Mayor o Menor (El Autobús)",
+    "players": "2 a 8 personas",
+    "materials": "Mazo inglés o de naipe",
+    "duration": "15-25 min",
+    "tags": ["Cartas", "Tensión", "Rápido"],
+    "description": "Adivinar si la siguiente carta es mayor o menor. El error se acumula rápidamente.",
+    "rules": [
+      "El repartidor coloca una carta descubierta y le pide al jugador actual que adivine si la siguiente será MAYOR, MENOR o IGUAL.",
+      "Si acierta, pasa el turno al siguiente o decide apostar otra carta para doblar.",
+      "Si falla, toma un sorbo por cada carta acumulada en la racha actual."
+    ],
+    "non_alcoholic_variant": "Lleva la cuenta de aciertos consecutivos. El jugador con la racha más larga gana el título de oráculo de la noche."
+  },
+  {
+    "id": "medusa",
+    "name": "Medusa",
+    "players": "4 a 12 personas",
+    "materials": "Vasos y mesa redonda",
+    "duration": "10-15 min",
+    "tags": ["Sin materiales", "Rápido", "Tensión"],
+    "description": "Contacto visual fulminante. Si dos miradas se cruzan, ¡ambos caen!",
+    "rules": [
+      "Todos los jugadores se sientan en círculo con la cabeza agachada mirando sus vasos o la mesa.",
+      "A la cuenta de 'Uno, dos, tres, ¡MEDUSA!', todos levantan la cabeza y miran fijamente a un compañero del círculo.",
+      "Si dos personas se miran mutuamente a los ojos, gritan '¡Medusa!' y ambas toman un sorbo al unísono."
+    ],
+    "non_alcoholic_variant": "Quienes hagan contacto visual son eliminados de la ronda. El último dúo o jugador sobreviviente gana."
+  },
+  {
+    "id": "cascada",
+    "name": "La Cascada (Círculo de la Muerte)",
+    "players": "4 a 10 personas",
+    "materials": "Mazo de cartas y un vaso central",
+    "duration": "25-35 min",
+    "tags": ["Cartas", "Clásico", "Grupo"],
+    "description": "Cada valor del naipe tiene una acción o regla que todos deben seguir inmediatamente.",
+    "rules": [
+      "Se colocan las cartas en círculo alrededor de un vaso. Por turno, cada jugador saca una carta sin romper el círculo.",
+      "El valor define la regla: As = Cascada continua, 7 = Mano al cielo (el último toma), 8 = Compañero de trago, Rey = Vierte un poco de su trago al vaso central.",
+      "Quien saque el cuarto Rey debe beber el contenido del vaso central."
+    ],
+    "non_alcoholic_variant": "El vaso central se llena con una mezcla inofensiva pero creativa (ej. jugo de naranja con tónica y limón) o con una carta de reto."
+  },
+  {
+    "id": "veintiuno_bizz_buzz",
+    "name": "21 / Bizz Buzz",
+    "players": "3 a 12 personas",
+    "materials": "Ninguno",
+    "duration": "10-15 min",
+    "tags": ["Sin materiales", "Concentración", "Rápido"],
+    "description": "Juego de conteo acelerado donde los múltiplos y números prohibidos cambian el sentido del juego.",
+    "rules": [
+      "En ronda, los jugadores cuentan del 1 al 21 en voz alta, diciendo de 1 a 3 números consecutivos por turno.",
+      "Cualquier número múltiplo de 7 o que termine en 7 debe ser reemplazado por la palabra '¡BIZZ!' y cambia la dirección de la ronda.",
+      "Quien duda más de 2 segundos, dice el número prohibido o llega al 21 toma 1 trago."
+    ],
+    "non_alcoholic_variant": "El jugador que cometa 3 equivocaciones debe contar un chiste o imitar a un famoso del grupo."
+  },
+  {
+    "id": "el_dedo_en_la_mesa",
+    "name": "El Dedo en la Mesa",
+    "players": "3 a 10 personas",
+    "materials": "Vaso en el centro de la mesa",
+    "duration": "10-20 min",
+    "tags": ["Sin materiales", "Psicológico", "Tranqui"],
+    "description": "Un duelo mental de adivinanza numérica con los pulgares en el borde del vaso.",
+    "rules": [
+      "Todos colocan un dedo sobre el borde del vaso central.",
+      "Por turnos, el jugador activo cuenta hasta tres y dice un número en voz alta (entre 0 y el total de dedos presentes), mientras cada quien decide si deja su dedo o lo saca.",
+      "Si el número coincide exactamente con los dedos que quedaron sobre el vaso, el jugador activo se salva y sale de la ronda. El último en quedar toma."
+    ],
+    "non_alcoholic_variant": "Los jugadores que aciertan ganan fichas. Quien junte 5 fichas primero elige la música del carrete."
+  },
+  {
+    "id": "verdad_o_reto_flash",
+    "name": "Verdad o Reto Flash",
+    "players": "2 a 12 personas",
+    "materials": "Ninguno",
+    "duration": "15-30 min",
+    "tags": ["Sin materiales", "Rompehielos", "Parejas/Grupos"],
+    "description": "Versión dinámica y sin rodeos con límite de tiempo de 10 segundos para responder.",
+    "rules": [
+      "El jugador en turno gira una botella o señala a alguien: '¿Verdad o Reto?'.",
+      "La respuesta o cumplimiento del reto debe empezar en menos de 10 segundos.",
+      "Si el participante se niega o duda demasiado, bebe 2 sorbos de penitencia."
+    ],
+    "non_alcoholic_variant": "Quien se niegue debe ceder su teléfono por 30 segundos para que el grupo elija su foto de perfil temporal."
+  },
+  {
+    "id": "el_vaso_comun",
+    "name": "El Vaso Común (Coin Flip)",
+    "players": "2 a 6 personas",
+    "materials": "1 Moneda y 1 vaso",
+    "duration": "10-15 min",
+    "tags": ["Sin materiales", "Rápido", "Azar"],
+    "description": "Lanza la moneda y adivina. Si aciertas pasas el reto, si fallas sumas líquido al vaso común.",
+    "rules": [
+      "Un jugador vierte un poco de su líquido en el vaso central y lanza una moneda al aire cubriéndola con la mano.",
+      "El siguiente jugador adivina 'Cara' o 'Sello'.",
+      "Si acierta, pasa la moneda; si falla 3 veces seguidas o en muerte súbita, se toma el vaso común."
+    ],
+    "non_alcoholic_variant": "Se utiliza una bebida energética o agua con gas y gotas de limón amargo."
+  }
+]
