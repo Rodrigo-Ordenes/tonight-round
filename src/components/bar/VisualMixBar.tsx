@@ -10,7 +10,7 @@ interface VisualMixBarProps {
 }
 
 export default function VisualMixBar({ analysis, selectedCount }: VisualMixBarProps) {
-  const { totalMl, pureAlcoholGrams, abvPercentage, colorHex, status, title, verdict, tip } = analysis;
+  const { totalMl, pureAlcoholGrams, abvPercentage, colorHex, status, title, verdict, tip, tasteVerdict } = analysis;
 
   // Altura del líquido en el vaso (porcentaje visual entre 15% y 85%)
   const liquidHeightPercent = selectedCount === 0 ? 0 : Math.min(85, Math.max(25, (totalMl / 350) * 80));
@@ -124,13 +124,28 @@ export default function VisualMixBar({ analysis, selectedCount }: VisualMixBarPr
       {/* Métricas Químicas y Veredicto */}
       <div className="flex-1 space-y-3 text-center md:text-left">
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+          {/* Badge Veredicto de Sabor: Aprobado / Extraño / Peligro */}
+          {tasteVerdict && (
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-black border flex items-center gap-1.5 shadow-sm ${
+                tasteVerdict.type === "peligro"
+                  ? "bg-rose-500/20 text-rose-300 border-rose-500/60 animate-pulse"
+                  : tasteVerdict.type === "extrano"
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/60"
+                  : "bg-emerald-500/20 text-emerald-300 border-emerald-500/50"
+              }`}
+            >
+              <span>{tasteVerdict.label}</span>
+            </span>
+          )}
+
           <span
-            className={`px-3 py-1 rounded-full text-xs font-black border flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 ${
               status === "danger"
-                ? "bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse"
+                ? "bg-rose-950/60 text-rose-300 border-rose-500/40"
                 : status === "warning"
-                ? "bg-amber-500/20 text-amber-300 border-amber-500/50"
-                : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                ? "bg-amber-950/60 text-amber-300 border-amber-500/40"
+                : "bg-slate-900 text-slate-300 border-slate-700"
             }`}
           >
             {status === "danger" ? (
@@ -172,7 +187,13 @@ export default function VisualMixBar({ analysis, selectedCount }: VisualMixBarPr
           </div>
         </div>
 
-        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+        {tasteVerdict?.description && (
+          <p className="text-xs font-semibold text-slate-200">
+            {tasteVerdict.description}
+          </p>
+        )}
+
+        <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
           {verdict}
         </p>
 

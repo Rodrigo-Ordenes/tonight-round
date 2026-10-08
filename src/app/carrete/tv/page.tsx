@@ -22,7 +22,7 @@ export default function CarreteTVPage() {
     if (typeof window !== "undefined" && hasValidCarrete) {
       const joinUrl = `${window.location.origin}/carrete/${code}?modo=celular`;
       QRCode.toDataURL(joinUrl, {
-        width: 320,
+        width: 480,
         margin: 1,
         color: {
           dark: "#060911",
@@ -97,13 +97,13 @@ export default function CarreteTVPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 self-end sm:self-auto">
-          {/* PIN Gigante */}
-          <div className="px-4 py-2 rounded-2xl bg-night-900 border border-slate-700 text-center">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-widest">
-              PIN DE ENTRADA
+        <div className="flex items-center gap-4 self-end sm:self-auto">
+          {/* PIN Gigante Display (48px - 60px) */}
+          <div className="px-5 py-2.5 rounded-2xl bg-night-900 border-2 border-indigo-500/50 text-center shadow-glow">
+            <span className="text-[11px] uppercase font-bold text-slate-400 block tracking-widest">
+              PIN DEL CARRETE
             </span>
-            <span className="text-2xl font-black text-indigo-300 tracking-widest font-mono">
+            <span className="text-4xl sm:text-5xl lg:text-6xl font-black text-indigo-300 tracking-widest font-mono">
               {code}
             </span>
           </div>
@@ -111,49 +111,64 @@ export default function CarreteTVPage() {
           <button
             type="button"
             onClick={toggleFullScreen}
-            className="min-h-[48px] min-w-[48px] rounded-2xl bg-night-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-center"
+            className="min-h-[52px] min-w-[52px] rounded-2xl bg-night-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-center transition-colors"
             title="Pantalla Completa"
           >
-            {isFullScreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+            {isFullScreen ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}
           </button>
 
           <Link
             href={`/carrete/${code}`}
-            className="min-h-[48px] px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5"
+            className="min-h-[52px] px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black text-sm flex items-center gap-2 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Volver al Carrete</span>
+            <ArrowLeft className="w-5 h-5" />
+            <span>Volver</span>
           </Link>
         </div>
       </div>
 
-      {/* Hero Strip: Giant QR & Instructions */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-night-950 via-slate-900 to-indigo-950/80 border border-indigo-500/30 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-        <div className="md:col-span-8 space-y-3">
-          <span className="text-xs font-black uppercase tracking-wider text-amber-400 block">
-            🎮 Conexión Instantánea Sin Registro
+      {/* Hero Strip: Giant QR & Instructions (16:9 Display Optimized) */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-night-950 via-slate-900 to-indigo-950/80 border-2 border-indigo-500/40 grid grid-cols-1 md:grid-cols-12 gap-8 items-center shadow-2xl">
+        <div className="md:col-span-7 space-y-4">
+          <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-400 flex items-center gap-2">
+            <span>🎮 MODO SALA / SMART TV 16:9</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              Sincronización P2P & Servidor
+            </span>
           </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-white">
-            Escanea el código QR para sumar tragos y jugar desde tu celular
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight">
+            Escanea para jugar y sumar tragos desde tu celular
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-            Abre la cámara de tu teléfono y apunta al código. Tu celular se sincronizará automáticamente con el Monstruómetro y los juegos de esta pantalla.
+          <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
+            Apunta la cámara de tu teléfono al código QR. Tu móvil se convertirá en un mando personal sincronizado en vivo con el Monstruómetro y los juegos de esta pantalla.
           </p>
+          <div className="pt-2 flex items-center gap-3 text-xs sm:text-sm font-bold text-indigo-300">
+            <span className="px-3 py-1 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
+              Sin descargas de App Store
+            </span>
+            <span className="px-3 py-1 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
+              100% Gratuito y Libre
+            </span>
+          </div>
         </div>
 
-        <div className="md:col-span-4 flex flex-col items-center justify-center">
+        <div className="md:col-span-5 flex flex-col items-center justify-center">
           {qrUri ? (
-            <img
-              src={qrUri}
-              alt={`QR para entrar a ${code}`}
-              className="w-44 h-44 rounded-2xl bg-white p-2.5 shadow-2xl"
-            />
+            <div className="p-3 bg-white rounded-3xl shadow-[0_0_50px_rgba(99,102,241,0.35)]">
+              <img
+                src={qrUri}
+                alt={`QR para entrar a ${code}`}
+                className="w-52 h-52 sm:w-60 sm:h-60 lg:w-64 lg:h-64 rounded-2xl"
+              />
+            </div>
           ) : (
-            <div className="w-44 h-44 rounded-2xl bg-night-900 animate-pulse" />
+            <div className="w-52 h-52 sm:w-60 sm:h-60 lg:w-64 lg:h-64 rounded-3xl bg-night-900 animate-pulse" />
           )}
-          <span className="text-xs font-black text-indigo-300 mt-2">
-            tonight.app · PIN: {code}
-          </span>
+          <div className="text-center mt-3">
+            <span className="text-sm sm:text-base font-black text-indigo-300 font-mono tracking-wider block">
+              Entra a tonight.app con PIN: <span className="text-amber-400 font-black">{code}</span>
+            </span>
+          </div>
         </div>
       </div>
 

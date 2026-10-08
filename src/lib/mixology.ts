@@ -71,12 +71,19 @@ export interface CocktailRecipe {
 
 export const COCKTAIL_RECIPES: CocktailRecipe[] = recipesData as unknown as CocktailRecipe[];
 
+export interface TasteVerdict {
+  type: "aprobado" | "extrano" | "peligro";
+  label: string;
+  description: string;
+}
+
 export interface MixAnalysis {
   totalMl: number;
   pureAlcoholGrams: number;
   abvPercentage: number;
   colorHex: string;
   status: "safe" | "warning" | "danger";
+  tasteVerdict: TasteVerdict;
   title: string;
   verdict: string;
   tip?: string;
@@ -94,6 +101,11 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
       abvPercentage: 0,
       colorHex: "#1e293b",
       status: "safe",
+      tasteVerdict: {
+        type: "aprobado",
+        label: "🟢 Aprobado",
+        description: "Vaso vacío esperando insumos.",
+      },
       title: "Vaso Vacío",
       verdict: "Selecciona ingredientes para ver la simulación en tiempo real.",
     };
@@ -113,6 +125,7 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
   const destiladosCount = items.filter((i) => i.category === "destilados").length;
   const hasFermentado = items.some((i) => i.category === "fermentados");
   const hasEspumante = ids.includes("espumante");
+  const hasMixer = items.some((i) => i.category === "mezcladores" || i.category === "jugos");
 
   // 1. Peligro Crítico: Energética + Alcohol
   if (hasEnergética && (hasDestilado || hasFermentado)) {
@@ -122,6 +135,11 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
       abvPercentage,
       colorHex: "#f97316",
       status: "danger",
+      tasteVerdict: {
+        type: "peligro",
+        label: "🔴 Peligro de bomba gástrica",
+        description: "Mezcla estimulante/depresora: alto riesgo de taquicardia y falsa sobriedad.",
+      },
       title: "⚠️ Peligro: Cóctel Energizado (Alerta Cardíaca)",
       verdict:
         "La taurina y cafeína de la energética enmascaran el efecto depresor del alcohol, provocando una falsa sensación de sobriedad y taquicardia mientras el hígado sigue procesando alcohol a niveles tóxicos.",
@@ -130,7 +148,6 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
   }
 
   // 2. Fuego Líquido: 2+ destilados puros sin mezclador
-  const hasMixer = items.some((i) => i.category === "mezcladores" || i.category === "jugos");
   if (destiladosCount >= 2 && !hasMixer) {
     return {
       totalMl,
@@ -138,6 +155,11 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
       abvPercentage,
       colorHex: "#ef4444",
       status: "danger",
+      tasteVerdict: {
+        type: "peligro",
+        label: "🔴 Peligro de bomba gástrica",
+        description: "Alcohol concentrado (>35°): riesgo de gastritis aguda y absorción violenta.",
+      },
       title: "🔥 Fuego Líquido: Mezcla de Destilados Puros",
       verdict:
         "Mezclar múltiples destilados sin dilución supera el 35° ABV. Causa irritación gástrica inmediata, absorción rápida y resaca severa.",
@@ -145,7 +167,33 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
     };
   }
 
-  // 3. Espumante + Destilado (Piscola champañizada, Pisco Royal)
+  // 3. Mezcla Extraña (Vino con energizante, cerveza con jugos densos, etc.)
+  const isStrange =
+    (ids.includes("vino_tinto") && ids.includes("tonica")) ||
+    (ids.includes("cerveza") && ids.includes("jugo_maracuya")) ||
+    (ids.includes("vino_tinto") && ids.includes("jugo_pina")) ||
+    (abvPercentage > 25);
+
+  if (isStrange) {
+    return {
+      totalMl,
+      pureAlcoholGrams,
+      abvPercentage,
+      colorHex: "#eab308",
+      status: "warning",
+      tasteVerdict: {
+        type: "extrano",
+        label: "🟡 Extraño",
+        description: "Perfil organoléptico inusual o choque de acidez/gas.",
+      },
+      title: "🟡 Combinación Inusual",
+      verdict:
+        "Esta mezcla presenta un contraste aromático o de acidez poco habitual. Puede ser pesado al estómago o de sabor excesivamente ácido.",
+      tip: "Prueba con mezcladores clásicos como bebida cola, Sprite o agua con gas.",
+    };
+  }
+
+  // 4. Espumante + Destilado (Piscola champañizada, Pisco Royal)
   if (hasEspumante && hasDestilado) {
     return {
       totalMl,
@@ -153,6 +201,11 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
       abvPercentage,
       colorHex: "#facc15",
       status: "warning",
+      tasteVerdict: {
+        type: "extrano",
+        label: "🟡 Extraño",
+        description: "Efervescencia acelerada: absorción más rápida del destilado.",
+      },
       title: "🥂 Pisco Royal / Champagne Shot",
       verdict:
         "El gas carbónico del espumante dilata los capilares del estómago, acelerando drásticamente el paso del destilado al torrente sanguíneo.",
@@ -160,7 +213,7 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
     };
   }
 
-  // 4. Sin Alcohol / Mocktail
+  // 5. Sin Alcohol / Mocktail
   if (abvPercentage === 0) {
     return {
       totalMl,
@@ -168,6 +221,11 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
       abvPercentage: 0,
       colorHex: "#38bdf8",
       status: "safe",
+      tasteVerdict: {
+        type: "aprobado",
+        label: "🟢 Aprobado",
+        description: "Mocktail refrescante y 100% seguro para el volante.",
+      },
       title: "🌱 Mocktail / Cóctel 100% Sin Alcohol",
       verdict:
         "Cero alcohol en sangre. Refrescante, ideal para el conductor designado o para alternar tragos y mantenerse hidratado toda la noche.",
@@ -175,7 +233,7 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
     };
   }
 
-  // 5. Trago equilibrado estándar
+  // 6. Trago equilibrado estándar (Aprobado)
   const primaryItem = items.find((i) => i.category === "destilados") || items[0];
   return {
     totalMl,
@@ -183,8 +241,13 @@ export function analyzeMix(selectedIds: string[]): MixAnalysis {
     abvPercentage,
     colorHex: primaryItem.color || "#6366f1",
     status: abvPercentage > 18 ? "warning" : "safe",
+    tasteVerdict: {
+      type: "aprobado",
+      label: "🟢 Aprobado",
+      description: "Balance correcto de alcohol, dilución y aromas.",
+    },
     title: abvPercentage > 18 ? "⚡ Cóctel Fuerte" : "✨ Mezcla Balanceada",
-    verdict: `Concentración aproximada de ${abvPercentage}% ABV con ${Math.round(pureAlcoholGrams)}g de alcohol puro por porción.`,
+    verdict: `Concentración equilibrada de ${abvPercentage}% ABV con ${Math.round(pureAlcoholGrams)}g de alcohol puro por porción.`,
     tip: ids.includes("hielo") ? "Excelente proporción con hielo para enfriar." : "Agrega hielo para mantenerlo frío y diluir suavemente.",
   };
 }

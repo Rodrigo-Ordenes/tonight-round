@@ -34,13 +34,15 @@ export default function RecipeCardsList({
 
   return (
     <div className="space-y-4">
-      {/* Tip de Bartender (Chip Ámbar) */}
-      {suggestion && (
-        <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-start gap-2.5 animate-fade-in shadow-sm">
-          <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <span>{suggestion}</span>
-        </div>
-      )}
+      {/* Chip Ámbar Fijo: Recordatorio de Hielo */}
+      <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-start gap-2.5 shadow-sm">
+        <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+        <p className="leading-relaxed">
+          <strong className="text-amber-300 font-black">💡 Tip de Bartender:</strong> Usa siempre abundante{" "}
+          <strong>Hielo</strong> en cubos grandes para mantener la temperatura y dilución óptima de tus cócteles.
+          {suggestion ? <span className="block mt-1 text-amber-200/90 font-medium">✨ {suggestion}</span> : null}
+        </p>
+      </div>
 
       {/* Banner Rojo si no hay recetas viables */}
       {totalViable === 0 && (

@@ -72,7 +72,7 @@ export default function GlobalNavbar() {
             <span className="text-xl">🌙</span>
             <span>TONIGHT</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
-              V7
+              V8
             </span>
           </Link>
 

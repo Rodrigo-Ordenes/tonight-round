@@ -5,7 +5,7 @@ import DisclaimerModal from "@/components/ui/DisclaimerModal";
 import HalloweenBanner from "@/components/theme/HalloweenBanner";
 
 export const metadata: Metadata = {
-  title: "Tonight | Copiloto del Carrete V7 🇨🇱",
+  title: "Tonight | Copiloto del Carrete V8 🇨🇱",
   description:
     "Web app gratuita, mobile-first y optimizada para Smart TV para armar carretes, cotizar multitienda, monitorear consumo con el Monstruómetro y cuidar al conductor designado.",
   applicationName: "Tonight",
