@@ -238,21 +238,6 @@ export default function SplitBill() {
 
   return (
     <div className="space-y-6">
-      {/* Intro Header */}
-      <div className="bg-gradient-to-r from-night-900 to-night-850 p-5 rounded-3xl border border-emerald-500/20 shadow-glow-accent">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-400">
-            <Receipt className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-white">Dividir Cuenta ({locale.countryName})</h1>
-            <p className="text-xs text-slate-400">
-              Cobra la cuota rápido a {locale.slang?.friendGroup || "los amigos"} con cobro directo para WhatsApp
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Main Expense Inputs */}
       <div className="glass-panel p-5 rounded-3xl space-y-5">
         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">

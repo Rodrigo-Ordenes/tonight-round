@@ -1,191 +1,130 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Dices, Search, Bomb, Shuffle, Hand, BookOpen, Sparkles } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore } from "@/store/useCarreteStore";
-import { useLocale } from "@/lib/useLocale";
 import gamesData from "@/data/games.json";
 import GameCard, { GameItem } from "./GameCard";
 import CustomizableRoulette from "./CustomizableRoulette";
 import DynamicTimeBomb from "./DynamicTimeBomb";
 import RandomPicanteGame from "./RandomPicanteGame";
 import FingerChooser from "./FingerChooser";
+import LiveGameHost from "@/components/live/LiveGameHost";
+import LiveRoundCard from "@/components/live/LiveRoundCard";
+import PageHeader from "@/components/ui/PageHeader";
 import { audioEffects } from "@/lib/audioEffects";
 
-type GameTab = "ruleta" | "bomba" | "nunca" | "dedazo" | "catalogo";
+type Quick = "ruleta" | "bomba" | "nunca" | "dedazo";
+
+const QUICK: { id: Quick; label: string; emoji: string; blurb: string }[] = [
+  { id: "ruleta", label: "La Ruleta", emoji: "🎡", blurb: "Castigos, retos y verdades con los nombres de la sala." },
+  { id: "bomba", label: "La Bomba", emoji: "💣", blurb: "Categoría al azar y el celular pasa de mano en mano." },
+  { id: "nunca", label: "Yo nunca", emoji: "🙊", blurb: "Mazo barajado sin repetir, por niveles." },
+  { id: "dedazo", label: "El Dedazo", emoji: "☝️", blurb: "Todos ponen un dedo en la pantalla: el celular elige." },
+];
 
 export default function GameDeck() {
   const { code } = useActiveCode();
-  const { locale } = useLocale();
   const store = useCarreteStore(code);
-
-  const [activeTab, setActiveTab] = useState<GameTab>("ruleta");
+  const [quick, setQuick] = useState<Quick>("ruleta");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("Todos");
 
-  const ALL_TAGS = ["Todos", "Sin materiales", "Rompehielos", "Cartas", "Rápido", "Clásico"];
+  const allTags = useMemo(() => ["Todos", ...Array.from(new Set((gamesData as GameItem[]).flatMap((g) => g.tags)))], []);
 
-  const filteredGames = useMemo(() => {
-    return (gamesData as GameItem[]).filter((game) => {
-      const matchesTag = selectedTag === "Todos" || game.tags.includes(selectedTag);
-      const matchesQuery =
-        !searchQuery ||
-        game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        game.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesTag && matchesQuery;
-    });
-  }, [selectedTag, searchQuery]);
+  const filteredGames = useMemo(
+    () =>
+      (gamesData as GameItem[]).filter((game) => {
+        const q = searchQuery.toLowerCase();
+        return (selectedTag === "Todos" || game.tags.includes(selectedTag)) && (!q || game.name.toLowerCase().includes(q) || game.description.toLowerCase().includes(q));
+      }),
+    [selectedTag, searchQuery]
+  );
+
+  const me = store.participants.find((p) => p.id === store.meId);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12 animate-fade-in">
-      {/* Header */}
-      <div className="p-5 rounded-3xl bg-gradient-to-r from-night-950 via-indigo-950/60 to-night-950 border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-glow">
+    <div className="space-y-16 pb-12">
+      <PageHeader eyebrow="Juegos" title="Que empiece el juego">
+        La TV hace de escenario y cada celular vota en secreto. Si no hay TV, también hay juegos para un solo celular y un catálogo de clásicos.
+      </PageHeader>
+
+      {/* Si este celular es participante y hay ronda, primero su control */}
+      {me && store.state.live?.round && (
+        <section aria-label="Tu voto">
+          <LiveRoundCard store={store} compact />
+        </section>
+      )}
+
+      <LiveGameHost store={store} />
+
+      <section aria-labelledby="rapidos-title" className="space-y-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-bold mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Game Studio {locale.terminology.partyName}</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white">
-            Dinámicas & Juegos Sociales
-          </h1>
-          <p className="text-xs text-slate-400">
-            {code !== "SOLO"
-              ? `Sincronizado con ${locale.terminology.partyName} ${code}`
-              : "Modo individual / Juegos sociales"}
-          </p>
+          <p className="eyebrow">Un solo celular</p>
+          <h2 id="rapidos-title" className="display mt-1 text-2xl sm:text-3xl">
+            Juegos rápidos
+          </h2>
         </div>
-      </div>
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+          {QUICK.map((g) => (
+            <button
+              key={g.id}
+              type="button"
+              onClick={() => {
+                audioEffects.playTick();
+                setQuick(g.id);
+              }}
+              aria-pressed={quick === g.id}
+              className={`surface surface-hover p-4 text-left ${quick === g.id ? "ring-2 ring-indigo-400" : ""}`}
+            >
+              <span className="text-2xl">{g.emoji}</span>
+              <span className="mt-2 block font-display text-base font-bold text-white">{g.label}</span>
+              <span className="mt-0.5 block text-xs leading-snug text-slate-400">{g.blurb}</span>
+            </button>
+          ))}
+        </div>
+        <div>
+          {quick === "ruleta" && <CustomizableRoulette store={store} />}
+          {quick === "bomba" && <DynamicTimeBomb store={store} />}
+          {quick === "nunca" && <RandomPicanteGame store={store} />}
+          {quick === "dedazo" && <FingerChooser />}
+        </div>
+      </section>
 
-      {/* Tabs Selector */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-1.5 rounded-2xl bg-night-900 border border-night-800">
-        <button
-          type="button"
-          onClick={() => {
-            audioEffects.playTick();
-            setActiveTab("ruleta");
-          }}
-          className={`min-h-[46px] py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "ruleta"
-              ? "bg-indigo-600 text-white shadow-glow"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <Dices className="w-4 h-4 text-indigo-300" />
-          <span>La Ruleta</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            audioEffects.playTick();
-            setActiveTab("bomba");
-          }}
-          className={`min-h-[46px] py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "bomba"
-              ? "bg-amber-600 text-white shadow-glow"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <Bomb className="w-4 h-4 text-amber-300" />
-          <span>La Bomba</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            audioEffects.playTick();
-            setActiveTab("nunca");
-          }}
-          className={`min-h-[46px] py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "nunca"
-              ? "bg-pink-600 text-white shadow-glow"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <Shuffle className="w-4 h-4 text-pink-300" />
-          <span>Yo Nunca</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            audioEffects.playTick();
-            setActiveTab("dedazo");
-          }}
-          className={`min-h-[46px] py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "dedazo"
-              ? "bg-emerald-600 text-white shadow-glow-accent"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <Hand className="w-4 h-4 text-emerald-300" />
-          <span>El Dedazo</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            audioEffects.playTick();
-            setActiveTab("catalogo");
-          }}
-          className={`col-span-2 sm:col-span-1 min-h-[46px] py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "catalogo"
-              ? "bg-purple-600 text-white shadow-glow-purple"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <BookOpen className="w-4 h-4 text-purple-300" />
-          <span>Catálogo</span>
-        </button>
-      </div>
-
-      {/* RENDER JUEGOS */}
-      {activeTab === "ruleta" && <CustomizableRoulette store={store} />}
-      {activeTab === "bomba" && <DynamicTimeBomb store={store} />}
-      {activeTab === "nunca" && <RandomPicanteGame store={store} />}
-      {activeTab === "dedazo" && <FingerChooser />}
-
-      {/* CATÁLOGO DE DINÁMICAS */}
-      {activeTab === "catalogo" && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar juego por nombre o reglas..."
-                className="w-full min-h-[48px] pl-10 pr-4 rounded-xl bg-night-950 border border-slate-700 text-white text-sm outline-none focus:border-indigo-500"
-              />
-            </div>
-
-            <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-              {ALL_TAGS.map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => setSelectedTag(tag)}
-                  className={`min-h-[40px] px-3 rounded-xl text-xs font-bold whitespace-nowrap ${
-                    selectedTag === tag
-                      ? "bg-purple-600 text-white"
-                      : "bg-night-950 text-slate-400 border border-night-800"
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredGames.map((game) => (
-              <GameCard key={game.id} game={game} />
+      <section aria-labelledby="catalogo-title" className="space-y-5">
+        <div>
+          <p className="eyebrow">Sin pantalla</p>
+          <h2 id="catalogo-title" className="display mt-1 text-2xl sm:text-3xl">
+            {filteredGames.length} clásicos de carrete
+          </h2>
+        </div>
+        <div className="flex flex-col gap-3">
+          <label className="relative block">
+            <Search className="pointer-events-none absolute left-4 top-1/2 w-4 h-4 -translate-y-1/2 text-slate-400" />
+            <span className="sr-only">Buscar juego</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar juego por nombre o reglas…"
+              className="min-h-[50px] w-full rounded-2xl border border-white/10 bg-night-900/70 pl-11 pr-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-indigo-400"
+            />
+          </label>
+          <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:flex-wrap sm:px-0">
+            {allTags.map((tag) => (
+              <button key={tag} type="button" onClick={() => setSelectedTag(tag)} className={`chip shrink-0 ${selectedTag === tag ? "chip-on" : ""}`}>
+                {tag}
+              </button>
             ))}
           </div>
         </div>
-      )}
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+          {filteredGames.map((game) => (
+            <GameCard key={game.id} game={game} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

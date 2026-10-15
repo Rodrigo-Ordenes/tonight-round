@@ -5,8 +5,9 @@ import { Bomb, RotateCcw, Check } from "lucide-react";
 import content from "@/data/games_content.json";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
+import { BOMBA_CATEGORIAS } from "@/data/party_prompts";
 
-const CATS: string[] = content.time_bomb_categories;
+const CATS: string[] = Array.from(new Set([...content.time_bomb_categories, ...BOMBA_CATEGORIAS]));
 
 /** Bomba de Tiempo: categoría aleatoria sin repetir la anterior + rondas sobrevividas. */
 export default function DynamicTimeBomb({ store }: { store: CarreteStore }) {

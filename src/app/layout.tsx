@@ -1,14 +1,25 @@
 import type { Metadata, Viewport } from "next";
+import { Bricolage_Grotesque, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import GlobalNavbar from "@/components/navigation/GlobalNavbar";
+import AppShell from "@/components/shell/AppShell";
 import DisclaimerModal from "@/components/ui/DisclaimerModal";
-import HalloweenBanner from "@/components/theme/HalloweenBanner";
+
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  axes: ["opsz", "wdth"],
+  variable: "--font-display",
+  display: "swap",
+});
+const sans = Manrope({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Tonight | Copiloto Social V9 🇨🇱 🇲🇽 🇺🇸 🇯🇵",
+  title: "Tonight — el copiloto de tu carrete",
   description:
-    "Web app gratuita, mobile-first y optimizada para Smart TV para armar carretes, cotizar multitienda, monitorear consumo con el Monstruómetro y cuidar al conductor designado.",
+    "Arma la previa, prepara tragos, juega con la TV y los celulares, pon la música y divide la cuenta. Gratis, sin cuentas y en Chile, México, EE.UU. y Japón.",
   applicationName: "Tonight",
+  manifest: "/manifest.webmanifest",
+  icons: { icon: "/icon.svg", apple: "/icon.svg" },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -19,28 +30,18 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
-  themeColor: "#090d16",
+  themeColor: "#07060A",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className="dark">
-      <body className="bg-night-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
-        <div className="min-h-[100dvh] flex flex-col overflow-x-hidden">
-          <HalloweenBanner />
-          <GlobalNavbar />
-          <main className="flex-1 max-w-7xl w-full mx-auto px-4 pt-4 pb-[calc(88px+env(safe-area-inset-bottom,16px))] md:pb-12">
-            {children}
-          </main>
-          <DisclaimerModal />
-        </div>
+    <html lang="es" className={`dark ${display.variable} ${sans.variable} ${mono.variable}`}>
+      <body className="bg-night-950 text-slate-100 font-sans antialiased overflow-x-hidden">
+        <div aria-hidden className="ambient" />
+        <div aria-hidden className="grain" />
+        <AppShell>{children}</AppShell>
+        <DisclaimerModal />
       </body>
     </html>
   );

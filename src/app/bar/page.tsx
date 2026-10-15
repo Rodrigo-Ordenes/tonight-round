@@ -1,136 +1,155 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { FlaskConical, BookOpen, Flame, Sparkles } from "lucide-react";
-import VisualMixBar from "@/components/bar/VisualMixBar";
-import IngredientChips from "@/components/bar/IngredientChips";
-import RecipeCardsList from "@/components/bar/RecipeCardsList";
+import React, { useCallback, useEffect, useState } from "react";
+import BarStudio, { type GlassDraft } from "@/components/bar/BarStudio";
+import Recetario from "@/components/bar/Recetario";
 import PiscolometerSlider from "@/components/bar/PiscolometerSlider";
-import DrinkEncyclopedia from "@/components/bar/DrinkEncyclopedia";
-import { analyzeMix, matchRecipes } from "@/lib/mixology";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
+import { useActiveCode } from "@/lib/useActiveCode";
+import { useCarreteStore } from "@/store/useCarreteStore";
 
-type BarTab = "mix" | "piscolometer" | "encyclopedia";
+type BarTab = "preparar" | "recetario" | "piscolometro";
+
+const PANTRY_KEY = "tonight_bar_pantry";
+const SHOP_KEY = "tonight_bar_shopping";
+const DEFAULT_PANTRY = ["hielo", "limon", "bebida_cola", "pisco"];
+
+function readList(key: string, fallback: string[]): string[] {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as string[]) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeList(key: string, v: string[]) {
+  try {
+    localStorage.setItem(key, JSON.stringify(v));
+  } catch {
+    /* sin almacenamiento */
+  }
+}
 
 export default function BarPage() {
   const { locale } = useLocale();
-  const [activeTab, setActiveTab] = useState<BarTab>("mix");
+  const { code } = useActiveCode();
+  const store = useCarreteStore(code);
+  const [tab, setTab] = useState<BarTab>("preparar");
+  const [pantry, setPantryState] = useState<Set<string>>(new Set(DEFAULT_PANTRY));
+  const [shopping, setShoppingState] = useState<string[]>([]);
+  const [draft, setDraft] = useState<GlassDraft>({ recipeId: "piscola", lines: [], scale: { kind: "vaso" } });
 
-  // Estado del vaso de mezclas visual
-  const [selectedIds, setSelectedIds] = useState<string[]>(["pisco", "bebida_cola", "hielo"]);
+  useEffect(() => {
+    setPantryState(new Set(readList(PANTRY_KEY, DEFAULT_PANTRY)));
+    setShoppingState(readList(SHOP_KEY, []));
+  }, []);
 
-  // Análisis fisicoquímico en tiempo real
-  const analysis = useMemo(() => analyzeMix(selectedIds), [selectedIds]);
+  const setPantry = useCallback((ids: string[]) => {
+    setPantryState(new Set(ids));
+    writeList(PANTRY_KEY, ids);
+  }, []);
 
-  // Recetas que hacen match
-  const { exact, near, suggestion } = useMemo(
-    () => matchRecipes(selectedIds),
-    [selectedIds]
+  const togglePantry = useCallback(
+    (id: string) => {
+      const next = new Set(pantry);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      setPantry(Array.from(next));
+      // Si ya lo tienen, sale de la lista de compras
+      if (next.has(id) && shopping.includes(id)) {
+        const s = shopping.filter((x) => x !== id);
+        setShoppingState(s);
+        writeList(SHOP_KEY, s);
+      }
+    },
+    [pantry, setPantry, shopping]
   );
 
-  const handleToggle = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
+  const toggleShopping = useCallback(
+    (id: string) => {
+      const s = shopping.includes(id) ? shopping.filter((x) => x !== id) : [...shopping, id];
+      setShoppingState(s);
+      writeList(SHOP_KEY, s);
+    },
+    [shopping]
+  );
 
-  const handleClear = () => {
-    audioEffects.playPop();
-    setSelectedIds([]);
-  };
+  const me = store.participants.find((p) => p.id === store.meId);
+  const onLog =
+    me && me.role !== "driver"
+      ? (label: string, ml: number, abv: number) => store.addConsumption(me.id, { label, ml, abv })
+      : undefined;
 
-  const handlePreset = (ids: string[]) => {
-    setSelectedIds(ids);
-  };
-
-  const handleAddMissing = (id: string) => {
-    audioEffects.playSuccessChime();
-    setSelectedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
-  };
+  const TABS: { id: BarTab; label: string }[] = [
+    { id: "preparar", label: "Preparar" },
+    { id: "recetario", label: "Recetario" },
+    { id: "piscolometro", label: locale.countryCode === "CL" ? "Piscolómetro" : `${locale.drinks.stapleName}-metro` },
+  ];
 
   return (
-    <div className="py-2 space-y-6 max-w-5xl mx-auto pb-12 animate-fade-in">
-      {/* Top Navigation Tabs */}
-      <div className="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-night-900 border border-night-800">
-        <button
-          type="button"
-          onClick={() => {
-            audioEffects.playPop();
-            setActiveTab("mix");
-          }}
-          className={`min-h-[48px] py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "mix"
-              ? "bg-indigo-600 text-white shadow-glow"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <FlaskConical className="w-4 h-4 text-indigo-300" />
-          <span>Barra & Mezclas</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            audioEffects.playPop();
-            setActiveTab("piscolometer");
-          }}
-          className={`min-h-[48px] py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "piscolometer"
-              ? "bg-rose-600 text-white shadow-glow"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <Flame className="w-4 h-4 text-rose-300" />
-          <span>{locale.countryCode === "CL" ? "El Piscolómetro" : `El ${locale.drinks.stapleName}`}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            audioEffects.playPop();
-            setActiveTab("encyclopedia");
-          }}
-          className={`min-h-[48px] py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "encyclopedia"
-              ? "bg-purple-600 text-white shadow-glow-purple"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <BookOpen className="w-4 h-4 text-purple-300" />
-          <span>Diccionario</span>
-        </button>
-      </div>
-
-      {/* TAB 1: BARRA & MEZCLAS VISUAL (FUSIÓN UNIFICADA) */}
-      {activeTab === "mix" && (
-        <div className="space-y-6">
-          {/* Vaso SVG Animado con Graduación y Veredicto */}
-          <VisualMixBar analysis={analysis} selectedCount={selectedIds.length} />
-
-          {/* Chips de Ingredientes en 5 Pestañas */}
-          <IngredientChips
-            selectedIds={selectedIds}
-            onToggle={handleToggle}
-            onClear={handleClear}
-            onPreset={handlePreset}
-          />
-
-          {/* Listado de Recetas Viables y Sugerencias */}
-          <RecipeCardsList
-            exact={exact}
-            near={near}
-            suggestion={suggestion}
-            onAddMissingIngredient={handleAddMissing}
-          />
+    <div className="space-y-8 animate-fade-in">
+      <header className="flex flex-wrap items-end justify-between gap-6">
+        <div className="max-w-2xl">
+          <p className="eyebrow">Bar</p>
+          <h1 className="display text-display-lg mt-3">
+            Arma el trago<span className="text-gradient-ember">.</span>
+          </h1>
+          <p className="mt-3 text-base text-slate-300">
+            Primero lo que tienen, después la idea, y al final el vaso con medidas exactas para uno o para la jarra.
+          </p>
         </div>
+        <div className="flex rounded-2xl bg-white/[0.04] p-1" role="tablist" aria-label="Secciones del bar">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => {
+                audioEffects.playPop();
+                setTab(t.id);
+              }}
+              className={`min-h-[44px] rounded-xl px-4 text-sm font-bold transition-colors ${tab === t.id ? "bg-white text-night-950" : "text-slate-300 hover:text-white"}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {tab === "preparar" && (
+        <BarStudio
+          pantry={pantry}
+          togglePantry={togglePantry}
+          setPantry={setPantry}
+          shopping={shopping}
+          toggleShopping={toggleShopping}
+          clearShopping={() => {
+            setShoppingState([]);
+            writeList(SHOP_KEY, []);
+          }}
+          draft={draft}
+          setDraft={setDraft}
+          onLog={onLog}
+          logLabel={me ? `Me lo tomé · registrar a ${me.name}` : undefined}
+        />
       )}
 
-      {/* TAB 2: PISCOLÓMETRO */}
-      {activeTab === "piscolometer" && <PiscolometerSlider />}
+      {tab === "recetario" && (
+        <Recetario
+          pantry={pantry}
+          onPick={(id) => {
+            audioEffects.playBubble();
+            setDraft({ recipeId: id, lines: [], scale: { kind: "vaso" } });
+            setTab("preparar");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
+      )}
 
-      {/* TAB 3: DICCIONARIO COMPLETO */}
-      {activeTab === "encyclopedia" && <DrinkEncyclopedia />}
+      {tab === "piscolometro" && <PiscolometerSlider />}
     </div>
   );
 }

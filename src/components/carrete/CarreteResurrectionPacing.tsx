@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Clock, AlertTriangle, ShieldCheck, Zap, User, Plus } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
-import { computeBac, BETA, widmarkR, fmtDuration, fmtTime } from "@/lib/alcohol";
+import { bacFor, BETA, widmarkR, fmtDuration, fmtTime } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
 
 interface CarreteResurrectionPacingProps {
@@ -48,7 +48,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
       {/* Grid de Pacing por Participante */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {participants.map((p) => {
-          const bacData = computeBac(p.consumptions, p.gender, p.weightKg, now);
+          const bacData = bacFor(p, now);
           const currentBac = bacData.bac;
 
           // Hora objetivo en ms para mañana o hoy

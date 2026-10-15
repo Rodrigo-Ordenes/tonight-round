@@ -25,88 +25,20 @@ import {
   basketTotal,
   unitPrice,
   STORE_LABEL,
+  DRINK_TYPES,
+  parseDrinks,
   type CatalogItem,
 } from "@/lib/basket";
 import type { BasketItem, BasketProfile, PriceBase } from "@/lib/carreteState";
 import BudgetStatus from "./BudgetStatus";
+import PageHeader from "@/components/ui/PageHeader";
 import SearchableProductModal from "./SearchableProductModal";
 import MultiStoreCompare from "./MultiStoreCompare";
 import DeliveryTextExporter from "./DeliveryTextExporter";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 
-const DRINK_OPTIONS = [
-  {
-    id: "mix",
-    name: "Mix Variado",
-    desc: "Pisco + Destilado + Cerveza",
-    emoji: "🍸",
-    badge: "Equilibrado",
-  },
-  {
-    id: "pisco",
-    name: "Piscola",
-    desc: "Pisco 35° / 40° + Coca Cola",
-    emoji: "🥃",
-    badge: "Clásico Chileno",
-  },
-  {
-    id: "cerveza",
-    name: "Cervezas",
-    desc: "Báltica / Becker / Cristal / Royal",
-    emoji: "🍺",
-    badge: "Rendidor",
-  },
-  {
-    id: "vino",
-    name: "Vino & Pipeño",
-    desc: "Gato caja 2L / Botellón / Terremoto",
-    emoji: "🍷",
-    badge: "Económico",
-  },
-  {
-    id: "gin",
-    name: "Gin Tonic",
-    desc: "Beefeater / Bombay + Tónica Nordic",
-    emoji: "🍸",
-    badge: "Refrescante",
-  },
-  {
-    id: "vodka",
-    name: "Vodka",
-    desc: "Stolichnaya + Sprite / Jugos",
-    emoji: "🍹",
-    badge: "Frutal",
-  },
-  {
-    id: "whisky",
-    name: "Whisky",
-    desc: "Sandy Mac / Ballantine's + Ginger",
-    emoji: "🥃",
-    badge: "Carretero",
-  },
-  {
-    id: "ron",
-    name: "Ron",
-    desc: "Havana Especial + Bebida Cola",
-    emoji: "🍹",
-    badge: "Tropical",
-  },
-  {
-    id: "tequila",
-    name: "Tequila",
-    desc: "José Cuervo + Limones + Sal",
-    emoji: "🌵",
-    badge: "Shots",
-  },
-  {
-    id: "mocktail",
-    name: "Sin Alcohol",
-    desc: "Tónicas, Jugos, Ginger Ale, Granadina",
-    emoji: "🥤",
-    badge: "0% Alcohol",
-  },
-] as const;
+
 
 const BUDGET_PRESETS = [
   { label: "$15.000", value: 15000, desc: "Apretado" },
@@ -181,20 +113,29 @@ export default function CarreteBasketView() {
     }
   };
 
-  // Seleccionar qué quieren tomar hoy
+  // Seleccionar qué quieren tomar hoy (varios a la vez; "mix" = mezcla automática variada)
+  const selectedDrinks = activeDrink === "mix" ? [] : activeDrink.split(",").filter(Boolean);
+  const autoMix = parseDrinks("mix", perPersonBudget, basket.profile);
   const handleSelectDrink = (drinkId: string) => {
     audioEffects.playTick();
     const currentBudget = Number(customBudgetInput) || basket.budget || 50000;
+    let next = "mix";
+    if (drinkId !== "mix") {
+      const set = new Set(selectedDrinks);
+      if (set.has(drinkId)) set.delete(drinkId);
+      else set.add(drinkId);
+      next = set.size ? Array.from(set).join(",") : "mix";
+    }
     const regenerated = generateBasket(
       basket.profile,
       basket.attendees,
       basket.durationHours,
       currentBudget,
-      drinkId,
+      next,
       basket.priceBase
     );
     patchBasket({
-      targetDrink: drinkId,
+      targetDrink: next,
       budget: currentBudget,
       items: regenerated,
     });
@@ -265,33 +206,19 @@ export default function CarreteBasketView() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12 animate-fade-in">
-      {/* Header */}
-      <div className="p-5 rounded-3xl bg-gradient-to-r from-night-950 via-indigo-950/60 to-night-950 border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold mb-1">
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Armar Canasta de {locale.terminology.partyName}</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white">
-            Planificador & Cotizador Dinámico
-          </h1>
-          <p className="text-xs text-slate-400">
-            {code !== "SOLO"
-              ? `Vinculado a ${locale.terminology.partyName} ${code}`
-              : "Modo Solo / Planificador libre"}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="min-h-[48px] px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 shrink-0 active:scale-95 transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Sumar Producto</span>
-        </button>
-      </div>
+    <div className="space-y-6 pb-12 animate-fade-in">
+      <PageHeader
+        eyebrow={code !== "SOLO" ? `Armar · sala ${code}` : "Armar · modo planificador"}
+        title="La lista de compras"
+        aside={
+          <button type="button" onClick={() => setModalOpen(true)} className="btn-primary">
+            <Plus className="w-4 h-4" /> Sumar producto
+          </button>
+        }
+      >
+        Dinos cuántos son, cuánto tienen y qué quieren tomar: armamos la canasta con precios reales por tienda, priorizando
+        el alcohol, el hielo y el agua.
+      </PageHeader>
 
       {/* Panel de Parámetros: Personas, Horas y Presupuesto Manual */}
       <div className="p-5 rounded-3xl bg-night-900/90 border border-slate-800 space-y-4">
@@ -500,49 +427,39 @@ export default function CarreteBasketView() {
           </button>
         </div>
 
-        {/* Grilla de tragos */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 pt-1">
-          {DRINK_OPTIONS.map((drink) => {
-            const isSelected = activeDrink === drink.id;
+        {/* Grilla de tragos (selección múltiple) */}
+        <div className="flex flex-wrap gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => handleSelectDrink("mix")}
+            aria-pressed={activeDrink === "mix"}
+            className={`chip !min-h-[44px] !px-4 ${activeDrink === "mix" ? "chip-on" : ""}`}
+          >
+            ✨ Mezcla automática
+          </button>
+          {DRINK_TYPES.map((drink) => {
+            const isSelected = selectedDrinks.includes(drink.id);
+            const inAuto = activeDrink === "mix" && autoMix.includes(drink.id);
             return (
               <button
                 key={drink.id}
                 type="button"
                 onClick={() => handleSelectDrink(drink.id)}
-                className={`p-3 rounded-2xl border text-left transition-all active:scale-[0.97] flex flex-col justify-between ${
-                  isSelected
-                    ? "bg-indigo-950/80 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.25)] ring-1 ring-indigo-500/50"
-                    : "bg-night-950/70 border-night-800 hover:border-slate-700 hover:bg-night-950 text-slate-300"
-                }`}
+                aria-pressed={isSelected}
+                title={drink.desc}
+                className={`chip !min-h-[44px] !px-4 ${isSelected ? "chip-on" : inAuto ? "border-indigo-400/30 text-indigo-100" : ""}`}
               >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl">{drink.emoji}</span>
-                    {isSelected && (
-                      <span className="w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center">
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </span>
-                    )}
-                  </div>
-                  <h4 className="font-black text-xs text-white mt-1.5">{drink.name}</h4>
-                  <p className="text-[10px] text-slate-400 line-clamp-2 mt-0.5">
-                    {drink.desc}
-                  </p>
-                </div>
-
-                <div className="mt-2 pt-1 border-t border-night-850">
-                  <span
-                    className={`text-[9px] font-black uppercase tracking-wider block ${
-                      isSelected ? "text-indigo-300" : "text-slate-500"
-                    }`}
-                  >
-                    {drink.badge}
-                  </span>
-                </div>
+                <span className="text-base">{drink.emoji}</span> {drink.name}
+                {isSelected && <Check className="w-3.5 h-3.5" />}
               </button>
             );
           })}
         </div>
+        <p className="text-xs text-slate-400">
+          {activeDrink === "mix"
+            ? `Mezcla automática para este presupuesto: ${autoMix.map((d) => DRINK_TYPES.find((x) => x.id === d)?.name).join(" + ")}. Toca varios para elegir tú.`
+            : `Repartimos el consumo entre ${selectedDrinks.length} ${selectedDrinks.length === 1 ? "tipo" : "tipos"} de trago, con sus mezcladores.`}
+        </p>
 
         {/* Banner de Priorización y Opciones Económicas */}
         <div

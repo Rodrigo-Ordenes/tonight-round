@@ -5,9 +5,24 @@ import { Shuffle } from "lucide-react";
 import content from "@/data/games_content.json";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
+import { YO_NUNCA } from "@/data/party_prompts";
 
 type NCat = { id: string; name: string; icon: string; questions: string[] };
-const CATS: NCat[] = content.never_have_i_ever.categories;
+// Las categorías originales + el banco ampliado de Tonight V10 (sin duplicados)
+const EXTRA_BY_ID: Record<string, string> = { mechona: "Piola", universitario: "U y pega", picante: "Picante", toxico: "Tóxico" };
+const BASE: NCat[] = content.never_have_i_ever.categories.map((c) => {
+  const extra = YO_NUNCA.find((x) => x.cat === EXTRA_BY_ID[c.id])?.items ?? [];
+  return { ...c, questions: Array.from(new Set([...c.questions, ...extra])) };
+});
+const CATS: NCat[] = [
+  ...BASE,
+  ...YO_NUNCA.filter((x) => !Object.values(EXTRA_BY_ID).includes(x.cat)).map((x) => ({
+    id: x.cat.toLowerCase().replace(/\s+/g, "_"),
+    name: x.cat,
+    icon: x.emoji,
+    questions: x.items,
+  })),
+];
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];

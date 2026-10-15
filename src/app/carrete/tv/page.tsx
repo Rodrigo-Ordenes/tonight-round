@@ -1,183 +1,226 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Tv, Maximize2, Minimize2, ArrowLeft, AlertCircle } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, Maximize2, Minimize2 } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore, SOLO } from "@/store/useCarreteStore";
 import { useLocale } from "@/lib/useLocale";
-import MonstruometroRanking from "@/components/monsters/MonstruometroRanking";
+import { bacFor, hydrationFor } from "@/lib/alcohol";
+import { LIVE_GAME_BY_ID } from "@/lib/liveGames";
+import { resolveNowPlaying } from "@/lib/music";
+import { nightMoment } from "@/lib/nightMoment";
+import { audioEffects } from "@/lib/audioEffects";
+import { fireConfetti } from "@/lib/confetti";
+import RoundResults from "@/components/live/RoundResults";
 
 export default function CarreteTVPage() {
-  const router = useRouter();
-  const { locale } = useLocale();
-  const { code, hydrated } = useActiveCode();
-  const store = useCarreteStore(code);
-  const [qrUri, setQrUri] = useState<string>("");
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  return (
+    <Suspense fallback={null}>
+      <TvStage />
+    </Suspense>
+  );
+}
 
-  const hasValidCarrete = code !== SOLO && code.length === 4;
+/** Smart TV: escenario a 3 metros. Lobby con QR y ranking; las rondas en vivo toman la pantalla completa. */
+function TvStage() {
+  const params = useSearchParams();
+  const { code: activeCode, hydrated } = useActiveCode();
+  const code = (params.get("code") ?? activeCode).toUpperCase();
+  const store = useCarreteStore(code);
+  const { locale, country } = useLocale();
+  const [qr, setQr] = useState("");
+  const [full, setFull] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const [origin, setOrigin] = useState("");
+  const revealed = useRef<string | null>(null);
+
+  const valid = code !== SOLO && code.length === 4;
+  const round = store.state.live?.round ?? null;
 
   useEffect(() => {
-    if (typeof window !== "undefined" && hasValidCarrete) {
-      const joinUrl = `${window.location.origin}/carrete/${code}?modo=celular`;
-      QRCode.toDataURL(joinUrl, {
-        width: 480,
-        margin: 1,
-        color: {
-          dark: "#060911",
-          light: "#ffffff",
-        },
-      })
-        .then((uri) => setQrUri(uri))
-        .catch(console.error);
-    }
-  }, [code, hasValidCarrete]);
+    setOrigin(window.location.host);
+    const iv = setInterval(() => setNow(Date.now()), 15000);
+    const onFs = () => setFull(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFs);
+    return () => {
+      clearInterval(iv);
+      document.removeEventListener("fullscreenchange", onFs);
+    };
+  }, []);
 
-  const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
-      setIsFullScreen(true);
-    } else {
-      document.exitFullscreen?.().catch(() => {});
-      setIsFullScreen(false);
+  useEffect(() => {
+    if (!valid) return;
+    QRCode.toDataURL(`${window.location.origin}/carrete/${code}?modo=celular`, { width: 520, margin: 1, color: { dark: "#07060A", light: "#F7F5F3" } })
+      .then(setQr)
+      .catch(() => setQr(""));
+  }, [code, valid]);
+
+  useEffect(() => {
+    if (round?.revealedAt && revealed.current !== round.id) {
+      revealed.current = round.id;
+      audioEffects.playReveal();
+      void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#3EE0FF"] });
     }
+  }, [round?.revealedAt, round?.id]);
+
+  const rows = useMemo(
+    () => store.participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => b.r.totalGrams - a.r.totalGrams),
+    [store.participants, now]
+  );
+
+  const toggleFull = () => {
+    if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.().catch(() => undefined);
+    else void document.exitFullscreen?.().catch(() => undefined);
   };
 
-  if (!hydrated || store.status === "loading") {
+  if (!hydrated || (valid && store.status === "loading")) {
+    return <div className="flex min-h-[100dvh] items-center justify-center text-tv-sm text-slate-400">Conectando con la sala…</div>;
+  }
+
+  if (!valid || store.status === "missing") {
     return (
-      <div className="min-h-[70dvh] flex flex-col items-center justify-center space-y-3">
-        <div className="w-12 h-12 rounded-full border-4 border-indigo-500/30 border-t-indigo-500 animate-spin" />
-        <p className="text-sm text-slate-300 font-bold">Cargando Modo Smart TV...</p>
+      <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-6 p-10 text-center">
+        <p className="display text-tv-lg">La TV necesita una sala</p>
+        <p className="max-w-2xl text-tv-sm text-slate-300">Crea o entra a un {locale.terminology.partyName.toLowerCase()} desde el celular o el computador y vuelve a abrir el Modo TV.</p>
+        <Link href="/" className="btn-primary !min-h-[64px] !px-8 text-xl">
+          Ir al inicio
+        </Link>
       </div>
     );
   }
 
-  // Redirección si no hay carrete activo
-  if (!hasValidCarrete || store.status === "missing") {
-    return (
-      <div className="max-w-md mx-auto my-16 p-6 rounded-3xl bg-amber-950/40 border-2 border-amber-500/60 text-center space-y-4">
-        <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-amber-400">
-          <AlertCircle className="w-8 h-8" />
-        </div>
-        <h2 className="text-xl font-black text-white">Modo TV Requiere un {locale.terminology.partyName}</h2>
-        <p className="text-xs sm:text-sm text-amber-200 leading-relaxed">
-          Debes crear o ingresar a un {locale.terminology.partyName.toLowerCase()} antes de activar el Modo TV para proyectar los tanques y el QR de tus amigos.
-        </p>
-        <button
-          onClick={() => router.push("/")}
-          className="w-full min-h-[48px] rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm"
-        >
-          Crear o Unirme a un {locale.terminology.partyName}
-        </button>
-      </div>
-    );
-  }
+  const music = resolveNowPlaying(store.state.music, { country, now: new Date(now), state: store.state });
+  const moment = nightMoment(new Date(now));
+  const voters = round ? Object.keys(round.votes) : [];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12 animate-fade-in">
-      {/* Top TV Control Bar */}
-      <div className="p-5 rounded-3xl bg-night-950/95 border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center border border-indigo-500/30">
-            <Tv className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-white">
-                Tonight TV • Pantalla Grande
-              </h1>
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-black border border-emerald-500/40 animate-pulse">
-                EN VIVO
-              </span>
-            </div>
-            <p className="text-xs text-slate-400">
-              Proyecta en tu Smart TV para que los invitados jueguen desde el sillón
-            </p>
-          </div>
+    <div className="relative flex min-h-[100dvh] flex-col px-[4vw] py-[3vh]">
+      {/* Barra superior */}
+      <header className="flex items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <span className="font-display text-tv-sm font-extrabold tracking-[0.2em] text-white">TONIGHT</span>
+          <span className="eyebrow !text-base">{moment.eyebrow}</span>
         </div>
-
-        <div className="flex items-center gap-4 self-end sm:self-auto">
-          {/* PIN Gigante Display (48px - 60px) */}
-          <div className="px-5 py-2.5 rounded-2xl bg-night-900 border-2 border-indigo-500/50 text-center shadow-glow">
-            <span className="text-[11px] uppercase font-bold text-slate-400 block tracking-widest">
-              PIN DEL CARRETE
-            </span>
-            <span className="text-4xl sm:text-5xl lg:text-6xl font-black text-indigo-300 tracking-widest font-mono">
-              {code}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={toggleFullScreen}
-            className="min-h-[52px] min-w-[52px] rounded-2xl bg-night-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-center transition-colors"
-            title="Pantalla Completa"
-          >
-            {isFullScreen ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2">
+            <span className="live-dot" />
+            <span className="font-mono text-tv-sm font-bold tracking-[0.25em] text-white">{code}</span>
+          </span>
+          <button type="button" onClick={toggleFull} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.05] text-white" aria-label="Pantalla completa">
+            {full ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}
           </button>
-
-          <Link
-            href={`/carrete/${code}`}
-            className="min-h-[52px] px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black text-sm flex items-center gap-2 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Volver</span>
+          <Link href={`/carrete/${code}`} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.05] text-white" aria-label="Volver a la sala">
+            <ArrowLeft className="w-6 h-6" />
           </Link>
         </div>
-      </div>
+      </header>
 
-      {/* Hero Strip: Giant QR & Instructions (16:9 Display Optimized) */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-night-950 via-slate-900 to-indigo-950/80 border-2 border-indigo-500/40 grid grid-cols-1 md:grid-cols-12 gap-8 items-center shadow-2xl">
-        <div className="md:col-span-7 space-y-4">
-          <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-400 flex items-center gap-2">
-            <span>🎮 MODO SALA / SMART TV 16:9</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-              Sincronización P2P & Servidor
-            </span>
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight">
-            Escanea para jugar y sumar tragos desde tu celular
-          </h2>
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
-            Apunta la cámara de tu teléfono al código QR. Tu móvil se convertirá en un mando personal sincronizado en vivo con el Monstruómetro y los juegos de esta pantalla.
+      {round ? (
+        /* ---------------- Ronda en vivo ---------------- */
+        <main className="flex flex-1 flex-col justify-center py-[4vh]" aria-live="polite">
+          <p className="eyebrow !text-xl">
+            {LIVE_GAME_BY_ID.get(round.game)?.emoji} {LIVE_GAME_BY_ID.get(round.game)?.name}
           </p>
-          <div className="pt-2 flex items-center gap-3 text-xs sm:text-sm font-bold text-indigo-300">
-            <span className="px-3 py-1 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
-              Sin descargas de App Store
-            </span>
-            <span className="px-3 py-1 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
-              100% Gratuito y Libre
-            </span>
-          </div>
-        </div>
-
-        <div className="md:col-span-5 flex flex-col items-center justify-center">
-          {qrUri ? (
-            <div className="p-3 bg-white rounded-3xl shadow-[0_0_50px_rgba(99,102,241,0.35)]">
-              <img
-                src={qrUri}
-                alt={`QR para entrar a ${code}`}
-                className="w-52 h-52 sm:w-60 sm:h-60 lg:w-64 lg:h-64 rounded-2xl"
-              />
-            </div>
+          {!round.revealedAt ? (
+            <>
+              <h1 className="display text-tv-hero mt-6 max-w-[85vw] animate-rise-in">
+                {round.game === "confesion" ? `"${round.prompt}"` : round.game === "impostor" ? "¿Quién es el impostor?" : round.prompt}
+              </h1>
+              {round.game === "prefieres" && (
+                <div className="mt-10 grid max-w-[85vw] grid-cols-2 gap-8">
+                  {round.options.map((o, i) => (
+                    <p key={o.id} className={`rounded-[2rem] border border-white/10 p-8 text-tv-md font-bold text-white ${i === 0 ? "bg-indigo-500/15" : "bg-purple-500/15"}`}>
+                      {o.label}
+                    </p>
+                  ))}
+                </div>
+              )}
+              {round.game === "impostor" && <p className="mt-6 max-w-[80vw] text-tv-sm text-slate-300">{round.prompt}</p>}
+              <div className="mt-12">
+                <p className="text-tv-sm text-slate-300">
+                  Votaron <span className="font-mono font-bold text-white">{voters.length}</span> de {store.participants.length} · voten desde el celular
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {store.participants.map((p) => (
+                    <span
+                      key={p.id}
+                      className={`rounded-full px-5 py-2 text-xl font-semibold transition-colors ${voters.includes(p.id) ? "bg-emerald-400 text-night-950" : "bg-white/[0.05] text-slate-400"}`}
+                    >
+                      {p.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </>
           ) : (
-            <div className="w-52 h-52 sm:w-60 sm:h-60 lg:w-64 lg:h-64 rounded-3xl bg-night-900 animate-pulse" />
+            <div className="mt-6 max-w-[85vw]">
+              {round.game !== "prefieres" && round.game !== "impostor" && (
+                <p className="mb-6 text-tv-sm text-slate-400">{round.game === "confesion" ? `"${round.prompt}"` : round.prompt}</p>
+              )}
+              <RoundResults round={round} participants={store.participants} size="tv" />
+            </div>
           )}
-          <div className="text-center mt-3">
-            <span className="text-sm sm:text-base font-black text-indigo-300 font-mono tracking-wider block">
-              Entra a tonight.app con PIN: <span className="text-amber-400 font-black">{code}</span>
-            </span>
-          </div>
-        </div>
-      </div>
+        </main>
+      ) : (
+        /* ---------------- Lobby ---------------- */
+        <main className="grid flex-1 grid-cols-1 items-center gap-[4vw] py-[4vh] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
+          <section>
+            <h1 className="display text-tv-hero">
+              Escanea
+              <br />y <span className="text-gradient-ember">juega.</span>
+            </h1>
+            <p className="mt-6 max-w-3xl text-tv-sm text-slate-300">
+              Apunta la cámara al código. Tu celular se vuelve tu control: votos secretos, tragos, agua y confesiones. O entra a{" "}
+              <span className="font-mono text-white">{origin}</span> con el código <span className="font-mono font-bold text-white">{code}</span>.
+            </p>
+            <div className="mt-10 flex items-center gap-8">
+              {qr ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={qr} alt={`QR para unirse a la sala ${code}`} className="h-[min(26vh,280px)] w-[min(26vh,280px)] rounded-[2rem]" />
+              ) : (
+                <div className="h-[min(26vh,280px)] w-[min(26vh,280px)] animate-pulse rounded-[2rem] bg-white/[0.05]" />
+              )}
+              <div className="space-y-3">
+                <p className="eyebrow !text-base">Sonando</p>
+                <p className="font-display text-tv-md font-bold text-white">
+                  {music.vibe?.emoji} {music.title}
+                </p>
+                <p className="text-xl text-slate-400">{music.reason}</p>
+              </div>
+            </div>
+          </section>
 
-      {/* Monstruómetro Grupal en Pantalla Grande (ReadOnly para TV) */}
-      <div className="p-2">
-        <MonstruometroRanking store={store} readOnly={true} />
-      </div>
+          <section aria-label="Monstruómetro" className="space-y-3">
+            <p className="eyebrow !text-lg">Monstruómetro</p>
+            {rows.length === 0 && <p className="text-tv-sm text-slate-400">Esperando a los primeros…</p>}
+            {rows.slice(0, 8).map(({ p, r, h }, i) => {
+              const driver = p.role === "driver";
+              const pct = Math.min(100, (r.bac / 1.2) * 100);
+              const tone = driver ? (r.totalGrams > 0 ? "bg-rose-500" : "bg-amber-400") : r.bac >= 0.8 ? "bg-rose-500" : r.bac >= 0.3 ? "bg-amber-400" : "bg-emerald-400";
+              return (
+                <div key={p.id} className="rounded-3xl bg-white/[0.04] px-6 py-4">
+                  <div className="flex items-center gap-4 text-tv-sm">
+                    <span className="w-10 font-mono text-slate-500">{driver ? "👑" : String(i + 1).padStart(2, "0")}</span>
+                    <span className="flex-1 truncate font-bold text-white">{p.name}</span>
+                    {p.waterCount > 0 && <span className="text-cyan-200">💧{p.waterCount}</span>}
+                    {h.needsWater && p.consumptions.length > 0 && <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-lg text-cyan-100">¡agua!</span>}
+                    <span className="font-mono tabular text-slate-200">{r.bac.toFixed(2)}</span>
+                  </div>
+                  <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/[0.06]">
+                    <div className={`h-full rounded-full ${tone} transition-[width] duration-1000`} style={{ width: `${driver ? 100 : Math.max(2, pct)}%`, opacity: driver && r.totalGrams === 0 ? 0.4 : 1 }} />
+                  </div>
+                </div>
+              );
+            })}
+            <p className="pt-2 text-lg text-slate-500">
+              Estimación educativa. {locale.legal.bacLimitText}: si bebiste, no manejes.
+            </p>
+          </section>
+        </main>
+      )}
     </div>
   );
 }

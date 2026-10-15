@@ -1,11 +1,30 @@
 // Web Audio API Synthesized Sound Generator & Haptic Feedback
 // Zero external audio assets required; lightweight, resilient, and instant.
 
+export const MUTE_KEY = "tonight_muted";
+export const MUTE_EVENT = "tonight-mute-change";
+
 class SoundEngine {
   private ctx: AudioContext | null = null;
 
+  isMuted(): boolean {
+    if (typeof window === "undefined") return true;
+    try {
+      return localStorage.getItem(MUTE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  setMuted(muted: boolean) {
+    try {
+      localStorage.setItem(MUTE_KEY, muted ? "1" : "0");
+    } catch {}
+    window.dispatchEvent(new Event(MUTE_EVENT));
+  }
+
   private getContext(): AudioContext | null {
-    if (typeof window === "undefined") return null;
+    if (typeof window === "undefined" || this.isMuted()) return null;
     try {
       const AudioCtx =
         window.AudioContext ||
@@ -131,9 +150,58 @@ class SoundEngine {
     } catch {}
   }
 
+  // Burbujeo líquido (servir un trago, vaso de agua o capa en el bar)
+  playBubble() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      for (let i = 0; i < 4; i++) {
+        const t = now + i * 0.055 + Math.random() * 0.02;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const f = 380 + Math.random() * 420;
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(f, t);
+        osc.frequency.exponentialRampToValueAtTime(f * 2.2, t + 0.06);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.08);
+      }
+    } catch {}
+  }
+
+  // Fanfarria de revelación (votaciones, premios del Wrapped)
+  playReveal() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const chord = [392, 493.88, 587.33, 783.99];
+      chord.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = idx % 2 ? "triangle" : "sawtooth";
+        osc.frequency.setValueAtTime(freq / 2, now);
+        osc.frequency.exponentialRampToValueAtTime(freq, now + 0.18);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.07, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.95);
+      });
+    } catch {}
+  }
+
   // Haptic feedback safely wrapped
   triggerHaptic(pattern: number | number[] = 50) {
-    if (typeof window !== "undefined" && "vibrate" in navigator) {
+    if (typeof window !== "undefined" && "vibrate" in navigator && !this.isMuted()) {
       try {
         navigator.vibrate(pattern);
       } catch {}

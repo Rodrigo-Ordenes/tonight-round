@@ -32,6 +32,105 @@ export function basketTotal(items: BasketItem[], base: PriceBase): number {
   return items.reduce((a, i) => a + unitPrice(i, base) * i.quantity, 0);
 }
 
+/* ------------------------------------------------------------------ */
+/* Canasta multi-licor                                                  */
+/* ------------------------------------------------------------------ */
+
+export type DrinkType = "cerveza" | "vino" | "pisco" | "ron" | "vodka" | "gin" | "whisky" | "tequila" | "fernet" | "mocktail";
+
+export const DRINK_TYPES: { id: DrinkType; name: string; emoji: string; desc: string }[] = [
+  { id: "cerveza", name: "Cerveza", emoji: "🍺", desc: "Latas y packs" },
+  { id: "vino", name: "Vino y pipeño", emoji: "🍷", desc: "Caja, botellón, terremoto" },
+  { id: "pisco", name: "Pisco", emoji: "🍇", desc: "Piscola, pisco sour" },
+  { id: "ron", name: "Ron", emoji: "🏝️", desc: "Cuba libre, mojito" },
+  { id: "vodka", name: "Vodka", emoji: "🧊", desc: "Con jugo o lima-limón" },
+  { id: "gin", name: "Gin", emoji: "🌿", desc: "Gin tonic" },
+  { id: "whisky", name: "Whisky", emoji: "🥃", desc: "Con ginger o cola" },
+  { id: "tequila", name: "Tequila", emoji: "🌵", desc: "Paloma, shots" },
+  { id: "fernet", name: "Fernet", emoji: "🌱", desc: "Fernet con cola" },
+  { id: "mocktail", name: "Sin alcohol", emoji: "🥤", desc: "Para quien maneja" },
+];
+
+const TYPE_OF = (id: string): DrinkType | null => {
+  if (id.startsWith("cerveza_")) return "cerveza";
+  if (id.startsWith("vino_") || id.startsWith("pipeno_")) return "vino";
+  for (const t of ["pisco", "ron", "vodka", "gin", "whisky", "tequila", "fernet"] as const) if (id.startsWith(`${t}_`)) return t;
+  return null;
+};
+
+/** ml por "trago" de cada tipo (lata, copa o medida de destilado). */
+const SERVING_ML: Record<Exclude<DrinkType, "mocktail">, number> = {
+  cerveza: 350,
+  vino: 150,
+  pisco: 50,
+  ron: 50,
+  vodka: 50,
+  gin: 50,
+  whisky: 50,
+  tequila: 45,
+  fernet: 50,
+};
+
+/** Peso relativo en el reparto: la cerveza se toma más seguido. */
+const WEIGHT: Record<Exclude<DrinkType, "mocktail">, number> = {
+  cerveza: 1.4,
+  vino: 1,
+  pisco: 1,
+  ron: 1,
+  vodka: 1,
+  gin: 1,
+  whisky: 0.8,
+  tequila: 0.6,
+  fernet: 0.6,
+};
+
+/** Mezclador sugerido por destilado (ml de mezclador por ml de destilado). */
+const MIXERS: Partial<Record<DrinkType, { id: string; ratio: number }[]>> = {
+  pisco: [{ id: "bebida_coca_cola_3l", ratio: 3 }],
+  ron: [{ id: "bebida_coca_cola_3l", ratio: 3 }],
+  fernet: [{ id: "bebida_coca_cola_3l", ratio: 3 }],
+  whisky: [{ id: "ginger_ale_canada_dry_15l", ratio: 2.5 }],
+  gin: [{ id: "tonica_nordic_15l", ratio: 3 }],
+  vodka: [
+    { id: "bebida_sprite_25l", ratio: 1.5 },
+    { id: "jugo_watts_naranja_15l", ratio: 1.5 },
+  ],
+  tequila: [{ id: "bebida_sprite_25l", ratio: 2 }],
+};
+
+const volumeOf = (c: CatalogItem): number => ("unit_volume_ml" in c && typeof c.unit_volume_ml === "number" ? c.unit_volume_ml : 0);
+const priceOf = (c: CatalogItem, base: PriceBase) => c.prices[priceKey(base)];
+const perMl = (c: CatalogItem, base: PriceBase) => priceOf(c, base) / Math.max(1, volumeOf(c));
+
+/** Opciones de un tipo ordenadas de más barata a más cara por ml. */
+function optionsFor(t: DrinkType, base: PriceBase): CatalogItem[] {
+  return CATALOG.filter((c) => TYPE_OF(c.id) === t && volumeOf(c) > 0).sort((a, b) => perMl(a, base) - perMl(b, base));
+}
+
+/** Mezcla por defecto según presupuesto por persona: variada, no solo pisco. */
+export function defaultMix(perPerson: number, profile: BasketProfile): DrinkType[] {
+  if (profile === "mocktail") return ["mocktail"];
+  if (perPerson < 4500) return ["cerveza", "vino"];
+  if (perPerson < 7000 || profile === "ahorro") return ["cerveza", "vino", "pisco"];
+  if (perPerson < 11000) return ["cerveza", "pisco", "ron", "gin"];
+  return ["cerveza", "pisco", "gin", "ron", "whisky", "vino"];
+}
+
+export function parseDrinks(target: string | undefined, perPerson: number, profile: BasketProfile): DrinkType[] {
+  const list = (target ?? "mix")
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+  if (list.length === 0 || list.includes("mix")) return defaultMix(perPerson, profile);
+  const valid = list.filter((x): x is DrinkType => DRINK_TYPES.some((d) => d.id === x));
+  return valid.length ? valid : defaultMix(perPerson, profile);
+}
+
+/**
+ * Arma la canasta repartiendo los tragos necesarios entre TODOS los tipos elegidos (no gira en torno al pisco),
+ * elige el producto con mejor precio por ml según presupuesto, agrega mezcladores y luego ajusta al presupuesto.
+ * `targetDrink` acepta "mix" o una lista separada por comas: "cerveza,ron,gin".
+ */
 export function generateBasket(
   profile: BasketProfile = "clasica",
   attendees: number = 8,
@@ -43,318 +142,137 @@ export function generateBasket(
   const n = Math.max(2, attendees);
   const h = Math.max(1, hours);
   const targetBudget = budget && budget > 0 ? budget : profile === "ahorro" ? 35000 : 60000;
-  const drinkers = Math.ceil(n * 0.75);
-  const spiritMl = drinkers * h * 55;
+  const perPerson = targetBudget / n;
+  const types = parseDrinks(targetDrink, perPerson, profile);
+  const alcoholTypes = types.filter((t): t is Exclude<DrinkType, "mocktail"> => t !== "mocktail");
+  const drinkers = alcoholTypes.length ? Math.ceil(n * 0.8) : 0;
+  // Ritmo responsable: ~1,5 tragos la primera hora y ~0,8 por hora después.
+  const drinksNeeded = drinkers * (1.5 + 0.8 * (h - 1));
+  const premium = profile === "clasica" && perPerson >= 9000;
 
-  const itemsMap = new Map<string, number>();
-  const setItem = (id: string, q: number) => {
-    if (q > 0) itemsMap.set(id, Math.max(1, Math.ceil(q)));
+  const qty = new Map<string, number>();
+  const add = (id: string, q: number) => {
+    if (q > 0) qty.set(id, (qty.get(id) ?? 0) + Math.ceil(q));
   };
 
-  const isLowBudget = targetBudget / n < 7500;
-  const isVeryTight = targetBudget / n < 5000;
-
-  // 1. ASIGNACIÓN PRINCIPAL DE ALCOHOL Y MEZCLADORES SEGÚN targetDrink
-  switch (targetDrink) {
-    case "cerveza": {
-      const cansNeeded = Math.ceil(drinkers * h * 1.4);
-      if (isVeryTight || profile === "ahorro") {
-        // Cerveza rendidora económica: Báltica o Becker
-        const packs6 = Math.ceil(cansNeeded / 6);
-        setItem("cerveza_baltica_6pack", Math.max(1, packs6));
-      } else if (isLowBudget) {
-        setItem("cerveza_cristal_24pack", Math.max(1, Math.ceil(cansNeeded / 24)));
-        if (cansNeeded % 24 > 6) setItem("cerveza_baltica_6pack", 1);
-      } else {
-        setItem("cerveza_royal_24pack", Math.max(1, Math.ceil(cansNeeded / 24)));
-        if (profile === "clasica" && cansNeeded > 24) setItem("cerveza_heineken_6pack", 1);
+  // 1. Reparto de tragos entre los tipos elegidos
+  const totalW = alcoholTypes.reduce((a, t) => a + WEIGHT[t], 0);
+  const mixerMl = new Map<string, number>();
+  for (const t of alcoholTypes) {
+    const ml = (drinksNeeded * WEIGHT[t]) / totalW * SERVING_ML[t];
+    const opts = optionsFor(t, base);
+    if (opts.length === 0) continue;
+    // Barato por ml salvo presupuesto holgado, donde se prefiere la marca "clásica" más conveniente.
+    const pick = premium ? opts.find((o) => o.tier === "clasica") ?? opts[0] : opts[0];
+    add(pick.id, ml / volumeOf(pick));
+    if (t === "cerveza" && ml > 6000) {
+      // Packs grandes cuando el volumen lo justifica
+      const big = opts.filter((o) => volumeOf(o) >= 8000).sort((a, b) => perMl(a, base) - perMl(b, base))[0];
+      if (big) {
+        qty.delete(pick.id);
+        add(big.id, ml / volumeOf(big));
       }
-      break;
     }
+    for (const m of MIXERS[t] ?? []) mixerMl.set(m.id, (mixerMl.get(m.id) ?? 0) + ml * m.ratio);
+  }
+  mixerMl.forEach((ml, id) => {
+    const c = byId.get(id);
+    if (c) add(id, ml / Math.max(1, volumeOf(c)));
+  });
+  if (types.includes("tequila") || types.includes("gin")) add("limon_malla_1kg", 1);
 
-    case "vino": {
-      const bottlesNeeded = Math.ceil(spiritMl / 1000);
-      if (isVeryTight || profile === "ahorro") {
-        // Vino económico en caja (Gato Exportación / Santa Helena) o pipeño
-        const cajas = Math.max(1, Math.ceil(bottlesNeeded / 2));
-        setItem("vino_gato_caja_2l", cajas);
-        setItem("bebida_sprite_25l", 1); // para tinto de verano
-      } else {
-        setItem("vino_gato_botellon_15l", Math.max(1, Math.ceil(bottlesNeeded / 1.5)));
-        setItem("pipeno_botellon_15l", 1);
-        setItem("bebida_sprite_25l", 1);
-        setItem("jarabe_granadina_mitjans_900ml", 1);
-      }
-      break;
-    }
-
-    case "pisco": {
-      if (isVeryTight) {
-        setItem("pisco_alto_35_750", Math.max(1, Math.ceil(spiritMl / 750)));
-        setItem("bebida_coca_cola_25l", Math.max(1, Math.ceil((spiritMl * 2.5) / 2500)));
-      } else if (isLowBudget || profile === "ahorro") {
-        setItem("pisco_alto_35_1l", Math.max(1, Math.ceil(spiritMl / 1000)));
-        setItem("bebida_coca_cola_3l", Math.max(1, Math.ceil((spiritMl * 2.5) / 3000)));
-      } else {
-        setItem("pisco_mistral_40_750", Math.max(1, Math.ceil(spiritMl / 750)));
-        setItem("bebida_coca_cola_25l", Math.max(1, Math.ceil((spiritMl * 2.5) / 2500)));
-      }
-      break;
-    }
-
-    case "gin": {
-      if (isVeryTight || isLowBudget) {
-        // Si el presupuesto es ajustado para Gin (que vale ~$14.000), 1 Gin + Báltica/Cristal de aguante
-        setItem("gin_beefeater_750", 1);
-        setItem("tonica_nordic_15l", 2);
-        if (drinkers > 4) setItem("cerveza_baltica_6pack", 1);
-      } else {
-        setItem("gin_beefeater_750", Math.max(1, Math.ceil(spiritMl / 750)));
-        setItem("tonica_nordic_15l", Math.max(1, Math.ceil((spiritMl * 2.5) / 1500)));
-      }
-      break;
-    }
-
-    case "vodka": {
-      if (isVeryTight || isLowBudget) {
-        setItem("vodka_stolichnaya_750", 1);
-        setItem("bebida_sprite_25l", 1);
-        setItem("jugo_watts_naranja_15l", 1);
-        if (drinkers > 4) setItem("cerveza_baltica_6pack", 1);
-      } else {
-        setItem("vodka_stolichnaya_750", Math.max(1, Math.ceil(spiritMl / 750)));
-        setItem("bebida_sprite_25l", 1);
-        setItem("jugo_watts_naranja_15l", 2);
-      }
-      break;
-    }
-
-    case "whisky": {
-      if (isVeryTight || isLowBudget || profile === "ahorro") {
-        setItem("whisky_sandy_mac_750", Math.max(1, Math.ceil(spiritMl / 750)));
-        setItem("ginger_ale_canada_dry_15l", Math.max(1, Math.ceil((spiritMl * 2) / 1500)));
-      } else {
-        setItem("whisky_ballantines_750", Math.max(1, Math.ceil(spiritMl / 750)));
-        setItem("ginger_ale_canada_dry_15l", Math.max(1, Math.ceil((spiritMl * 2) / 1500)));
-      }
-      break;
-    }
-
-    case "ron": {
-      setItem("ron_havana_especial_750", Math.max(1, Math.ceil(spiritMl / 750)));
-      setItem("bebida_coca_cola_25l", Math.max(1, Math.ceil((spiritMl * 2.5) / 2500)));
-      break;
-    }
-
-    case "tequila": {
-      setItem("tequila_jose_cuervo_750", Math.max(1, Math.ceil(spiritMl / 750)));
-      setItem("bebida_sprite_25l", 1);
-      setItem("limon_malla_1kg", 1);
-      break;
-    }
-
-    case "mocktail": {
-      setItem("tonica_nordic_15l", Math.max(1, Math.ceil(n / 4)));
-      setItem("ginger_ale_canada_dry_15l", Math.max(1, Math.ceil(n / 4)));
-      setItem("jugo_watts_naranja_15l", Math.max(1, Math.ceil(n / 3)));
-      setItem("jugo_guallarauco_frutas_1l", Math.max(1, Math.ceil(n / 4)));
-      setItem("jarabe_granadina_mitjans_900ml", 1);
-      setItem("limon_malla_1kg", 1);
-      setItem("menta_fresca_atado", 1);
-      break;
-    }
-
-    case "mix":
-    default: {
-      if (isVeryTight) {
-        // Mix de bajo presupuesto: Pisco económico + Báltica 6pack o Vino Gato
-        setItem("pisco_alto_35_750", 1);
-        setItem("bebida_coca_cola_25l", 1);
-        setItem("cerveza_baltica_6pack", 1);
-        if (n >= 8) setItem("vino_gato_caja_2l", 1);
-      } else if (isLowBudget || profile === "ahorro") {
-        setItem("pisco_alto_35_1l", Math.max(1, Math.ceil(spiritMl / 1000 / 1.5)));
-        setItem("bebida_coca_cola_3l", Math.max(1, Math.ceil((spiritMl * 2) / 3000)));
-        setItem("cerveza_cristal_24pack", 1);
-      } else {
-        // Clásica: Pisco + Destilado secundario + Cerveza Royal
-        setItem("pisco_mistral_40_750", Math.max(1, Math.ceil(spiritMl / 750 / 2)));
-        setItem("gin_beefeater_750", 1);
-        setItem("bebida_coca_cola_25l", 1);
-        setItem("tonica_nordic_15l", 1);
-        setItem("cerveza_royal_24pack", 1);
-      }
-      break;
-    }
+  // 2. Sin alcohol: para conductores y quienes no toman (o todo el grupo si solo eligieron eso)
+  if (types.includes("mocktail")) {
+    const sober = alcoholTypes.length ? Math.max(1, n - drinkers) : n;
+    add("ginger_ale_canada_dry_15l", sober / 3);
+    add("jugo_watts_naranja_15l", sober / 3);
+    add("tonica_nordic_15l", sober / 4);
+    add("jarabe_granadina_mitjans_900ml", 1);
+    add("limon_malla_1kg", 1);
+    add("menta_fresca_atado", 1);
   }
 
-  // 2. CONVERTIR A ITEMS Y CALCULAR SUB-TOTAL SOLO DE BEBIDAS/ALCOHOL
   const toItems = (): BasketItem[] => {
     const list: BasketItem[] = [];
-    itemsMap.forEach((q, id) => {
+    qty.forEach((q, id) => {
       const c = byId.get(id);
       if (c && q > 0) list.push(toBasketItem(c, q));
     });
     return list;
   };
+  const cost = () => basketTotal(toItems(), base);
 
-  let currentItems = toItems();
-  let currentCost = basketTotal(currentItems, base);
-
-  // 3. SI EL ALCOHOL PRINCIPAL EXCEDE EL PRESUPUESTO, AJUSTAR Y RECURRIR A OPCIONES ECONÓMICAS
-  if (currentCost > targetBudget && !isVeryTight) {
-    // Si la cerveza es cara, bajar a Báltica o Cristal
-    if (itemsMap.has("cerveza_royal_24pack")) {
-      itemsMap.delete("cerveza_royal_24pack");
-      itemsMap.set("cerveza_cristal_24pack", 1);
-    } else if (itemsMap.has("cerveza_cristal_24pack") && targetBudget < 25000) {
-      itemsMap.delete("cerveza_cristal_24pack");
-      itemsMap.set("cerveza_baltica_6pack", 2);
+  // 3. Ajuste al presupuesto: primero bajar de marca, luego cantidades, al final quitar el tipo más caro.
+  const downgrade = () => {
+    const entries = Array.from(qty.entries())
+      .map(([id, q]) => ({ id, q, c: byId.get(id)! }))
+      .filter((e) => e.c && TYPE_OF(e.id))
+      .sort((a, b) => priceOf(b.c, base) * b.q - priceOf(a.c, base) * a.q);
+    for (const e of entries) {
+      const t = TYPE_OF(e.id)!;
+      const cheaper = optionsFor(t, base).find((o) => o.id !== e.id && perMl(o, base) < perMl(e.c, base) * 0.97);
+      if (cheaper) {
+        qty.delete(e.id);
+        add(cheaper.id, (e.q * volumeOf(e.c)) / volumeOf(cheaper));
+        return true;
+      }
     }
-
-    // Si el pisco es de 40°, bajar a 35° 750
-    if (itemsMap.has("pisco_mistral_40_750") && targetBudget < 20000) {
-      itemsMap.delete("pisco_mistral_40_750");
-      itemsMap.set("pisco_alto_35_750", 1);
-    }
-
-    // Si el vino es botellón, bajar a caja
-    if (itemsMap.has("vino_gato_botellon_15l") && targetBudget < 15000) {
-      itemsMap.delete("vino_gato_botellon_15l");
-      itemsMap.set("vino_gato_caja_2l", 1);
-    }
-
-    currentItems = toItems();
-    currentCost = basketTotal(currentItems, base);
+    return false;
+  };
+  let guard = 0;
+  while (cost() > targetBudget && guard++ < 20 && downgrade()) {
+    /* bajar de marca */
   }
-
-  // Sustituir licores costosos si no alcanza el presupuesto
-  if (currentCost > targetBudget) {
-    if (itemsMap.has("gin_beefeater_750") && targetBudget < 15000) {
-      itemsMap.delete("gin_beefeater_750");
-      itemsMap.delete("tonica_nordic_15l");
-      if (targetBudget >= 9480) {
-        itemsMap.set("pisco_alto_35_750", 1);
-        itemsMap.set("bebida_coca_cola_25l", 1);
-      } else if (targetBudget >= 4990) {
-        itemsMap.set("cerveza_baltica_6pack", 1);
-      } else {
-        itemsMap.set("vino_gato_caja_2l", 1);
-      }
-    } else if (itemsMap.has("tequila_jose_cuervo_750") && targetBudget < 15000) {
-      itemsMap.delete("tequila_jose_cuervo_750");
-      if (targetBudget >= 9480) {
-        itemsMap.set("pisco_alto_35_750", 1);
-        itemsMap.set("bebida_coca_cola_25l", 1);
-      } else {
-        itemsMap.set("cerveza_baltica_6pack", 1);
-      }
-    } else if (itemsMap.has("whisky_ballantines_750") && targetBudget < 14000) {
-      itemsMap.delete("whisky_ballantines_750");
-      if (targetBudget >= 10880) {
-        itemsMap.set("whisky_sandy_mac_750", 1);
-      } else {
-        itemsMap.set("vino_gato_caja_2l", 1);
-      }
-    } else if (itemsMap.has("whisky_sandy_mac_750") && targetBudget < 10000) {
-      itemsMap.delete("whisky_sandy_mac_750");
-      itemsMap.delete("ginger_ale_canada_dry_15l");
-      if (targetBudget >= 4990) {
-        itemsMap.set("cerveza_baltica_6pack", 1);
-      } else {
-        itemsMap.set("vino_gato_caja_2l", 1);
-      }
-    } else if (itemsMap.has("ron_havana_especial_750") && targetBudget < 12000) {
-      itemsMap.delete("ron_havana_especial_750");
-      if (targetBudget >= 9480) {
-        itemsMap.set("pisco_alto_35_750", 1);
-        itemsMap.set("bebida_coca_cola_25l", 1);
-      } else {
-        itemsMap.set("cerveza_baltica_6pack", 1);
-      }
-    } else if (itemsMap.has("vodka_stolichnaya_750") && targetBudget < 12000) {
-      itemsMap.delete("vodka_stolichnaya_750");
-      itemsMap.delete("jugo_watts_naranja_15l");
-      if (targetBudget >= 9480) {
-        itemsMap.set("pisco_alto_35_750", 1);
-        itemsMap.set("bebida_coca_cola_25l", 1);
-      } else {
-        itemsMap.set("cerveza_baltica_6pack", 1);
-      }
-    }
-
-    currentItems = toItems();
-    currentCost = basketTotal(currentItems, base);
+  guard = 0;
+  while (cost() > targetBudget && guard++ < 60) {
+    const reducible = Array.from(qty.entries())
+      .filter(([id, q]) => q > 1 && byId.get(id))
+      .sort((a, b) => priceOf(byId.get(b[0])!, base) - priceOf(byId.get(a[0])!, base));
+    if (reducible.length === 0) break;
+    const [id, q] = reducible[0];
+    qty.set(id, q - 1);
   }
-
-  // Si aún excede, recortar cantidades sobrantes de alcohol proporcionalmente
-  while (currentCost > targetBudget && itemsMap.size > 0) {
-    const entries = Array.from(itemsMap.entries()).filter(([_, q]) => q > 1);
-    if (entries.length === 0) break;
-    // Bajar 1 unidad del ítem con mayor cantidad
-    const [topId, topQ] = entries.sort((a, b) => b[1] - a[1])[0];
-    itemsMap.set(topId, topQ - 1);
-    currentItems = toItems();
-    currentCost = basketTotal(currentItems, base);
+  guard = 0;
+  while (cost() > targetBudget && guard++ < 6) {
+    const alcoholIds = Array.from(qty.keys()).filter((id) => TYPE_OF(id));
+    if (alcoholIds.length <= 1) break;
+    const priciest = alcoholIds.sort((a, b) => priceOf(byId.get(b)!, base) - priceOf(byId.get(a)!, base))[0];
+    qty.delete(priciest);
+    // Quitar mezcladores y limones que ya no acompañan a ningún licor de la canasta
+    const left = new Set(Array.from(qty.keys()).map(TYPE_OF).filter(Boolean) as DrinkType[]);
+    const usedMixers = new Set(Array.from(left).flatMap((t) => (MIXERS[t] ?? []).map((m) => m.id)));
+    const t = TYPE_OF(priciest);
+    for (const m of (t && MIXERS[t]) || []) if (!usedMixers.has(m.id) && !types.includes("mocktail")) qty.delete(m.id);
+    if (!left.has("tequila") && !left.has("gin") && !types.includes("mocktail")) qty.delete("limon_malla_1kg");
   }
-
-  // Si aún excede y el presupuesto es muy bajo, recurrir a las opciones más rendidoras:
-  // Vino Gato Exportación en caja 2L ($4.190) o latas de Báltica 473cc ($890 c/u)
-  if (currentCost > targetBudget && targetBudget >= 890) {
+  if (cost() > targetBudget && targetBudget >= 890) {
+    // Último recurso: lo más rendidor por peso
+    qty.clear();
     if (targetBudget >= 4190) {
-      itemsMap.clear();
-      itemsMap.set("vino_gato_caja_2l", 1);
-      if (targetBudget >= 6680) {
-        itemsMap.set("bebida_sprite_25l", 1);
-      }
-    } else {
-      itemsMap.clear();
-      const latas = Math.floor(targetBudget / 890);
-      itemsMap.set("cerveza_baltica_lata_473", Math.max(1, latas));
+      add("vino_gato_caja_2l", 1);
+      if (targetBudget >= 6680) add("bebida_sprite_25l", 1);
+    } else add("cerveza_baltica_lata_473", Math.floor(targetBudget / 890));
+  }
+
+  // 4. Básicos con lo que sobre: hielo y agua primero (hidratación), luego vasos y picoteo.
+  let remaining = targetBudget - cost();
+  const tryAdd = (id: string, q = 1) => {
+    const c = byId.get(id);
+    if (!c) return false;
+    const p = priceOf(c, base) * q;
+    if (remaining >= p) {
+      add(id, q);
+      remaining -= p;
+      return true;
     }
-    currentItems = toItems();
-    currentCost = basketTotal(currentItems, base);
-  }
-
-  // 4. INSUMOS SECUNDARIOS: SOLO SI SOBRA PRESUPUESTO (PRIORIZANDO ALCOHOL)
-  let remainingBudget = targetBudget - currentCost;
-
-  // Prioridad Insumo 1: Hielo (indispensable)
-  if (remainingBudget >= 1890) {
-    if (remainingBudget >= 3290 && n >= 6) {
-      setItem("hielo_4kg", 1);
-      remainingBudget -= 3290;
-    } else {
-      setItem("hielo_2kg", 1);
-      remainingBudget -= 1890;
-    }
-  }
-
-  // Prioridad Insumo 2: Agua Vital (hidratación / resaca)
-  if (remainingBudget >= 1190) {
-    setItem("agua_vital_sin_gas_2l", 1);
-    remainingBudget -= 1190;
-  }
-
-  // Prioridad Insumo 3: Vasos (solo si queda presupuesto cómodo)
-  if (remainingBudget >= 3490 && targetDrink !== "cerveza") {
-    setItem("vasos_plasticos_500cc_50u", 1);
-    remainingBudget -= 3490;
-  }
-
-  // Prioridad Insumo 4: Snacks / Comida (ÚLTIMA PRIORIDAD: solo si sobra presupuesto)
-  if (remainingBudget >= 3290 && profile !== "ahorro") {
-    setItem("papas_lays_380g", 1);
-    remainingBudget -= 3290;
-  } else if (remainingBudget >= 1490) {
-    setItem("mani_salado_180g", 1);
-    remainingBudget -= 1490;
-  }
-
-  if (remainingBudget >= 2690 && profile === "clasica") {
-    setItem("doritos_mega_220g", 1);
-    remainingBudget -= 2690;
-  }
+    return false;
+  };
+  if (!(n >= 6 && tryAdd("hielo_4kg"))) tryAdd("hielo_2kg");
+  tryAdd("agua_vital_sin_gas_2l", Math.max(1, Math.ceil(n / 5)));
+  if (types.some((t) => t !== "cerveza")) tryAdd("vasos_plasticos_500cc_50u");
+  if (profile !== "ahorro") tryAdd("papas_lays_380g");
+  else tryAdd("mani_salado_180g");
+  if (profile === "clasica") tryAdd("doritos_mega_220g");
 
   return toItems();
 }
