@@ -7,6 +7,7 @@ import { uid } from "@/store/useCarreteStore";
 import { LIVE_GAME_BY_ID, penaltyFor, tally } from "@/lib/liveGames";
 import { audioEffects } from "@/lib/audioEffects";
 import RoundResults from "./RoundResults";
+import { useRevealMoment } from "@/lib/useRevealMoment";
 
 /**
  * Mando del celular: vota en la ronda activa (en secreto) y manda confesiones anónimas.
@@ -19,7 +20,6 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
   const [confession, setConfession] = useState("");
   const [sent, setSent] = useState(false);
   const seenRound = useRef<string | null>(null);
-  const seenReveal = useRef<string | null>(null);
 
   // Háptica y sonido al empezar / revelar
   useEffect(() => {
@@ -31,12 +31,11 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
       }
       seenRound.current = round.id;
     }
-    if (round.revealedAt && seenReveal.current !== round.id) {
-      seenReveal.current = round.id;
-      const lost = me && tally(round, participants).loserIds.includes(me.id);
-      if (lost) audioEffects.triggerHaptic([200, 80, 200]);
-    }
-  }, [round, me, participants]);
+  }, [round]);
+
+  useRevealMoment(round, (r) => {
+    if (me && tally(r, participants).loserIds.includes(me.id)) audioEffects.triggerHaptic([200, 80, 200]);
+  });
 
   if (!me) return null;
 

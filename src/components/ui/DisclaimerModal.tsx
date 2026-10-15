@@ -1,114 +1,114 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { AlertTriangle, ShieldCheck, X, Car, PhoneCall } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ChevronDown, PhoneCall } from "lucide-react";
 import { useLocale } from "@/lib/useLocale";
+import { COUNTRIES } from "@/config/locales";
 
 interface DisclaimerModalProps {
   forceOpen?: boolean;
   onClose?: () => void;
 }
 
-export default function DisclaimerModal({
-  forceOpen = false,
-  onClose,
-}: DisclaimerModalProps) {
-  const { locale } = useLocale();
+/** Edad mínima legal para comprar o beber alcohol en cada país soportado. */
+const LEGAL_AGE: Record<string, number> = { CL: 18, MX: 18, US: 21, JP: 20 };
+
+const RULES = [
+  { emoji: "👑", title: "Si tomas, no manejas", text: "La única cifra segura al volante es 0.00. Siempre hay alguien de conductor o un transporte." },
+  { emoji: "🧪", title: "Las cifras son estimaciones", text: "La alcoholemia que ves es educativa (fórmula de Widmark), no una medición. No sirve para decidir si manejar." },
+  { emoji: "💧", title: "Agua entre trago y trago", text: "La app te lo recuerda. Comer y alternar con agua hace que la noche dure más y la caña sea menor." },
+];
+
+/** Bienvenida de la primera visita: reglas de la casa, edad legal y marco legal del país. */
+export default function DisclaimerModal({ forceOpen = false, onClose }: DisclaimerModalProps) {
+  const { locale, country, setCountry } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
+  const [legalOpen, setLegalOpen] = useState(false);
 
   useEffect(() => {
-    if (forceOpen) {
-      setIsOpen(true);
-      return;
-    }
-    // Check if previously acknowledged
-    const acknowledged = localStorage.getItem("tonight_disclaimer_ack");
-    if (!acknowledged) {
-      setIsOpen(true);
-    }
+    if (forceOpen || !localStorage.getItem("tonight_disclaimer_ack")) setIsOpen(true);
   }, [forceOpen]);
 
-  const handleDismiss = () => {
+  const accept = () => {
     localStorage.setItem("tonight_disclaimer_ack", "true");
     setIsOpen(false);
-    if (onClose) onClose();
+    onClose?.();
   };
 
   if (!isOpen) return null;
+  const age = LEGAL_AGE[country] ?? 18;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-lg glass-panel bg-night-950 border border-amber-500/30 rounded-3xl p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-        {/* Top accent bar */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-carrete-danger to-carrete-primary" />
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-night-950/85 p-0 backdrop-blur-md animate-fade-in sm:items-center sm:p-4">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="welcome-title"
+        className="relative flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-[32px] border border-white/10 bg-night-900 shadow-lift sm:rounded-[32px]"
+      >
+        <span className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-indigo-500/25 blur-3xl" aria-hidden />
+        <div className="relative overflow-y-auto p-6 sm:p-8">
+          <p className="eyebrow">Bienvenida</p>
+          <h2 id="welcome-title" className="display mt-2 text-4xl">
+            Antes de empezar<span className="text-gradient-ember">.</span>
+          </h2>
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3 mb-4 pt-1">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-white tracking-tight">
-                Consumo Responsable y Marco Legal
-              </h3>
-              <p className="text-xs font-semibold text-amber-400">
-                {locale.legal.lawsTitle || locale.legal.lawName}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleDismiss}
-            className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-night-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Content body */}
-        <div className="space-y-4 overflow-y-auto pr-1 text-slate-300 text-sm leading-relaxed">
-          <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-xs font-medium flex gap-3">
-            <Car className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
-            <div>
-              <p className="font-bold text-amber-300 mb-1">
-                SI BEBES, NUNCA MANEJES. {locale.countryCode === "CL" ? "CERO TOLERANCIA." : "ZERO TOLERANCE."}
-              </p>
-              <p>
-                {locale.legal.disclaimerText || locale.legal.disclaimer}
-              </p>
-            </div>
+          <div className="mt-5 flex flex-wrap gap-1.5" role="radiogroup" aria-label="País">
+            {COUNTRIES.map((c) => (
+              <button
+                key={c.code}
+                type="button"
+                role="radio"
+                aria-checked={country === c.code}
+                onClick={() => setCountry(c.code)}
+                className={`chip ${country === c.code ? "chip-on" : ""}`}
+              >
+                {c.flag} {c.name}
+              </button>
+            ))}
           </div>
 
-          <div className="bg-night-900/80 rounded-2xl p-4 border border-night-800 text-xs space-y-2">
-            <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">
-              Límites Legales en {locale.countryName} ({locale.legal.bacLimitText})
-            </h4>
-            <div className="space-y-1.5 text-slate-300 whitespace-pre-line">
-              <p>{locale.legal.penaltiesSummary || `Límite permitido de alcohol: ${locale.legal.bacLimitText}`}</p>
-            </div>
-          </div>
+          <ul className="mt-6 space-y-4">
+            {RULES.map((r) => (
+              <li key={r.title} className="flex gap-4">
+                <span className="text-2xl">{r.emoji}</span>
+                <span>
+                  <span className="block font-display text-lg font-bold text-white">{r.title}</span>
+                  <span className="block text-sm leading-relaxed text-slate-300">{r.text}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
 
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-night-900 border border-night-800 text-xs">
-            <div className="flex items-center gap-2 text-slate-300">
-              <PhoneCall className="w-4 h-4 text-emerald-400" />
-              <span>Emergencias {locale.countryName}:</span>
-            </div>
-            <span className="font-bold text-emerald-400 font-mono">
-              {locale.legal.emergencyNumber}
-            </span>
-          </div>
-        </div>
-
-        {/* Footer Action */}
-        <div className="mt-5 pt-3 border-t border-night-800">
           <button
             type="button"
-            onClick={handleDismiss}
-            className="w-full min-h-[48px] py-3 px-4 rounded-2xl font-bold bg-carrete-primary hover:bg-indigo-500 text-white shadow-glow flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            onClick={() => setLegalOpen(!legalOpen)}
+            aria-expanded={legalOpen}
+            className="mt-6 flex w-full items-center justify-between rounded-2xl bg-white/[0.04] px-4 py-3 text-left text-sm font-semibold text-slate-200"
           >
-            <ShieldCheck className="w-5 h-5" />
-            <span>Entiendo y Acepto el Uso Responsable</span>
+            <span>
+              {locale.legal.lawsTitle || locale.legal.lawName} · {locale.legal.bacLimitText}
+            </span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${legalOpen ? "rotate-180" : ""}`} />
           </button>
+          {legalOpen && (
+            <div className="mt-2 space-y-3 rounded-2xl bg-white/[0.02] p-4 text-xs leading-relaxed text-slate-300 animate-fade-in">
+              <p>{locale.legal.disclaimerText || locale.legal.disclaimer}</p>
+              {locale.legal.penaltiesSummary && <p className="whitespace-pre-line">{locale.legal.penaltiesSummary}</p>}
+              <p className="flex items-center gap-2 font-semibold text-emerald-200">
+                <PhoneCall className="w-4 h-4" /> Emergencias en {locale.countryName}: {locale.legal.emergencyNumber}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="relative border-t border-white/[0.06] p-5 sm:px-8">
+          <button type="button" onClick={accept} className="btn-primary w-full !min-h-[54px] text-base">
+            Tengo {age} años o más · Entrar
+          </button>
+          <p className="mt-2 text-center text-[11px] text-slate-500">
+            Tonight es para mayores de {age} años, la edad legal para beber en {locale.countryName}.
+          </p>
         </div>
       </div>
     </div>

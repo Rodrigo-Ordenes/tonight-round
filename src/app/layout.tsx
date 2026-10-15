@@ -19,7 +19,15 @@ export const metadata: Metadata = {
     "Arma la previa, prepara tragos, juega con la TV y los celulares, pon la música y divide la cuenta. Gratis, sin cuentas y en Chile, México, EE.UU. y Japón.",
   applicationName: "Tonight",
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  // URL pública para las vistas previas al compartir (OG). En Vercel se deduce sola.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3100")
+  ),
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

@@ -9,6 +9,7 @@ import type { LiveGame } from "@/lib/carreteState";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
 import RoundResults from "./RoundResults";
+import { useRevealMoment } from "@/lib/useRevealMoment";
 
 /**
  * Control del anfitrión: elige el juego, lanza la ronda, ve quién votó y revela.
@@ -19,18 +20,14 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
   const live = state.live;
   const round = live?.round ?? null;
   const [error, setError] = useState<string | null>(null);
-  const revealedRef = useRef<string | null>(null);
 
   const usedPrompts = useMemo(() => new Set((live?.history ?? []).map((h) => h.prompt)), [live?.history]);
   const pendingConfessions = (live?.confessions ?? []).filter((c) => !c.used).length;
 
-  useEffect(() => {
-    if (round?.revealedAt && revealedRef.current !== round.id) {
-      revealedRef.current = round.id;
-      audioEffects.playReveal();
-      void fireConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#F7F5F3"] });
-    }
-  }, [round?.revealedAt, round?.id]);
+  useRevealMoment(round, () => {
+    audioEffects.playReveal();
+    void fireConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#F7F5F3"] });
+  });
 
   if (isSolo) {
     return (

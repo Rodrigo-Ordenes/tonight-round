@@ -3,9 +3,9 @@ import { Metadata } from "next";
 import GameDeck from "@/components/games/GameDeck";
 
 export const metadata: Metadata = {
-  title: "Juegos pa' Tomar & Modo Smart TV | Tonight 🇨🇱",
+  title: "Juegos · Tonight",
   description:
-    "Catálogo de dinámicas sociales, ruleta aleatoria interactiva y Modo Smart TV a pantalla completa con código QR para proyectores.",
+    "Juegos en vivo con la TV y votos secretos desde el celular, juegos rápidos y clásicos de carrete.",
 };
 
 export default function JuegosPage() {

@@ -18,6 +18,7 @@ import RoundResults from "@/components/live/RoundResults";
 import CheersOverlay from "@/components/live/CheersOverlay";
 import { buildRound, tally } from "@/lib/liveGames";
 import { useWakeLock } from "@/lib/useWakeLock";
+import { useRevealMoment } from "@/lib/useRevealMoment";
 import { uid } from "@/store/useCarreteStore";
 
 export default function CarreteTVPage() {
@@ -39,7 +40,6 @@ function TvStage() {
   const [full, setFull] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const [origin, setOrigin] = useState("");
-  const revealed = useRef<string | null>(null);
 
   const valid = code !== SOLO && code.length === 4;
   const round = store.state.live?.round ?? null;
@@ -98,13 +98,10 @@ function TvStage() {
       .catch(() => setQr(""));
   }, [code, valid]);
 
-  useEffect(() => {
-    if (round?.revealedAt && revealed.current !== round.id) {
-      revealed.current = round.id;
-      audioEffects.playReveal();
-      void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#3EE0FF"] });
-    }
-  }, [round?.revealedAt, round?.id]);
+  useRevealMoment(round, () => {
+    audioEffects.playReveal();
+    void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#3EE0FF"] });
+  });
 
   const rows = useMemo(
     () => store.participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => b.r.totalGrams - a.r.totalGrams),
