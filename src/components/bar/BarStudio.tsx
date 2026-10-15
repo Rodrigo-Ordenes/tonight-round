@@ -36,6 +36,8 @@ interface Props {
   /** Registrar el vaso servido en el Monstruómetro de la sala (si hay sala y "yo") */
   onLog?: (label: string, ml: number, abv: number) => void;
   logLabel?: string;
+  /** Ingredientes que trae la canasta de /armar (sala o planificador) */
+  basketPantry?: string[];
 }
 
 const QUICK = [
@@ -68,6 +70,7 @@ export default function BarStudio({
   setDraft,
   onLog,
   logLabel,
+  basketPantry = [],
 }: Props) {
   const [cat, setCat] = useState(INGREDIENT_CATS[0].id);
   const [copied, setCopied] = useState(false);
@@ -155,6 +158,18 @@ export default function BarStudio({
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
+            {basketPantry.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  audioEffects.playSuccessChime();
+                  setPantry(Array.from(new Set([...Array.from(pantry), ...basketPantry])));
+                }}
+                className="chip chip-on"
+              >
+                <ShoppingCart className="w-3.5 h-3.5" /> Lo que compraron ({basketPantry.length})
+              </button>
+            )}
             {QUICK.map((q) => (
               <button
                 key={q.label}

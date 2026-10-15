@@ -3,13 +3,15 @@
 import React, { useCallback, useEffect, useState } from "react";
 import BarStudio, { type GlassDraft } from "@/components/bar/BarStudio";
 import Recetario from "@/components/bar/Recetario";
+import Diccionario from "@/components/bar/Diccionario";
 import PiscolometerSlider from "@/components/bar/PiscolometerSlider";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore } from "@/store/useCarreteStore";
+import { pantryFromBasket } from "@/lib/basket";
 
-type BarTab = "preparar" | "recetario" | "piscolometro";
+type BarTab = "preparar" | "recetario" | "diccionario" | "piscolometro";
 
 const PANTRY_KEY = "tonight_bar_pantry";
 const SHOP_KEY = "tonight_bar_shopping";
@@ -76,6 +78,13 @@ export default function BarPage() {
     [shopping]
   );
 
+  const pickRecipe = (id: string) => {
+    audioEffects.playBubble();
+    setDraft({ recipeId: id, lines: [], scale: { kind: "vaso" } });
+    setTab("preparar");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const me = store.participants.find((p) => p.id === store.meId);
   const onLog =
     me && me.role !== "driver"
@@ -85,6 +94,7 @@ export default function BarPage() {
   const TABS: { id: BarTab; label: string }[] = [
     { id: "preparar", label: "Preparar" },
     { id: "recetario", label: "Recetario" },
+    { id: "diccionario", label: "Diccionario" },
     { id: "piscolometro", label: locale.countryCode === "CL" ? "Piscolómetro" : `${locale.drinks.stapleName}-metro` },
   ];
 
@@ -100,7 +110,7 @@ export default function BarPage() {
             Primero lo que tienen, después la idea, y al final el vaso con medidas exactas para uno o para la jarra.
           </p>
         </div>
-        <div className="flex rounded-2xl bg-white/[0.04] p-1" role="tablist" aria-label="Secciones del bar">
+        <div className="flex max-w-full overflow-x-auto no-scrollbar rounded-2xl bg-white/[0.04] p-1" role="tablist" aria-label="Secciones del bar">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -111,7 +121,7 @@ export default function BarPage() {
                 audioEffects.playPop();
                 setTab(t.id);
               }}
-              className={`min-h-[44px] rounded-xl px-4 text-sm font-bold transition-colors ${tab === t.id ? "bg-white text-night-950" : "text-slate-300 hover:text-white"}`}
+              className={`min-h-[44px] shrink-0 rounded-xl px-4 text-sm font-bold transition-colors ${tab === t.id ? "bg-white text-night-950" : "text-slate-300 hover:text-white"}`}
             >
               {t.label}
             </button>
@@ -134,20 +144,13 @@ export default function BarPage() {
           setDraft={setDraft}
           onLog={onLog}
           logLabel={me ? `Me lo tomé · registrar a ${me.name}` : undefined}
+          basketPantry={pantryFromBasket(store.basket.items)}
         />
       )}
 
-      {tab === "recetario" && (
-        <Recetario
-          pantry={pantry}
-          onPick={(id) => {
-            audioEffects.playBubble();
-            setDraft({ recipeId: id, lines: [], scale: { kind: "vaso" } });
-            setTab("preparar");
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        />
-      )}
+      {tab === "recetario" && <Recetario pantry={pantry} onPick={pickRecipe} />}
+
+      {tab === "diccionario" && <Diccionario onPick={pickRecipe} />}
 
       {tab === "piscolometro" && <PiscolometerSlider />}
     </div>

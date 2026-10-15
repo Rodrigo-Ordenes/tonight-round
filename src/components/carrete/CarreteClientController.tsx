@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Droplets, GlassWater, RotateCcw, ShieldAlert } from "lucide-react";
+import { ChevronDown, Crown, Droplets, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
+import { uid } from "@/store/useCarreteStore";
+import { useWakeLock } from "@/lib/useWakeLock";
+import { CHEERS_WORD } from "@/components/live/CheersOverlay";
 import { ABSORPTION, DRINK_PRESETS, bacFor, fmtDuration, fmtTime, hydrationFor, type DrinkPreset, type StomachState } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
@@ -13,8 +16,8 @@ const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "�
 
 /** El celular como control personal: identidad, tragos, agua, votos y confesiones. */
 export default function CarreteClientController({ store }: { store: CarreteStore }) {
-  const { locale } = useLocale();
-  const { participants, meId, setMeId, addParticipant, addConsumption, removeLastConsumption, addWater, updateParticipant } = store;
+  const { locale, country } = useLocale();
+  const { participants, meId, setMeId, addParticipant, addConsumption, removeLastConsumption, addWater, updateParticipant, dispatch } = store;
 
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"M" | "F">("M");
@@ -23,8 +26,32 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const [stomach, setStomach] = useState<StomachState>("normal");
   const [showAll, setShowAll] = useState(false);
   const [pulse, setPulse] = useState(false);
+  const [roundOpen, setRoundOpen] = useState(false);
+  const [roundFor, setRoundFor] = useState<string[]>([]);
+  const [roundDrink, setRoundDrink] = useState(DRINK_PRESETS[0].key);
+  const [song, setSong] = useState("");
+  const [songSent, setSongSent] = useState(false);
+  const [waterToast, setWaterToast] = useState(false);
+  const warnedAt = useRef(0);
 
   const me = participants.find((p) => p.id === meId) ?? null;
+  // El celular que es control no se apaga en plena noche.
+  useWakeLock(!!me);
+
+  // Recordatorio de agua: vibra una vez cada vez que se encadenan 2+ tragos sin agua.
+  const sinceWater = me ? hydrationFor(me).drinksSinceWater : 0;
+  useEffect(() => {
+    if (sinceWater < 2) {
+      warnedAt.current = 0;
+      return;
+    }
+    if (warnedAt.current === sinceWater) return;
+    warnedAt.current = sinceWater;
+    audioEffects.triggerHaptic([120, 80, 120]);
+    setWaterToast(true);
+    const t = setTimeout(() => setWaterToast(false), 6000);
+    return () => clearTimeout(t);
+  }, [sinceWater]);
 
   const join = (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,6 +259,83 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         </button>
       </div>
 
+      {/* Social: brindis y ronda */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            dispatch({ type: "CHEERS", id: uid(), by: me.id });
+          }}
+          className="btn !min-h-[52px] border border-amber-400/40 bg-amber-400/10 text-amber-100"
+        >
+          🥂 {CHEERS_WORD[country] ?? "¡Salud!"}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setRoundFor(participants.filter((p) => p.role !== "driver").map((p) => p.id));
+            setRoundOpen(!roundOpen);
+          }}
+          aria-expanded={roundOpen}
+          className="btn-ghost !min-h-[52px]"
+        >
+          <Users className="w-4 h-4" /> Invito la ronda
+        </button>
+      </div>
+
+      {roundOpen && (
+        <section className="surface space-y-3 p-4 animate-fade-in">
+          <p className="eyebrow">¿Para quiénes?</p>
+          <div className="flex flex-wrap gap-1.5">
+            {participants.map((p) => {
+              const driver = p.role === "driver";
+              const on = roundFor.includes(p.id);
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  disabled={driver}
+                  onClick={() => setRoundFor(on ? roundFor.filter((x) => x !== p.id) : [...roundFor, p.id])}
+                  aria-pressed={on}
+                  className={`chip ${on ? "chip-on" : ""} disabled:opacity-50`}
+                  title={driver ? "Maneja: no se le sirve alcohol" : undefined}
+                >
+                  {driver && <Crown className="w-3 h-3" />} {p.name}
+                </button>
+              );
+            })}
+          </div>
+          <label className="block text-xs font-semibold text-slate-400">
+            Trago
+            <select
+              value={roundDrink}
+              onChange={(e) => setRoundDrink(e.target.value)}
+              className="mt-1 min-h-[44px] w-full rounded-xl border border-white/10 bg-night-950 px-3 text-sm text-white outline-none"
+            >
+              {DRINK_PRESETS.map((d) => (
+                <option key={d.key} value={d.key}>
+                  {d.emoji} {d.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            disabled={roundFor.length === 0}
+            onClick={() => {
+              const d = DRINK_PRESETS.find((x) => x.key === roundDrink) ?? DRINK_PRESETS[0];
+              roundFor.forEach((id) => addConsumption(id, { label: d.label, ml: d.ml, abv: d.abv }));
+              audioEffects.playBubble();
+              setRoundOpen(false);
+              dispatch({ type: "CHEERS", id: uid(), by: me.id });
+            }}
+            className="btn-primary w-full"
+          >
+            Servir {roundFor.length} {roundFor.length === 1 ? "trago" : "tragos"} y brindar
+          </button>
+        </section>
+      )}
+
       {/* Tragos */}
       <section className="surface p-4">
         <div className="flex items-center justify-between">
@@ -264,7 +368,48 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         </button>
       </section>
 
+      {/* Pedido de canción */}
+      <section className="surface p-4">
+        <p className="eyebrow flex items-center gap-1.5">
+          <Music2 className="w-3.5 h-3.5" /> Pide una canción
+        </p>
+        <form
+          className="mt-3 flex gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const text = song.trim();
+            if (text.length < 2) return;
+            dispatch({ type: "SONG_REQUEST", request: { id: uid(), by: me.id, text: text.slice(0, 80), at: Date.now() } });
+            audioEffects.playPop();
+            setSong("");
+            setSongSent(true);
+            setTimeout(() => setSongSent(false), 2500);
+          }}
+        >
+          <input
+            value={song}
+            onChange={(e) => setSong(e.target.value)}
+            placeholder="Artista o canción"
+            aria-label="Pedir una canción"
+            className="min-h-[46px] min-w-0 flex-1 rounded-2xl border border-white/10 bg-night-950/60 px-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-400"
+          />
+          <button type="submit" className="btn-ghost !min-h-[46px]">
+            {songSent ? "¡Listo!" : "Pedir"}
+          </button>
+        </form>
+        <p className="mt-2 text-[11px] text-slate-500">Aparece en la cola de la TV y en la página de Música.</p>
+      </section>
+
       {!store.state.live?.round && <LiveRoundCard store={store} />}
+
+      {waterToast && (
+        <div role="status" className="fixed inset-x-4 top-[calc(env(safe-area-inset-top,0px)+68px)] z-50 mx-auto max-w-md rounded-2xl border border-cyan-300/50 bg-night-900/95 p-4 text-sm font-semibold text-cyan-50 shadow-glow-water backdrop-blur-xl animate-rise-in">
+          💧 Llevas {sinceWater} tragos sin agua. Un vaso y sigues en la pista.
+          <button type="button" onClick={() => { water(); setWaterToast(false); }} className="btn mt-3 w-full !min-h-[42px] bg-cyan-400 text-night-950">
+            +1 vaso de agua
+          </button>
+        </div>
+      )}
 
       <p className="text-center text-[11px] text-slate-500">
         Estimación educativa, no medición. {locale.legal.bacLimitText}: si bebiste, no manejes.

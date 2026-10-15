@@ -116,6 +116,8 @@ export function defaultMix(perPerson: number, profile: BasketProfile): DrinkType
   return ["cerveza", "pisco", "gin", "ron", "whisky", "vino"];
 }
 
+const parseDrinksIsAuto = (target: string | undefined) => !target || target.split(",").map((x) => x.trim()).includes("mix");
+
 export function parseDrinks(target: string | undefined, perPerson: number, profile: BasketProfile): DrinkType[] {
   const list = (target ?? "mix")
     .split(",")
@@ -179,7 +181,27 @@ export function generateBasket(
     const c = byId.get(id);
     if (c) add(id, ml / Math.max(1, volumeOf(c)));
   });
-  if (types.includes("tequila") || types.includes("gin")) add("limon_malla_1kg", 1);
+  // Mezcla automática: las botellas enteras inflan mucho el alcohol con 4+ licores. Si sobra más de 1,8×
+  // lo recomendado, se reduce la variedad (manteniendo al menos 2 tipos) y la plata va a hielo, agua y picoteo.
+  if (parseDrinksIsAuto(targetDrink) && drinkers > 0) {
+    const gramsNow = () =>
+      Array.from(qty.entries()).reduce((a, [id, q]) => {
+        const c = byId.get(id);
+        return c && TYPE_OF(id) ? a + q * volumeOf(c) * abvOf(c) * 0.8 : a;
+      }, 0);
+    const limit = drinksNeeded * 1.8 * GRAMS_PER_DRINK;
+    const minTypes = perPerson >= 11000 ? 3 : 2;
+    const droppable = [...alcoholTypes].reverse().filter((t) => t !== "cerveza");
+    for (const t of droppable) {
+      const kept = new Set(Array.from(qty.keys()).map(TYPE_OF).filter(Boolean));
+      if (gramsNow() <= limit || kept.size <= minTypes) break;
+      Array.from(qty.keys()).forEach((id) => TYPE_OF(id) === t && qty.delete(id));
+      const stillUsed = new Set(Array.from(kept).flatMap((k) => (k && k !== t ? (MIXERS[k] ?? []).map((m) => m.id) : [])));
+      for (const m of MIXERS[t] ?? []) if (!stillUsed.has(m.id)) qty.delete(m.id);
+    }
+  }
+  const presentTypes = new Set(Array.from(qty.keys()).map(TYPE_OF));
+  if (presentTypes.has("tequila") || presentTypes.has("gin")) add("limon_malla_1kg", 1);
 
   // 2. Sin alcohol: para conductores y quienes no toman (o todo el grupo si solo eligieron eso)
   if (types.includes("mocktail")) {
@@ -290,4 +312,164 @@ export function buildOrderText(items: BasketItem[], base: PriceBase): string {
     "",
     `Total estimado: $${total.toLocaleString("es-CL")} CLP (precios ${STORE_LABEL[base]}, referencial)`,
   ].join("\n");
+}
+
+/* ------------------------------------------------------------------ */
+/* ¿Alcanza? Lectura útil del presupuesto                               */
+/* ------------------------------------------------------------------ */
+
+/** Gramos por "trago" de referencia (≈ una lata de cerveza o un trago de destilado). */
+export const GRAMS_PER_DRINK = 14;
+
+/** Graduación estimada de un producto del catálogo (por tipo y nombre). */
+export function abvOf(c: { id: string; name: string }): number {
+  const t = TYPE_OF(c.id);
+  if (!t) return 0;
+  const deg = c.name.match(/(\d{2})°/);
+  if (deg) return Number(deg[1]) / 100;
+  return { cerveza: 0.05, vino: 0.12, pisco: 0.35, ron: 0.4, vodka: 0.4, gin: 0.4, whisky: 0.4, tequila: 0.38, fernet: 0.39, mocktail: 0 }[t];
+}
+
+export type Coverage = "corto" | "justo" | "holgado";
+
+export interface BasketInsights {
+  total: number;
+  budget: number;
+  diff: number;
+  /** Cuota por persona redondeada hacia arriba a un monto cómodo de transferir */
+  quota: number;
+  drinkers: number;
+  drinksPerDrinker: number;
+  recommendedPerDrinker: number;
+  coverage: Coverage;
+  /** Horas que cubre el alcohol al ritmo recomendado */
+  hoursCovered: number;
+  iceKg: number;
+  iceNeededKg: number;
+  waterL: number;
+  waterNeededL: number;
+  mixerL: number;
+  mixerNeededL: number;
+  /** Tipos de trago pedidos que no entraron por presupuesto */
+  missingTypes: DrinkType[];
+  suggestions: { id: string; name: string; price: number; reason: string }[];
+}
+
+export function basketInsights(
+  items: BasketItem[],
+  base: PriceBase,
+  attendees: number,
+  hours: number,
+  budget: number,
+  targetDrink: string,
+  profile: BasketProfile
+): BasketInsights {
+  const n = Math.max(1, attendees);
+  const h = Math.max(1, hours);
+  const total = basketTotal(items, base);
+  const diff = budget - total;
+  const quota = Math.ceil(Math.max(total, 0) / n / 500) * 500;
+  const types = parseDrinks(targetDrink, budget / n, profile);
+  const alcoholTypes = types.filter((t) => t !== "mocktail");
+  const drinkers = alcoholTypes.length ? Math.ceil(n * 0.8) : 0;
+
+  let grams = 0;
+  let spiritMl = 0;
+  let iceKg = 0;
+  let waterL = 0;
+  let mixerL = 0;
+  for (const i of items) {
+    const c = byId.get(i.id);
+    if (!c) continue;
+    const vol = volumeOf(c);
+    const t = TYPE_OF(c.id);
+    if (t) {
+      grams += i.quantity * vol * abvOf(c) * 0.8;
+      if (t !== "cerveza" && t !== "vino") spiritMl += i.quantity * vol;
+    } else if (c.id.startsWith("hielo_")) iceKg += (i.quantity * ("unit_weight_g" in c && typeof c.unit_weight_g === "number" ? c.unit_weight_g : 0)) / 1000;
+    else if (c.id.startsWith("agua_")) waterL += (i.quantity * vol) / 1000;
+    else if (c.category === "mezcladores") mixerL += (i.quantity * vol) / 1000;
+  }
+
+  const recommendedPerDrinker = drinkers ? 1.5 + 0.8 * (h - 1) : 0;
+  const drinksPerDrinker = drinkers ? grams / GRAMS_PER_DRINK / drinkers : 0;
+  const coverage: Coverage = !drinkers
+    ? "justo"
+    : drinksPerDrinker < recommendedPerDrinker * 0.8
+    ? "corto"
+    : drinksPerDrinker > recommendedPerDrinker * 1.4
+    ? "holgado"
+    : "justo";
+  const hoursCovered = drinkers ? Math.max(0, drinksPerDrinker <= 1.5 ? drinksPerDrinker / 1.5 : 1 + (drinksPerDrinker - 1.5) / 0.8) : h;
+  const iceNeededKg = Math.ceil(n * 0.5);
+  const waterNeededL = Math.ceil(n * 0.5);
+  const mixerNeededL = (spiritMl * 2.5) / 1000;
+
+  const present = new Set(items.map((i) => TYPE_OF(i.id)).filter(Boolean) as DrinkType[]);
+  const missingTypes = alcoholTypes.filter((t) => !present.has(t));
+
+  // Qué conviene agregar con lo que sobra, en orden de utilidad
+  const suggestions: BasketInsights["suggestions"] = [];
+  let remaining = diff;
+  const offer = (id: string, reason: string) => {
+    const c = byId.get(id);
+    if (!c || suggestions.some((s) => s.id === id)) return;
+    const price = priceOf(c, base);
+    if (price <= remaining) {
+      suggestions.push({ id, name: c.name, price, reason });
+      remaining -= price;
+    }
+  };
+  if (iceKg < iceNeededKg) offer(n >= 6 ? "hielo_4kg" : "hielo_2kg", "Falta hielo para el grupo");
+  if (waterL < waterNeededL) offer("agua_vital_sin_gas_2l", "Un vaso de agua cada dos tragos");
+  if (mixerL < mixerNeededL) offer(alcoholTypes.includes("gin") ? "tonica_nordic_15l" : "bebida_coca_cola_3l", "Faltan mezcladores para el destilado");
+  if (coverage === "corto") {
+    const main = items.find((i) => TYPE_OF(i.id) && TYPE_OF(i.id) !== "mocktail");
+    if (main) offer(main.id, "El alcohol no alcanza para toda la noche");
+  }
+  offer("mani_salado_180g", "Picoteo: comer baja el pico de alcohol");
+  offer("papas_lays_380g", "Más picoteo");
+
+  return {
+    total,
+    budget,
+    diff,
+    quota,
+    drinkers,
+    drinksPerDrinker,
+    recommendedPerDrinker,
+    coverage,
+    hoursCovered,
+    iceKg,
+    iceNeededKg,
+    waterL,
+    waterNeededL,
+    mixerL,
+    mixerNeededL,
+    missingTypes,
+    suggestions: suggestions.slice(0, 3),
+  };
+}
+
+/** Ingredientes del bar que aporta cada producto de la canasta (para llenar "lo que hay en la mesa"). */
+export function pantryFromBasket(items: BasketItem[]): string[] {
+  const out = new Set<string>();
+  for (const i of items) {
+    const id = i.id;
+    const t = TYPE_OF(id);
+    if (t && t !== "vino" && t !== "mocktail") out.add(t === "cerveza" ? "cerveza" : t);
+    if (id.startsWith("vino_")) out.add("vino_tinto");
+    if (id.startsWith("pipeno_")) out.add("pipeno");
+    if (id.includes("coca_cola") || id.includes("coca_zero")) out.add("bebida_cola");
+    if (id.includes("sprite")) out.add("sprite");
+    if (id.includes("tonica")) out.add("tonica");
+    if (id.includes("ginger_ale")) out.add("ginger_ale");
+    if (id.includes("naranja")) out.add("jugo_naranja");
+    if (id.includes("granadina")) out.add("granadina");
+    if (id.startsWith("hielo_")) out.add("hielo");
+    if (id.startsWith("limon_")) out.add("limon");
+    if (id.startsWith("menta_")) out.add("menta");
+    if (id.startsWith("agua_")) out.add("agua");
+  }
+  return Array.from(out);
 }

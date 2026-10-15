@@ -177,6 +177,40 @@ export default function MusicaPage() {
         </div>
       </section>
 
+      {/* Pedidos de la sala */}
+      {(music?.requests ?? []).length > 0 && (
+        <section>
+          <p className="eyebrow mb-4">Pedidos de la sala</p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {(music?.requests ?? [])
+              .slice()
+              .reverse()
+              .map((r) => (
+                <li key={r.id} className={`surface flex items-center gap-3 p-3 ${r.played ? "opacity-50" : ""}`}>
+                  <span className="text-xl">🎵</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold text-white">{r.text}</span>
+                    <span className="block text-xs text-slate-400">pedida por {state.participants.find((p) => p.id === r.by)?.name ?? "alguien"}</span>
+                  </span>
+                  <a
+                    href={`https://open.spotify.com/search/${encodeURIComponent(r.text)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="chip !min-h-[32px]"
+                  >
+                    Buscar
+                  </a>
+                  {!r.played && (
+                    <button type="button" onClick={() => dispatch({ type: "SONG_PLAYED", id: r.id })} className="chip !min-h-[32px]">
+                      Sonó ✓
+                    </button>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </section>
+      )}
+
       {/* Todos los ambientes */}
       <section>
         <p className="eyebrow mb-4">Todos los ambientes</p>

@@ -80,7 +80,17 @@ export interface MusicState {
   auto: boolean;
   customUrl?: string;
   setBy?: string;
+  /** Pedidos de canciones desde los celulares (cola para quien pone la música) */
+  requests?: SongRequest[];
   updatedAt: number;
+}
+
+export interface SongRequest {
+  id: string;
+  by: string;
+  text: string;
+  at: number;
+  played?: boolean;
 }
 
 /* ---------------- Rondas en vivo (TV = escenario, celulares = control) ---------------- */
@@ -123,6 +133,8 @@ export interface LiveState {
   /** Historial corto para el Wrapped (sin votos individuales). */
   history: { id: string; game: LiveGame; prompt: string; winner?: string; guiltyIds?: string[]; at: number }[];
   confessions: Confession[];
+  /** Último "¡Salud!" lanzado: la TV y los celulares muestran la animación unos segundos */
+  cheers?: { id: string; by: string; at: number } | null;
   updatedAt: number;
 }
 
@@ -235,6 +247,9 @@ export type CarreteAction =
   | { type: "REVEAL_ROUND"; roundId: string; winner?: string; guiltyIds?: string[] }
   | { type: "END_ROUND"; roundId: string }
   | { type: "SUBMIT_CONFESSION"; confession: Confession }
+  | { type: "CHEERS"; id: string; by: string }
+  | { type: "SONG_REQUEST"; request: SongRequest }
+  | { type: "SONG_PLAYED"; id: string }
   | { type: "ADD_EXPENSE"; expense: Expense }
   | { type: "REMOVE_EXPENSE"; id: string }
   | { type: "PATCH_SPLIT"; patch: Partial<Pick<SplitState, "mode" | "soberIds">> }
@@ -378,6 +393,23 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
       if (live.confessions.some((c) => c.id === a.confession.id)) return s;
       return { ...s, live: { ...live, confessions: [...live.confessions, a.confession].slice(-40), updatedAt: Math.max(live.updatedAt, at) } };
     }
+    case "CHEERS": {
+      const live = s.live ?? DEFAULT_LIVE;
+      if (live.cheers?.id === a.id) return s;
+      return { ...s, live: { ...live, cheers: { id: a.id, by: a.by, at }, updatedAt: Math.max(live.updatedAt, at) } };
+    }
+    case "SONG_REQUEST": {
+      const m = s.music ?? DEFAULT_MUSIC;
+      if ((m.requests ?? []).some((r) => r.id === a.request.id)) return s;
+      return { ...s, music: { ...m, requests: [...(m.requests ?? []), a.request].slice(-30), updatedAt: Math.max(m.updatedAt, at) } };
+    }
+    case "SONG_PLAYED": {
+      const m = s.music ?? DEFAULT_MUSIC;
+      return {
+        ...s,
+        music: { ...m, requests: (m.requests ?? []).map((r) => (r.id === a.id ? { ...r, played: true } : r)), updatedAt: Math.max(m.updatedAt, at) },
+      };
+    }
     case "ADD_EXPENSE": {
       const sp = s.split ?? DEFAULT_SPLIT;
       if (sp.expenses.some((e) => e.id === a.expense.id)) return s;
@@ -461,7 +493,7 @@ export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState): CarreteSta
     participants: Array.from(map.values()).sort((x, y) => x.joinedAt - y.joinedAt),
     basket: b.basket.updatedAt > a.basket.updatedAt ? b.basket : a.basket,
     games: b.games.updatedAt > a.games.updatedAt ? b.games : a.games,
-    music: (b.music?.updatedAt ?? 0) > (a.music?.updatedAt ?? 0) ? b.music : a.music,
+    music: mergeMusic(a.music, b.music),
     live: mergeLive(a.live ?? DEFAULT_LIVE, b.live ?? DEFAULT_LIVE),
     split: mergeSplit(a.split ?? DEFAULT_SPLIT, b.split ?? DEFAULT_SPLIT),
   };
@@ -498,7 +530,20 @@ function mergeLive(a: LiveState, b: LiveState): LiveState {
     const other = [...a.confessions, ...b.confessions].filter((x) => x.id === c.id);
     return { ...c, used: other.some((x) => x.used) };
   });
-  return { round, history, confessions, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
+  const cheers = (a.cheers?.at ?? 0) >= (b.cheers?.at ?? 0) ? a.cheers ?? null : b.cheers ?? null;
+  return { round, history, confessions, cheers, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
+}
+
+/** Música: ambiente por LWW; los pedidos de canciones se unen por id (un "ya sonó" no se pierde). */
+function mergeMusic(a?: MusicState, b?: MusicState): MusicState | undefined {
+  if (!a || !b) return a ?? b;
+  const newer = b.updatedAt > a.updatedAt ? b : a;
+  const all = [...(a.requests ?? []), ...(b.requests ?? [])];
+  const requests = uniqBy(all, (r) => r.id)
+    .map((r) => ({ ...r, played: all.some((x) => x.id === r.id && x.played) || undefined }))
+    .sort((x, y) => x.at - y.at)
+    .slice(-30);
+  return { ...newer, requests };
 }
 
 export const CODE_RE = /^[A-Z0-9]{4}$/;

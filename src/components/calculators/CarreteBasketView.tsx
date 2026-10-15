@@ -27,10 +27,13 @@ import {
   STORE_LABEL,
   DRINK_TYPES,
   parseDrinks,
+  basketInsights,
+  CATALOG,
   type CatalogItem,
 } from "@/lib/basket";
 import type { BasketItem, BasketProfile, PriceBase } from "@/lib/carreteState";
-import BudgetStatus from "./BudgetStatus";
+import BudgetPanel from "./BudgetPanel";
+import BasketInsightsCard from "./BasketInsightsCard";
 import PageHeader from "@/components/ui/PageHeader";
 import SearchableProductModal from "./SearchableProductModal";
 import MultiStoreCompare from "./MultiStoreCompare";
@@ -50,7 +53,7 @@ const BUDGET_PRESETS = [
 
 export default function CarreteBasketView() {
   const { code } = useActiveCode();
-  const { locale, formatCurrency } = useLocale();
+  const { locale, formatCurrency, country } = useLocale();
   const store = useCarreteStore(code);
   const { basket, patchBasket } = store;
 
@@ -200,6 +203,28 @@ export default function CarreteBasketView() {
     }
   };
 
+  // Personas / horas / presupuesto: se recalcula la canasta al instante
+  const handleParams = (p: { attendees?: number; hours?: number; budget?: number }) => {
+    audioEffects.playTick();
+    const attendees = p.attendees ?? basket.attendees;
+    const hours = p.hours ?? basket.durationHours;
+    const budget = p.budget ?? basket.budget;
+    setCustomBudgetInput(String(budget));
+    patchBasket({
+      attendees,
+      durationHours: hours,
+      budget,
+      items: generateBasket(basket.profile, attendees, hours, budget, activeDrink, basket.priceBase),
+    });
+  };
+
+  const handleAddById = (id: string) => {
+    const c = CATALOG.find((x) => x.id === id);
+    if (c) handleAddCatalogItem(c, 1);
+  };
+
+  const insights = basketInsights(basket.items, basket.priceBase, basket.attendees, basket.durationHours, basket.budget || 50000, activeDrink, basket.profile);
+
   const handleAddCustomItem = (customItem: BasketItem) => {
     audioEffects.playSuccessChime();
     patchBasket({ items: [...basket.items, customItem] });
@@ -220,185 +245,13 @@ export default function CarreteBasketView() {
         el alcohol, el hielo y el agua.
       </PageHeader>
 
-      {/* Panel de Parámetros: Personas, Horas y Presupuesto Manual */}
-      <div className="p-5 rounded-3xl bg-night-900/90 border border-slate-800 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* Asistentes */}
-          <div className="p-3.5 rounded-2xl bg-night-950 border border-night-800 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Users className="w-4 h-4 text-indigo-400" />
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Invitados
-                </span>
-                <span className="text-sm font-black text-white">
-                  {basket.attendees} personas
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => {
-                  const val = Math.max(2, basket.attendees - 1);
-                  patchBasket({ attendees: val });
-                  const regenerated = generateBasket(
-                    basket.profile,
-                    val,
-                    basket.durationHours,
-                    basket.budget,
-                    activeDrink,
-                    basket.priceBase
-                  );
-                  patchBasket({ items: regenerated });
-                }}
-                className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 font-bold active:scale-95"
-              >
-                -
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const val = basket.attendees + 1;
-                  patchBasket({ attendees: val });
-                  const regenerated = generateBasket(
-                    basket.profile,
-                    val,
-                    basket.durationHours,
-                    basket.budget,
-                    activeDrink,
-                    basket.priceBase
-                  );
-                  patchBasket({ items: regenerated });
-                }}
-                className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 font-bold active:scale-95"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* Duración */}
-          <div className="p-3.5 rounded-2xl bg-night-950 border border-night-800 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Clock className="w-4 h-4 text-amber-400" />
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Duración
-                </span>
-                <span className="text-sm font-black text-white">
-                  {basket.durationHours} horas
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => {
-                  const val = Math.max(1, basket.durationHours - 1);
-                  patchBasket({ durationHours: val });
-                  const regenerated = generateBasket(
-                    basket.profile,
-                    basket.attendees,
-                    val,
-                    basket.budget,
-                    activeDrink,
-                    basket.priceBase
-                  );
-                  patchBasket({ items: regenerated });
-                }}
-                className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 font-bold active:scale-95"
-              >
-                -
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const val = basket.durationHours + 1;
-                  patchBasket({ durationHours: val });
-                  const regenerated = generateBasket(
-                    basket.profile,
-                    basket.attendees,
-                    val,
-                    basket.budget,
-                    activeDrink,
-                    basket.priceBase
-                  );
-                  patchBasket({ items: regenerated });
-                }}
-                className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 font-bold active:scale-95"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* Presupuesto Manual Editable */}
-          <div className="p-3.5 rounded-2xl bg-night-950 border border-night-800 flex flex-col justify-between gap-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-emerald-400" />
-                <span className="text-[10px] uppercase font-bold text-slate-400">
-                  Presupuesto Total
-                </span>
-              </div>
-              <span className="text-[11px] font-mono text-emerald-400 font-bold">
-                ~${perPersonBudget.toLocaleString("es-CL")}/persona
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-black text-slate-400">$</span>
-              <input
-                type="number"
-                min="1000"
-                step="1000"
-                value={customBudgetInput}
-                onChange={(e) => setCustomBudgetInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleApplyBudget();
-                }}
-                placeholder="Ej: 45000"
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-sm font-mono font-bold text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-              />
-              <button
-                type="button"
-                onClick={() => handleApplyBudget()}
-                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shrink-0 active:scale-95 transition-all"
-                title="Aplicar presupuesto a la canasta"
-              >
-                Aplicar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Botones de Presupuesto Rápido (Presets) */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-night-850">
-          <span className="text-[11px] font-bold text-slate-400 mr-1 flex items-center gap-1">
-            <Zap className="w-3 h-3 text-amber-400" />
-            Presupuestos rápidos:
-          </span>
-          {BUDGET_PRESETS.map((p) => {
-            const isCurrent = basket.budget === p.value;
-            return (
-              <button
-                key={p.value}
-                type="button"
-                onClick={() => handleApplyBudget(p.value)}
-                className={`px-2.5 py-1 rounded-xl text-xs font-bold border transition-all active:scale-95 ${
-                  isCurrent
-                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500 shadow-sm"
-                    : "bg-night-950/80 text-slate-300 border-slate-800 hover:border-slate-700"
-                }`}
-              >
-                <span>{p.label}</span>
-                <span className="text-[9px] text-slate-400 ml-1">({p.desc})</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <BudgetPanel
+        attendees={basket.attendees}
+        hours={basket.durationHours}
+        budget={basket.budget || 50000}
+        foreign={country !== "CL"}
+        onChange={handleParams}
+      />
 
       {/* SELECTOR: ¿QUÉ QUIEREN TOMAR HOY? (Quiero tomar... y tengo $X) */}
       <div className="p-5 rounded-3xl bg-night-900/90 border border-slate-800 space-y-3">
@@ -461,38 +314,6 @@ export default function CarreteBasketView() {
             : `Repartimos el consumo entre ${selectedDrinks.length} ${selectedDrinks.length === 1 ? "tipo" : "tipos"} de trago, con sus mezcladores.`}
         </p>
 
-        {/* Banner de Priorización y Opciones Económicas */}
-        <div
-          className={`p-3 rounded-2xl border flex items-start gap-2.5 text-xs ${
-            perPersonBudget < 5000
-              ? "bg-amber-950/30 border-amber-500/40 text-amber-200"
-              : perPersonBudget < 8000
-              ? "bg-indigo-950/30 border-indigo-500/40 text-indigo-200"
-              : "bg-emerald-950/30 border-emerald-500/40 text-emerald-200"
-          }`}
-        >
-          {perPersonBudget < 5000 ? (
-            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          ) : (
-            <Info className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-          )}
-          <div className="space-y-0.5">
-            <p className="font-bold">
-              {perPersonBudget < 5000
-                ? "💡 Presupuesto ultra apretado: Activamos opciones de alto rendimiento"
-                : perPersonBudget < 8000
-                ? "⚡ Presupuesto universitario / mechón balanceado"
-                : "✨ Presupuesto holgado y completo"}
-            </p>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              {perPersonBudget < 5000
-                ? "Priorizamos litros de alcohol con alternativas rendidoras (como Vino Gato Exportación en caja 2L o Cerveza Báltica 6-pack) y postergamos snacks/vasos para garantizar tragos suficientes para todos."
-                : perPersonBudget < 8000
-                ? "La canasta asegura destilados o cervezas de buen rendimiento junto a mezcladores esenciales y hielo, manteniendo el gasto bajo control."
-                : "Tu presupuesto cubre cómodamente destilados premium, mezcladores de calidad, hielo, agua de hidratación y picoteo para el grupo."}
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Plantillas Rápidas Adicionales */}
@@ -542,12 +363,7 @@ export default function CarreteBasketView() {
         </div>
       </div>
 
-      {/* Estado del Presupuesto en Tiempo Real */}
-      <BudgetStatus
-        budget={basket.budget}
-        total={currentTotal}
-        attendees={basket.attendees}
-      />
+      <BasketInsightsCard insights={insights} hours={basket.durationHours} items={basket.items} code={code} onAdd={handleAddById} />
 
       {/* Lista Dinámica de Productos en la Canasta */}
       <div className="p-5 rounded-3xl bg-night-900/80 border border-slate-800 space-y-4">

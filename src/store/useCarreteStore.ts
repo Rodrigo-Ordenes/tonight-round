@@ -140,6 +140,8 @@ interface Snapshot {
   status: CarreteStatus;
   meId: string | null;
   online: boolean;
+  /** Acciones guardadas en la cola offline que el servidor aún no confirma */
+  pending: number;
 }
 
 class CarreteEngine {
@@ -160,7 +162,7 @@ class CarreteEngine {
   constructor(code: string) {
     this.code = code;
     this.isSolo = code === SOLO;
-    this.snap = { state: emptyCarrete(code), status: "loading", meId: null, online: true };
+    this.snap = { state: emptyCarrete(code), status: "loading", meId: null, online: true, pending: 0 };
   }
 
   get snapshot() {
@@ -207,7 +209,9 @@ class CarreteEngine {
     this.commit(applyEvent(this.snap.state, ev));
     this.chan?.postMessage({ kind: "event", ev } satisfies ChannelMsg);
     if (this.isSolo) return;
-    writeOutbox(this.code, [...readOutbox(this.code), ev]);
+    const out = [...readOutbox(this.code), ev];
+    writeOutbox(this.code, out);
+    this.set({ pending: out.length });
     if (this.flushTimer) clearTimeout(this.flushTimer);
     this.flushTimer = setTimeout(() => void this.flush(), 120);
   };
@@ -218,6 +222,7 @@ class CarreteEngine {
     const seen = new Set(server.seen ?? []);
     const stillPending = pending.filter((e) => !seen.has(e.eventId));
     if (stillPending.length !== pending.length) writeOutbox(this.code, stillPending);
+    if (stillPending.length !== this.snap.pending) this.set({ pending: stillPending.length });
     // El merge conserva lo que este dispositivo tenga y el servidor aún no (p. ej. tras un reinicio del servidor).
     this.commit(applyEvents(mergeCarrete(this.snap.state, server), stillPending));
   }
@@ -372,6 +377,7 @@ const SERVER_SNAPSHOT: Snapshot = {
   status: "loading",
   meId: null,
   online: true,
+  pending: 0,
 };
 
 export function useCarreteStore(codeRaw: string) {
@@ -379,7 +385,7 @@ export function useCarreteStore(codeRaw: string) {
   const isSolo = code === SOLO;
   const engine = useMemo(() => getEngine(code), [code]);
   const snap = useSyncExternalStore(engine.subscribe, () => engine.snapshot, () => SERVER_SNAPSHOT);
-  const { state, status, meId, online } = snap;
+  const { state, status, meId, online, pending } = snap;
   const dispatch = engine.dispatch;
 
   /* ---------------- Acciones ---------------- */
@@ -468,6 +474,7 @@ export function useCarreteStore(codeRaw: string) {
     isSolo,
     status,
     online,
+    pending,
     state,
     participants,
     basket: state.basket,

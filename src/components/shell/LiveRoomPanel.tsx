@@ -12,6 +12,8 @@ import { useLocale } from "@/lib/useLocale";
 import { nightMoment } from "@/lib/nightMoment";
 import NowPlayingMini from "@/components/music/NowPlayingMini";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
+import { stockFor } from "@/lib/stock";
+import { basketInsights } from "@/lib/basket";
 
 /** Panel persistente de la sala: quién está, cómo va cada uno y acciones rápidas, al lado de cualquier sección. */
 export default function LiveRoomPanel({ code }: { code: string }) {
@@ -47,7 +49,7 @@ function RoomPanel({ code }: { code: string }) {
   const router = useRouter();
   const { locale } = useLocale();
   const store = useCarreteStore(code);
-  const { participants, meId, online, status } = store;
+  const { participants, meId, online, status, pending } = store;
   const [qr, setQr] = useState("");
   const [copied, setCopied] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -88,6 +90,28 @@ function RoomPanel({ code }: { code: string }) {
     }
   };
 
+  const invite = () => {
+    const b = store.state.basket;
+    const ins = b.items.length
+      ? basketInsights(b.items, b.priceBase, b.attendees, b.durationHours, b.budget, b.targetDrink ?? "mix", b.profile)
+      : null;
+    const bring = [
+      ins && ins.iceKg < ins.iceNeededKg ? "hielo" : "",
+      ins && ins.waterL < ins.waterNeededL ? "agua" : "",
+      ins && ins.coverage === "corto" ? "algo para tomar" : "",
+    ].filter(Boolean);
+    const text = [
+      `🎉 Te invito al ${locale.terminology.partyName.toLowerCase()} · sala *${code}*`,
+      `Únete desde el celular: ${window.location.origin}/carrete/${code}?modo=celular`,
+      bring.length ? `Si puedes, trae ${bring.join(" y ")} 🙏` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+  };
+
+  const stock = stockFor(store.state, now);
+
   const leave = () => {
     setActiveCode(null);
     router.push("/");
@@ -102,7 +126,8 @@ function RoomPanel({ code }: { code: string }) {
         <div>
           <p className="eyebrow flex items-center gap-2">
             {online ? <span className="live-dot" /> : <WifiOff className="w-3 h-3 text-amber-400" />}
-            {online ? "Sala en vivo" : "Sin señal · guardando"}
+            {online ? "Sala en vivo" : "Sin señal"}
+            {pending > 0 && <span className="normal-case tracking-normal text-amber-300">· {pending} por enviar</span>}
           </p>
           <p className="mt-2 font-mono text-4xl font-bold tracking-[0.18em] text-white">{code}</p>
           <p className="mt-1 text-xs text-slate-400">
@@ -115,13 +140,16 @@ function RoomPanel({ code }: { code: string }) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <button type="button" onClick={copy} className="btn-ghost !min-h-[42px] !px-3 text-xs">
-          {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-          {copied ? "Copiado" : "Invitar"}
+      <div className="grid grid-cols-3 gap-2">
+        <button type="button" onClick={invite} className="btn-ghost !min-h-[42px] !px-2 text-xs">
+          WhatsApp
         </button>
-        <Link href={`/carrete/tv?code=${code}`} className="btn-ghost !min-h-[42px] !px-3 text-xs">
-          <Tv className="w-4 h-4" /> Modo TV
+        <button type="button" onClick={copy} className="btn-ghost !min-h-[42px] !px-2 text-xs" aria-label="Copiar link de invitación">
+          {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+          {copied ? "Listo" : "Link"}
+        </button>
+        <Link href={`/carrete/tv?code=${code}`} className="btn-ghost !min-h-[42px] !px-2 text-xs">
+          <Tv className="w-4 h-4" /> TV
         </Link>
       </div>
 
@@ -214,6 +242,34 @@ function RoomPanel({ code }: { code: string }) {
           Estimación educativa (Widmark) en g/l. {locale.legal.bacLimitText}: si bebiste, no manejes.
         </p>
       </div>
+
+      {stock && (
+        <div className="surface p-4">
+          <div className="flex items-baseline justify-between">
+            <p className="eyebrow">¿Alcanza el copete?</p>
+            <span className="font-mono text-xs text-slate-300 tabular">{Math.round(stock.left * 100)}%</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+            <div
+              className={`h-full rounded-full ${stock.left < 0.25 ? "bg-rose-500" : stock.left < 0.5 ? "bg-amber-400" : "bg-emerald-400"} transition-[width] duration-700`}
+              style={{ width: `${Math.max(2, stock.left * 100)}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-slate-300">
+            Quedan ~{Math.round(stock.drinksLeft)} tragos
+            {stock.hoursLeft !== null ? ` · ~${stock.hoursLeft < 1 ? `${Math.round(stock.hoursLeft * 60)} min` : `${stock.hoursLeft.toFixed(1)} h`} al ritmo actual` : ""}
+          </p>
+          {stock.left < 0.25 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {locale.delivery.services.map((d) => (
+                <a key={d.name} href={d.urlTemplate} target="_blank" rel="noopener noreferrer" className="chip !min-h-[32px]">
+                  {d.name}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <NowPlayingMini code={code} />
 

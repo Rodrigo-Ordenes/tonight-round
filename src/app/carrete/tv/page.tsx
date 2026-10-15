@@ -15,6 +15,10 @@ import { nightMoment } from "@/lib/nightMoment";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
 import RoundResults from "@/components/live/RoundResults";
+import CheersOverlay from "@/components/live/CheersOverlay";
+import { buildRound, tally } from "@/lib/liveGames";
+import { useWakeLock } from "@/lib/useWakeLock";
+import { uid } from "@/store/useCarreteStore";
 
 export default function CarreteTVPage() {
   return (
@@ -39,6 +43,42 @@ function TvStage() {
 
   const valid = code !== SOLO && code.length === 4;
   const round = store.state.live?.round ?? null;
+  useWakeLock(valid);
+
+  // Control con teclado o control remoto (TV conectada a un notebook o Android TV)
+  const keyRef = useRef<(e: KeyboardEvent) => void>(() => undefined);
+  keyRef.current = (e: KeyboardEvent) => {
+    if (e.target instanceof HTMLInputElement) return;
+    const live = store.state.live;
+    const r = live?.round ?? null;
+    const k = e.key.toLowerCase();
+    if (k === "f") toggleFull();
+    else if (k === "s") store.dispatch({ type: "CHEERS", id: uid(), by: "tv" });
+    else if (r && (k === " " || k === "enter")) {
+      e.preventDefault();
+      if (!r.revealedAt && Object.keys(r.votes).length > 0) {
+        const t = tally(r, store.participants);
+        store.dispatch({ type: "REVEAL_ROUND", roundId: r.id, winner: t.spotlightId, guiltyIds: t.loserIds });
+      } else if (r.revealedAt) next(r.game);
+    } else if (r && k === "n") next(r.game);
+    else if (r && k === "escape") store.dispatch({ type: "END_ROUND", roundId: r.id });
+  };
+  const next = (game: NonNullable<typeof round>["game"]) => {
+    const live = store.state.live;
+    const built = buildRound(game, {
+      participants: store.participants,
+      confessions: live?.confessions ?? [],
+      usedPrompts: new Set((live?.history ?? []).map((h) => h.prompt)),
+    });
+    if ("error" in built) return;
+    if (live?.round && !live.round.revealedAt) store.dispatch({ type: "END_ROUND", roundId: live.round.id });
+    store.dispatch({ type: "START_ROUND", round: built });
+  };
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => keyRef.current(e);
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, []);
 
   useEffect(() => {
     setOrigin(window.location.host);
@@ -96,8 +136,11 @@ function TvStage() {
   const moment = nightMoment(new Date(now));
   const voters = round ? Object.keys(round.votes) : [];
 
+  const requests = (store.state.music?.requests ?? []).filter((r) => !r.played).slice(-4);
+
   return (
     <div className="relative flex min-h-[100dvh] flex-col px-[4vw] py-[3vh]">
+      <CheersOverlay code={code} big />
       {/* Barra superior */}
       <header className="flex items-center justify-between gap-6">
         <div className="flex items-center gap-4">
@@ -184,6 +227,18 @@ function TvStage() {
                 <div className="h-[min(26vh,280px)] w-[min(26vh,280px)] animate-pulse rounded-[2rem] bg-white/[0.05]" />
               )}
               <div className="space-y-3">
+                {requests.length > 0 && (
+                  <div className="mb-6">
+                    <p className="eyebrow !text-base">Pedidos de la sala</p>
+                    <ul className="mt-2 space-y-1">
+                      {requests.map((r) => (
+                        <li key={r.id} className="text-xl text-slate-200">
+                          🎵 {r.text} <span className="text-slate-500">· {store.participants.find((p) => p.id === r.by)?.name ?? "alguien"}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <p className="eyebrow !text-base">Sonando</p>
                 <p className="font-display text-tv-md font-bold text-white">
                   {music.vibe?.emoji} {music.title}
@@ -221,6 +276,9 @@ function TvStage() {
           </section>
         </main>
       )}
+      <footer className="pt-4 text-center font-mono text-sm text-slate-600">
+        Teclado / control: Espacio revela o sigue · N siguiente ronda · Esc termina · S ¡Salud! · F pantalla completa
+      </footer>
     </div>
   );
 }

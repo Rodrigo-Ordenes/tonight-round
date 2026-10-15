@@ -10,6 +10,7 @@ import { useMuted } from "@/lib/useMuted";
 import CountrySelector from "@/components/navigation/CountrySelector";
 import LiveRoomPanel from "./LiveRoomPanel";
 import LiveNudge from "@/components/live/LiveNudge";
+import CheersOverlay from "@/components/live/CheersOverlay";
 
 const NAV = [
   { key: "sala", label: "Sala", icon: Radio },
@@ -160,6 +161,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {hasRoom && <LiveNudge code={code} />}
+      {hasRoom && <CheersOverlay code={code} />}
 
       {/* ---------- Dock flotante móvil ---------- */}
       <nav
