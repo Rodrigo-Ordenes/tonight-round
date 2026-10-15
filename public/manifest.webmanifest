@@ -1,0 +1,51 @@
+{
+  "name": "Tonight — el copiloto de tu carrete",
+  "short_name": "Tonight",
+  "description": "Compras, tragos, juegos en la TV con votos desde el celular, música y la cuenta dividida.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07060A",
+  "theme_color": "#07060A",
+  "categories": [
+    "entertainment",
+    "lifestyle",
+    "social"
+  ],
+  "icons": [
+    {
+      "src": "/icon/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon/512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Bar",
+      "url": "/bar"
+    },
+    {
+      "name": "Juegos",
+      "url": "/juegos"
+    },
+    {
+      "name": "Música",
+      "url": "/musica"
+    }
+  ]
+}

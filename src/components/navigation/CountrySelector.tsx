@@ -8,9 +8,11 @@ import { Globe, ChevronDown, Check } from "lucide-react";
 
 interface Props {
   variant?: "compact" | "full";
+  /** Dónde se abre el menú compacto: bajo el botón (barra superior) o hacia arriba/derecha (rail lateral). */
+  placement?: "down" | "up-right";
 }
 
-export default function CountrySelector({ variant = "compact" }: Props) {
+export default function CountrySelector({ variant = "compact", placement = "down" }: Props) {
   const { country, locale, setCountry, countries } = useLocale();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -78,7 +80,7 @@ export default function CountrySelector({ variant = "compact" }: Props) {
         }}
         aria-label="Seleccionar país"
         aria-expanded={open}
-        className="min-h-[44px] px-2.5 py-1 rounded-xl bg-night-900 border border-slate-700 hover:border-indigo-500/50 text-white text-xs font-bold flex items-center gap-1.5 transition-all"
+        className="min-h-[44px] px-2.5 py-1 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-white/25 text-white text-xs font-bold flex items-center gap-1.5 transition-all"
       >
         <span className="text-base">{locale.flag}</span>
         <span className="hidden sm:inline font-mono">{country}</span>
@@ -86,7 +88,7 @@ export default function CountrySelector({ variant = "compact" }: Props) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-night-950/95 border border-indigo-500/40 p-1.5 shadow-2xl backdrop-blur-xl z-50 animate-fade-in space-y-1">
+        <div className={`absolute ${placement === "up-right" ? "left-0 bottom-full mb-2" : "right-0 mt-2"} w-56 rounded-2xl bg-night-900/95 border border-white/10 p-1.5 shadow-lift backdrop-blur-xl z-50 animate-fade-in space-y-1`}>
           <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-night-800">
             Cultura Nocturna & Leyes
           </div>
@@ -99,15 +101,15 @@ export default function CountrySelector({ variant = "compact" }: Props) {
                 onClick={() => select(c.code)}
                 className={`w-full min-h-[42px] px-3 py-2 rounded-xl text-left text-xs font-bold flex items-center justify-between transition-colors ${
                   active
-                    ? "bg-indigo-600 text-white font-black"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    ? "bg-indigo-500 text-night-950 font-black"
+                    : "text-slate-300 hover:bg-white/[0.06] hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{c.flag}</span>
                   <div>
                     <span className="block text-xs leading-none">{c.name}</span>
-                    <span className={`text-[10px] ${active ? "text-indigo-200" : "text-slate-400"} font-normal`}>
+                    <span className={`text-[10px] ${active ? "text-night-900/80" : "text-slate-400"} font-normal`}>
                       {c.slang}
                     </span>
                   </div>

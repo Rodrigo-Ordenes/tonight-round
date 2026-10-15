@@ -1,48 +1,51 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Rocket, KeyRound, Zap, AlertTriangle, Loader2, Play } from "lucide-react";
+import { AlertTriangle, ArrowRight, ArrowUpRight, Loader2, Play } from "lucide-react";
 import { SOLO, carreteExists, createCarrete, getActiveCode, setActiveCode } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
-import CountrySelector from "@/components/navigation/CountrySelector";
+import { nightMoment, type NightMoment } from "@/lib/nightMoment";
 
-type Step = "main" | "join";
+const MODULES = [
+  { href: "/armar", n: "01", title: "Armar", desc: "Lista de compras multi-licor, presupuesto y precios por tienda.", emoji: "🛒", tone: "from-amber-400/25" },
+  { href: "/bar", n: "02", title: "Bar", desc: "Tu barra, el trago que preparas y la receta exacta, sin confusiones.", emoji: "🍸", tone: "from-purple-500/25" },
+  { href: "/juegos", n: "03", title: "Juegos", desc: "La TV es el escenario, los celulares votan en vivo.", emoji: "🎲", tone: "from-indigo-500/25" },
+  { href: "/musica", n: "04", title: "Música", desc: "DJ automático con Spotify según la hora y el ritmo de la sala.", emoji: "🎧", tone: "from-emerald-400/25" },
+  { href: "/dividir", n: "05", title: "Cuentas", desc: "Varios pagadores, conductor exento y transferencias mínimas.", emoji: "🧾", tone: "from-cyan-400/25" },
+];
 
-/** Gateway de acceso a pantalla completa: crear carrete, unirse con código o modo solo. */
+/** Portada: crear sala, unirse con código o planificar solo. */
 export default function CarreteGatewayModal() {
   const router = useRouter();
   const { locale } = useLocale();
-  const [step, setStep] = useState<Step>("main");
   const [chars, setChars] = useState<string[]>(["", "", "", ""]);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<"create" | "join" | null>(null);
   const [resume, setResume] = useState<string | null>(null);
+  const [moment, setMoment] = useState<NightMoment | null>(null);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     const a = getActiveCode();
     setResume(a && a !== SOLO ? a : null);
+    setMoment(nightMoment(new Date()));
   }, []);
 
-  useEffect(() => {
-    if (step === "join") refs.current[0]?.focus();
-  }, [step]);
-
   const partyTerm = locale?.terminology?.partyName || "Carrete";
-  const partyUpper = partyTerm.toUpperCase();
 
   const create = async () => {
     audioEffects.playPop();
-    setBusy(true);
+    setBusy("create");
     setError(null);
     try {
       const code = await createCarrete();
       router.push(`/carrete/${code}`);
     } catch {
       setError(`No se pudo crear el ${partyTerm.toLowerCase()}. Intenta de nuevo.`);
-      setBusy(false);
+      setBusy(null);
     }
   };
 
@@ -61,7 +64,7 @@ export default function CarreteGatewayModal() {
 
   const onKey = (i: number, e: React.KeyboardEvent) => {
     if (e.key === "Backspace" && !chars[i] && i > 0) refs.current[i - 1]?.focus();
-    if (e.key === "Enter") join();
+    if (e.key === "Enter") void join();
   };
 
   const onPaste = (e: React.ClipboardEvent) => {
@@ -78,80 +81,64 @@ export default function CarreteGatewayModal() {
       setError("Ingresa los 4 caracteres del código.");
       return;
     }
-    setBusy(true);
+    setBusy("join");
     const ok = await carreteExists(code);
-    setBusy(false);
+    setBusy(null);
     if (!ok) {
       audioEffects.playBuzz();
-      setError(`El ${partyTerm.toLowerCase()} ${code} no existe. Revisa el código con el host.`);
+      setError(`La sala ${code} no existe. Revisa el código con quien la creó.`);
       return;
     }
     setActiveCode(code);
-    router.push(`/carrete/${code}`);
+    router.push(`/carrete/${code}?modo=celular`);
   };
 
   return (
-    <section
-      aria-labelledby="gw-title"
-      className="min-h-[calc(100dvh-140px)] flex items-center justify-center px-1 py-4"
-    >
-      <div className="w-full max-w-md space-y-5 text-center">
-        <div className="text-5xl">🌙</div>
-        <h1 id="gw-title" className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-          ¿CÓMO ARRANCA LA NOCHE HOY?
-        </h1>
-        <p className="text-sm text-slate-300">
-          Crea un {partyTerm.toLowerCase()} para compartir juegos y gastos con tus amigos, o entra en modo planificador individual.
-        </p>
-
-        {/* Selector de País e Identidad Cultural */}
-        <div className="pt-1 pb-1">
-          <CountrySelector variant="full" />
+    <div className="space-y-16 lg:space-y-24">
+      {/* ---------- Hero ---------- */}
+      <section aria-labelledby="hero-title" className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-end">
+        <div className="animate-rise-in">
+          <p className="eyebrow">{moment ? moment.eyebrow : " "}</p>
+          <h1 id="hero-title" className="display text-display-xl mt-5">
+            La noche
+            <br />
+            se arma <span className="text-gradient-ember">acá.</span>
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
+            Compras, tragos, juegos en la TV con votos desde el celular, música y la cuenta dividida. Todo el {partyTerm.toLowerCase()} en
+            un solo lugar, sin descargas ni cuentas.
+          </p>
+          {resume && (
+            <button
+              type="button"
+              onClick={() => router.push(`/carrete/${resume}`)}
+              className="mt-6 inline-flex items-center gap-3 rounded-full border border-emerald-400/30 bg-emerald-400/10 py-2 pl-3 pr-4 text-sm font-semibold text-emerald-100 hover:bg-emerald-400/15"
+            >
+              <span className="live-dot" /> Volver a la sala <span className="font-mono tracking-[0.2em]">{resume}</span>
+              <Play className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
-        {error && (
-          <div role="alert" className="flex items-start gap-2 text-left p-3 rounded-2xl bg-rose-950/70 border border-rose-500 text-rose-200 text-sm font-semibold">
-            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-            <span>{error}</span>
-          </div>
-        )}
+        {/* Panel de acceso */}
+        <div className="surface relative overflow-hidden p-6 sm:p-7 animate-rise-in" style={{ animationDelay: "120ms" }}>
+          <div className="absolute -right-24 -top-24 h-56 w-56 rounded-full bg-indigo-500/25 blur-3xl" aria-hidden />
+          <button
+            type="button"
+            onClick={create}
+            disabled={busy !== null}
+            className="group relative flex w-full items-center justify-between rounded-3xl bg-indigo-500 px-6 py-5 text-left text-night-950 shadow-glow transition-transform active:scale-[0.98] disabled:opacity-60"
+          >
+            <span>
+              <span className="block font-display text-2xl font-extrabold leading-none">Crear sala</span>
+              <span className="mt-1 block text-sm font-semibold text-night-950/70">Código de 4 letras + QR para la TV</span>
+            </span>
+            {busy === "create" ? <Loader2 className="w-7 h-7 animate-spin" /> : <ArrowRight className="w-7 h-7 transition-transform group-hover:translate-x-1" />}
+          </button>
 
-        {step === "main" ? (
-          <div className="space-y-3">
-            {resume && (
-              <button
-                onClick={() => router.push(`/carrete/${resume}`)}
-                className="w-full min-h-[56px] rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm flex items-center justify-center gap-2"
-              >
-                <Play className="w-5 h-5" /> CONTINUAR {partyUpper} {resume}
-              </button>
-            )}
-            <button
-              onClick={create}
-              disabled={busy}
-              className="w-full min-h-[56px] rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
-            >
-              {busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <Rocket className="w-5 h-5" />} 🚀 CREAR {partyUpper}
-            </button>
-            <button
-              onClick={() => {
-                setStep("join");
-                setError(null);
-              }}
-              className="w-full min-h-[56px] rounded-2xl bg-night-900 border border-indigo-500/40 hover:bg-night-800 text-white font-black text-sm flex items-center justify-center gap-2"
-            >
-              <KeyRound className="w-5 h-5" /> 🔑 UNIRME AL {partyUpper}
-            </button>
-            <button
-              onClick={solo}
-              className="w-full min-h-[56px] rounded-2xl bg-night-900 border border-amber-500/40 hover:bg-night-800 text-amber-300 font-black text-sm flex items-center justify-center gap-2"
-            >
-              <Zap className="w-5 h-5" /> ⚡ MODO SOLO / PLANIFICADOR
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="flex justify-center gap-2.5" onPaste={onPaste}>
+          <div className="relative mt-6">
+            <p className="eyebrow">¿Te invitaron? Ingresa el código</p>
+            <div className="mt-3 flex items-center gap-2" onPaste={onPaste}>
               {chars.map((c, i) => (
                 <input
                   key={i}
@@ -166,33 +153,67 @@ export default function CarreteGatewayModal() {
                   autoComplete="off"
                   maxLength={2}
                   aria-label={`Carácter ${i + 1} del código`}
-                  className="w-14 h-16 text-center text-2xl font-black uppercase rounded-2xl bg-night-900 border-2 border-indigo-500/50 focus:border-indigo-300 text-white outline-none"
+                  className="h-16 w-full min-w-0 rounded-2xl border border-white/10 bg-night-950/70 text-center font-mono text-2xl font-bold uppercase text-white outline-none transition-colors focus:border-indigo-400"
                 />
               ))}
+              <button
+                type="button"
+                onClick={() => void join()}
+                disabled={busy !== null}
+                aria-label="Entrar a la sala"
+                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-night-950 transition-transform active:scale-95 disabled:opacity-60"
+              >
+                {busy === "join" ? <Loader2 className="w-6 h-6 animate-spin" /> : <ArrowRight className="w-6 h-6" />}
+              </button>
             </div>
-            <button
-              onClick={join}
-              disabled={busy}
-              className="w-full min-h-[56px] rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white font-black text-sm flex items-center justify-center gap-2"
-            >
-              {busy && <Loader2 className="w-5 h-5 animate-spin" />} ENTRAR AL {partyUpper}
-            </button>
-            <button
-              onClick={() => {
-                setStep("main");
-                setError(null);
-              }}
-              className="min-h-[48px] text-sm text-slate-400 underline"
-            >
-              ← Volver
-            </button>
           </div>
-        )}
 
-        <p className="text-[11px] text-slate-500">
-          Sin registro obligatorio. {locale.legal.lawName}: {locale.legal.bacLimitText}. Si bebes, no manejes.
-        </p>
-      </div>
-    </section>
+          {error && (
+            <div role="alert" className="relative mt-4 flex items-start gap-2 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-3 text-sm font-semibold text-rose-200">
+              <AlertTriangle className="w-5 h-5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <button type="button" onClick={solo} className="relative mt-5 flex w-full items-center justify-between rounded-2xl px-1 py-2 text-sm font-semibold text-slate-300 hover:text-white">
+            Solo quiero planificar (sin sala) <ArrowUpRight className="w-4 h-4" />
+          </button>
+        </div>
+      </section>
+
+      {/* ---------- Módulos: un recorrido, no un tablero ---------- */}
+      <section aria-labelledby="mods-title">
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <h2 id="mods-title" className="display text-3xl sm:text-4xl">
+            De la previa al cierre.
+          </h2>
+          <p className="hidden max-w-xs text-sm text-slate-400 sm:block">Cinco momentos de la noche, conectados entre sí y con todos los celulares.</p>
+        </div>
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 2xl:grid-cols-5">
+          {MODULES.map((m, i) => (
+            <Link
+              key={m.href}
+              href={m.href}
+              className={`surface surface-hover group relative flex min-h-[220px] w-[72vw] shrink-0 snap-start flex-col overflow-hidden p-5 sm:w-auto animate-rise-in`}
+              style={{ animationDelay: `${200 + i * 70}ms` }}
+            >
+              <span className={`absolute inset-0 bg-gradient-to-b ${m.tone} to-transparent opacity-80`} aria-hidden />
+              <span className="relative flex items-center justify-between">
+                <span className="font-mono text-xs text-slate-400">{m.n}</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white" />
+              </span>
+              <span className="relative mt-auto text-4xl">{m.emoji}</span>
+              <span className="relative mt-3 font-display text-2xl font-extrabold text-white">{m.title}</span>
+              <span className="relative mt-1 text-sm leading-snug text-slate-300">{m.desc}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <p className="max-w-2xl text-xs leading-relaxed text-slate-500">
+        Sin registro. Las estimaciones de alcohol son educativas. {locale.legal.lawName}: {locale.legal.bacLimitText}. Si bebes, no manejes; la
+        única cifra segura al volante es 0.00.
+      </p>
+    </div>
   );
 }

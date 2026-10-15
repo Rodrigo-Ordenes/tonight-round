@@ -5,10 +5,16 @@ import { Dices, Users, PenLine, ListChecks, X } from "lucide-react";
 import content from "@/data/games_content.json";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
+import { CASTIGOS } from "@/data/party_prompts";
 
 type Cat = { id: string; name: string; icon: string; phrases: string[] };
-const CATS: Cat[] = content.roulette.categories;
-const COLORS = ["#6366f1", "#ec4899", "#f59e0b", "#10b981", "#06b6d4", "#a855f7", "#ef4444", "#84cc16"];
+const EXTRA: Record<string, string[]> = { penitencias: CASTIGOS.suaves, desafios: CASTIGOS.retos };
+const CATS: Cat[] = [
+  ...content.roulette.categories.map((c) => ({ ...c, phrases: Array.from(new Set([...c.phrases, ...(EXTRA[c.id] ?? [])])) })),
+  { id: "verdades", name: "Verdades", icon: "🗣️", phrases: CASTIGOS.verdades },
+  { id: "sin_alcohol", name: "Sin alcohol", icon: "💧", phrases: CASTIGOS.sinAlcohol },
+];
+const COLORS = ["#FF5E36", "#9C82FF", "#FFBC20", "#86E64C", "#3EE0FF", "#FF6FA8", "#FA2D4A", "#C5FBA1"];
 
 type Modal = null | "players" | "custom" | "bank";
 

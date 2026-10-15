@@ -5,7 +5,11 @@
     "players": "3 a 15 personas",
     "materials": "Ninguno",
     "duration": "10-20 min",
-    "tags": ["Sin materiales", "Rompehielos", "Clásico"],
+    "tags": [
+      "Sin materiales",
+      "Rompehielos",
+      "Clásico"
+    ],
     "description": "El clásico infaltable de los carretes chilenos donde se pone a prueba la rapidez mental bajo presión.",
     "rules": [
       "El moderador parte con el canto: 'Cultura chupística pide nombres de...' (ej. marcas de auto, excusas para no ir a trabajar, tragos con pisco).",
@@ -20,7 +24,11 @@
     "players": "3 a 8 personas",
     "materials": "Mazo inglés o español",
     "duration": "20-30 min",
-    "tags": ["Cartas", "Dinámico", "Estrategia"],
+    "tags": [
+      "Cartas",
+      "Dinámico",
+      "Estrategia"
+    ],
     "description": "Construcción piramidal boca abajo donde regalas y recibes tragos según la coincidencia con tus cartas.",
     "rules": [
       "Fase 1: Cada jugador recibe 4 cartas secretas. Se arma una pirámide de cartas boca abajo sobre la mesa (5 cartas en la base hasta 1 en la cima).",
@@ -35,7 +43,11 @@
     "players": "3 a 20 personas",
     "materials": "Ninguno",
     "duration": "15-25 min",
-    "tags": ["Sin materiales", "Rompehielos", "Confesiones"],
+    "tags": [
+      "Sin materiales",
+      "Rompehielos",
+      "Confesiones"
+    ],
     "description": "Para sacar verdades a la luz y conocer anécdotas insólitas del grupo.",
     "rules": [
       "Un participante dice una frase comenzando con 'Yo nunca nunca...' relatando algo que jamás haya hecho.",
@@ -50,7 +62,11 @@
     "players": "2 a 8 personas",
     "materials": "Mazo inglés o de naipe",
     "duration": "15-25 min",
-    "tags": ["Cartas", "Tensión", "Rápido"],
+    "tags": [
+      "Cartas",
+      "Tensión",
+      "Rápido"
+    ],
     "description": "Adivinar si la siguiente carta es mayor o menor. El error se acumula rápidamente.",
     "rules": [
       "El repartidor coloca una carta descubierta y le pide al jugador actual que adivine si la siguiente será MAYOR, MENOR o IGUAL.",
@@ -65,7 +81,11 @@
     "players": "4 a 12 personas",
     "materials": "Vasos y mesa redonda",
     "duration": "10-15 min",
-    "tags": ["Sin materiales", "Rápido", "Tensión"],
+    "tags": [
+      "Sin materiales",
+      "Rápido",
+      "Tensión"
+    ],
     "description": "Contacto visual fulminante. Si dos miradas se cruzan, ¡ambos caen!",
     "rules": [
       "Todos los jugadores se sientan en círculo con la cabeza agachada mirando sus vasos o la mesa.",
@@ -80,7 +100,11 @@
     "players": "4 a 10 personas",
     "materials": "Mazo de cartas y un vaso central",
     "duration": "25-35 min",
-    "tags": ["Cartas", "Clásico", "Grupo"],
+    "tags": [
+      "Cartas",
+      "Clásico",
+      "Grupo"
+    ],
     "description": "Cada valor del naipe tiene una acción o regla que todos deben seguir inmediatamente.",
     "rules": [
       "Se colocan las cartas en círculo alrededor de un vaso. Por turno, cada jugador saca una carta sin romper el círculo.",
@@ -95,7 +119,11 @@
     "players": "3 a 12 personas",
     "materials": "Ninguno",
     "duration": "10-15 min",
-    "tags": ["Sin materiales", "Concentración", "Rápido"],
+    "tags": [
+      "Sin materiales",
+      "Concentración",
+      "Rápido"
+    ],
     "description": "Juego de conteo acelerado donde los múltiplos y números prohibidos cambian el sentido del juego.",
     "rules": [
       "En ronda, los jugadores cuentan del 1 al 21 en voz alta, diciendo de 1 a 3 números consecutivos por turno.",
@@ -110,7 +138,11 @@
     "players": "3 a 10 personas",
     "materials": "Vaso en el centro de la mesa",
     "duration": "10-20 min",
-    "tags": ["Sin materiales", "Psicológico", "Tranqui"],
+    "tags": [
+      "Sin materiales",
+      "Psicológico",
+      "Tranqui"
+    ],
     "description": "Un duelo mental de adivinanza numérica con los pulgares en el borde del vaso.",
     "rules": [
       "Todos colocan un dedo sobre el borde del vaso central.",
@@ -125,7 +157,11 @@
     "players": "2 a 12 personas",
     "materials": "Ninguno",
     "duration": "15-30 min",
-    "tags": ["Sin materiales", "Rompehielos", "Parejas/Grupos"],
+    "tags": [
+      "Sin materiales",
+      "Rompehielos",
+      "Parejas/Grupos"
+    ],
     "description": "Versión dinámica y sin rodeos con límite de tiempo de 10 segundos para responder.",
     "rules": [
       "El jugador en turno gira una botella o señala a alguien: '¿Verdad o Reto?'.",
@@ -140,7 +176,11 @@
     "players": "2 a 6 personas",
     "materials": "1 Moneda y 1 vaso",
     "duration": "10-15 min",
-    "tags": ["Sin materiales", "Rápido", "Azar"],
+    "tags": [
+      "Sin materiales",
+      "Rápido",
+      "Azar"
+    ],
     "description": "Lanza la moneda y adivina. Si aciertas pasas el reto, si fallas sumas líquido al vaso común.",
     "rules": [
       "Un jugador vierte un poco de su líquido en el vaso central y lanza una moneda al aire cubriéndola con la mano.",
@@ -148,5 +188,169 @@
       "Si acierta, pasa la moneda; si falla 3 veces seguidas o en muerte súbita, se toma el vaso común."
     ],
     "non_alcoholic_variant": "Se utiliza una bebida energética o agua con gas y gotas de limón amargo."
+  },
+  {
+    "id": "el_rey",
+    "name": "El Rey (Kings Cup)",
+    "players": "4 a 12 personas",
+    "materials": "Mazo de cartas y un vaso al centro",
+    "duration": "20-40 min",
+    "tags": [
+      "Cartas",
+      "Clásico",
+      "Grupo"
+    ],
+    "description": "Cada carta tiene una regla. El que saca el último Rey prepara (y comparte) el vaso del centro.",
+    "rules": [
+      "Se reparten las cartas boca abajo alrededor del vaso.",
+      "As: cascada (todos toman hasta que el de la izquierda pare).",
+      "2: eliges a alguien que toma. 3: tomas tú.",
+      "4: todos tocan el suelo; el último cumple. 5: los hombres cumplen. 6: las mujeres cumplen.",
+      "7: todos levantan la mano; el último cumple. 8: eliges pareja de trago.",
+      "9: rima; el que se trabe cumple. 10: categorías (como Cultura Chupística).",
+      "J: inventas una regla. Q: quien te hable cumple hasta la próxima Q. K: echas un poco de tu trago al vaso del centro."
+    ],
+    "non_alcoholic_variant": "Cambia 'tomar' por un castigo de la ruleta y el vaso del centro por un reto final elegido por el grupo."
+  },
+  {
+    "id": "vaso_pong",
+    "name": "Vaso Pong",
+    "players": "2 a 8 (en equipos)",
+    "materials": "Mesa larga, 12 vasos y 2 pelotas de ping-pong",
+    "duration": "15-30 min",
+    "tags": [
+      "Destreza",
+      "Equipos",
+      "Clásico"
+    ],
+    "description": "Dos equipos lanzan una pelota a la pirámide de vasos del rival. Si emboca, el rival saca ese vaso.",
+    "rules": [
+      "Arma dos triángulos de 6 vasos con un poco de líquido (puede ser agua) en cada extremo.",
+      "Cada equipo lanza por turnos, codo detrás del borde de la mesa.",
+      "Si emboca, el rival retira ese vaso y cumple.",
+      "Si los dos del equipo embocan en el mismo turno, lanzan de nuevo.",
+      "Gana el que deja al otro sin vasos."
+    ],
+    "non_alcoholic_variant": "Llena los vasos con agua y que el castigo sea un reto o un shot de agua."
+  },
+  {
+    "id": "impostor_presencial",
+    "name": "El Impostor (presencial)",
+    "players": "4 a 12 personas",
+    "materials": "Celulares con Tonight",
+    "duration": "5-10 min por ronda",
+    "tags": [
+      "Sin materiales",
+      "Deducción",
+      "Rompehielos"
+    ],
+    "description": "Todos reciben la misma palabra secreta menos uno. Descríbanla con una palabra cada uno y descubran quién no la sabe.",
+    "rules": [
+      "Lanza 'El Impostor' desde Juegos en vivo: cada celular recibe la palabra o el rol de impostor.",
+      "Por turnos, cada persona dice UNA palabra relacionada con la palabra secreta.",
+      "El impostor debe improvisar sin que lo pillen.",
+      "Votan desde el celular. Si atrapan al impostor, él cumple; si no, cumplen todos los demás."
+    ],
+    "non_alcoholic_variant": "El que pierde cuenta una anécdota o hace un reto de la ruleta."
+  },
+  {
+    "id": "tres_verdades",
+    "name": "Dos verdades y una mentira",
+    "players": "3 a 15 personas",
+    "materials": "Ninguno",
+    "duration": "10-20 min",
+    "tags": [
+      "Sin materiales",
+      "Rompehielos",
+      "Confesiones"
+    ],
+    "description": "Cada uno cuenta tres cosas sobre sí mismo. Una es mentira. El grupo tiene que adivinar cuál.",
+    "rules": [
+      "Por turnos, cada persona dice tres frases sobre sí misma.",
+      "El resto vota cuál es la mentira.",
+      "Los que fallan cumplen. Si nadie adivina, cumple el que contó."
+    ],
+    "non_alcoholic_variant": "Los que fallan ceden su turno en la ruleta o hacen un reto."
+  },
+  {
+    "id": "charadas",
+    "name": "Charadas (mímica)",
+    "players": "4 a 20 (en equipos)",
+    "materials": "Papelitos o el celular",
+    "duration": "20-40 min",
+    "tags": [
+      "Equipos",
+      "Rompehielos",
+      "Tranqui"
+    ],
+    "description": "Representa películas, canciones o personajes sin hablar. Tu equipo tiene 60 segundos para adivinar.",
+    "rules": [
+      "Cada equipo escribe títulos para el otro equipo.",
+      "Un jugador saca un papel y actúa sin hablar ni señalar objetos.",
+      "Su equipo tiene 60 s para adivinar.",
+      "Gana el equipo con más aciertos en 5 rondas."
+    ],
+    "non_alcoholic_variant": "El equipo perdedor sirve la ronda de agua o de mocktails."
+  },
+  {
+    "id": "sombrero",
+    "name": "El Sombrero (Celebrity)",
+    "players": "6 a 16 (en equipos)",
+    "materials": "Papelitos y una bolsa o sombrero",
+    "duration": "30-45 min",
+    "tags": [
+      "Equipos",
+      "Clásico",
+      "Rápido"
+    ],
+    "description": "Tres rondas con los mismos nombres: primero se describen, después una sola palabra y al final mímica.",
+    "rules": [
+      "Cada persona escribe 3 nombres de famosos o personajes y los mete al sombrero.",
+      "Ronda 1: describe sin decir el nombre (30 s por turno).",
+      "Ronda 2: solo UNA palabra por nombre.",
+      "Ronda 3: solo mímica.",
+      "Gana el equipo con más papelitos acumulados."
+    ],
+    "non_alcoholic_variant": "El equipo perdedor elige la próxima canción… pero el ganador tiene veto."
+  },
+  {
+    "id": "preguntas_rapidas",
+    "name": "Preguntas sin responder",
+    "players": "3 a 10 personas",
+    "materials": "Ninguno",
+    "duration": "10 min",
+    "tags": [
+      "Sin materiales",
+      "Concentración",
+      "Rápido"
+    ],
+    "description": "Solo puedes responder una pregunta con otra pregunta. El que duda, se ríe o responde, pierde.",
+    "rules": [
+      "Alguien parte haciendo una pregunta a otra persona.",
+      "Esa persona debe responder con otra pregunta, a quien quiera.",
+      "No vale repetir preguntas ni demorarse más de 3 segundos.",
+      "El que se equivoca cumple y parte la siguiente ronda."
+    ],
+    "non_alcoholic_variant": "El que pierde imita a alguien del grupo hasta su próximo turno."
+  },
+  {
+    "id": "monedita",
+    "name": "La Monedita (Quarters)",
+    "players": "3 a 10 personas",
+    "materials": "Una moneda y un vaso",
+    "duration": "10-20 min",
+    "tags": [
+      "Destreza",
+      "Rápido",
+      "Clásico"
+    ],
+    "description": "Haz rebotar la moneda en la mesa para que caiga dentro del vaso.",
+    "rules": [
+      "Por turnos, cada uno hace rebotar la moneda contra la mesa.",
+      "Si cae en el vaso, eliges a alguien que cumple y vuelves a lanzar.",
+      "Tres aciertos seguidos: inventas una regla para toda la noche.",
+      "Si fallas, pasa al de la derecha."
+    ],
+    "non_alcoholic_variant": "Quien cumple responde una verdad o hace un reto."
   }
 ]

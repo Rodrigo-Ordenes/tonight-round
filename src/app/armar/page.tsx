@@ -3,9 +3,9 @@ import { Metadata } from "next";
 import CarreteBasketView from "@/components/calculators/CarreteBasketView";
 
 export const metadata: Metadata = {
-  title: "Canasta & Cotizador de Carrete | Tonight 🇨🇱",
+  title: "Armar la previa · Tonight",
   description:
-    "Compara precios entre Líder, Jumbo y Botillería. Canasta 100% dinámica con presupuesto, cuotas por persona y exportación a delivery.",
+    "Lista de compras multi-licor con presupuesto por persona, precios por tienda y la vaca lista para WhatsApp.",
 };
 
 export default function ArmarPage() {
