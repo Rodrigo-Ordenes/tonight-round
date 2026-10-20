@@ -30,7 +30,7 @@ Web application gratuita, ultra-rápida, mobile-first y optimizada para Smart TV
   - **Modo Host / TV (`/carrete/[code]` o `/carrete/tv`):** Diseñado para Smart TVs, proyectores o iPads sobre la mesa. Muestra el código de carrete en alta resolución, QR proyectable, el **Monstruómetro** colectivo y el tablero de seguridad.
   - **Modo Celular (`/carrete/[code]?modo=celular`):** Interfaz táctil ergonómica con safe-areas (`100dvh`), targets mínimos de 48px, botón de consumo rápido ("+1 Trago"), envío de confesiones y confirmación de llegada segura.
 - **Sincronización en Red con Fallback Offline:**
-  - Endpoint de sincronización HTTP: `src/app/api/carrete/[code]/route.ts`. Actúa como bus de sincronización en memoria con resolución Last-Write-Wins (LWW) para permitir emparejar celulares y Smart TV en la misma red local o remota.
+  - Endpoint de sincronización HTTP: `src/app/api/carrete/[code]/route.ts`. Recibe acciones delta idempotentes (`POST {events}`), re-siembras (`{seed}`) y anti-entropía (`PUT`), y las guarda en el almacén de `src/lib/carreteStore.ts`: **Redis vía REST** (Upstash / Vercel KV) si hay variables de entorno, o **memoria del proceso** si no. Ver la sección «Almacén persistente de salas» más abajo.
   - Fallback resiliente en `localStorage` bajo `carrete_[CODE]` para operación continua sin conexión.
 
 ### 3. 🧪 Monstruómetro Exacto (Monsters Inc. Canisters)
@@ -145,7 +145,8 @@ Round/
 │   │       └── index.ts               # Diccionario y utilidades de país
 │   ├── lib/
 │   │   ├── useLocale.ts               # Hook de i18n con persistencia en localStorage
-│   │   ├── carreteState.ts            # Tipos y función de merge LWW para sincronización
+│   │   ├── carreteState.ts            # Tipos, reductor de acciones y merge sin pérdida
+│   │   ├── carreteStore.ts            # Almacén de salas: Redis REST (Upstash/Vercel KV) o memoria
 │   │   └── widmark.ts                 # Algoritmo metabólico de Widmark
 │   └── data/
 │       ├── cocktail_recipes.json      # Catálogo de cócteles chilenos e internacionales
@@ -184,6 +185,43 @@ La aplicación estará disponible de inmediato en [http://localhost:3000](http:/
 ```bash
 npm run build
 npm run start
+```
+
+### 🗄️ Almacén persistente de salas (opcional)
+
+Sin configuración, las salas viven en la memoria del servidor: perfecto para desarrollo o un solo proceso. En serverless (Vercel) cada instancia tiene su propia memoria, así que para producción conviene un Redis compartido con capa gratuita. El código habla con Redis por **REST usando `fetch`** (sin SDK ni dependencias nuevas) y funciona con cualquiera de estas dos opciones:
+
+| Opción | Cómo obtener las variables |
+| --- | --- |
+| **Upstash Redis** (directo) | Crear una base gratuita en [console.upstash.com](https://console.upstash.com) → pestaña *REST API* → copiar `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`. |
+| **Vercel** (Marketplace → Upstash, ex Vercel KV) | Proyecto en Vercel → *Storage* → *Create Database* → Upstash Redis → conectar al proyecto. Vercel inyecta solas `KV_REST_API_URL` y `KV_REST_API_TOKEN` (y/o las `UPSTASH_REDIS_REST_*`). |
+
+Variables reconocidas (basta un par URL + token; si no hay ninguno, se usa memoria automáticamente):
+
+```bash
+# .env.local (no se versiona) o Settings → Environment Variables en Vercel
+UPSTASH_REDIS_REST_URL=https://xxxx.upstash.io
+UPSTASH_REDIS_REST_TOKEN=xxxx
+# alternativa equivalente
+# KV_REST_API_URL=https://xxxx.upstash.io
+# KV_REST_API_TOKEN=xxxx
+# opcional: prefijo de llaves (por defecto "tonight:carrete:")
+# CARRETE_KEY_PREFIX=tonight:carrete:
+```
+
+Cómo funciona (`src/lib/carreteStore.ts`):
+- Cada sala son dos llaves con **TTL de 48 h** que se renueva en cada escritura: una foto compactada (`…{CODE}:s`) y un **log append-only** (`…{CODE}:log`).
+- `POST {events}`, `{seed}` y `PUT` agregan una entrada al log dentro de un **script Lua** (atómico): las acciones simultáneas desde distintas instancias nunca se pisan. El estado se obtiene plegando el log sobre la foto con las mismas funciones puras del cliente (`applyEvents` / `mergeCarrete` / `normalizeCarrete`).
+- Cuando el log supera 24 entradas, quien lo lea lo compacta con un **CAS** (otro script Lua que verifica un token de versión); si dos instancias compiten, una gana y la otra no hace nada.
+- Si Redis falla, la API responde `503` y los clientes siguen con su copia local y su cola offline.
+- Costo: cada GET/POST es ~1 comando Redis (los GET de polling se cachean 1 s por instancia). Un carrete de 10 celulares durante 5 h usa del orden de 50–90 mil comandos; revisa el límite mensual vigente de la capa gratuita de tu proveedor.
+
+Prueba de concurrencia (40 acciones simultáneas + PUT/seed en paralelo, repartidas entre instancias):
+
+```bash
+node scripts/carrete-concurrency.mjs http://localhost:3000
+# varias instancias / producción:
+node scripts/carrete-concurrency.mjs https://tu-app.vercel.app http://localhost:3000
 ```
 
 ---
