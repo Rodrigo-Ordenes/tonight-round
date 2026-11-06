@@ -178,6 +178,23 @@ export interface SplitState {
 
 export const DEFAULT_SPLIT: SplitState = { expenses: [], removed: [], mode: "justo", soberIds: [], updatedAt: 0 };
 
+/* ---------------- Lista "Yo llevo" (estilo Partiful) ---------------- */
+
+export interface BringItem {
+  id: string;
+  label: string;
+  claimedBy?: string;
+  claimedAt?: number;
+}
+
+export interface BringState {
+  items: BringItem[];
+  /** tombstones de ítems borrados */
+  removed: string[];
+}
+
+export const DEFAULT_BRING: BringState = { items: [], removed: [] };
+
 export const DEFAULT_MUSIC: MusicState = { vibeId: "top-pais", auto: true, updatedAt: 0 };
 
 export interface CarreteState {
@@ -194,6 +211,7 @@ export interface CarreteState {
   music?: MusicState;
   live?: LiveState;
   split?: SplitState;
+  bring?: BringState;
 }
 
 export const DEFAULT_BASKET: BasketState = {
@@ -262,6 +280,9 @@ export type CarreteAction =
   | { type: "CHEERS"; id: string; by: string }
   | { type: "SONG_REQUEST"; request: SongRequest }
   | { type: "SONG_PLAYED"; id: string }
+  | { type: "ADD_BRING"; item: { id: string; label: string } }
+  | { type: "CLAIM_BRING"; id: string; participantId: string }
+  | { type: "REMOVE_BRING"; id: string }
   | { type: "ADD_EXPENSE"; expense: Expense }
   | { type: "REMOVE_EXPENSE"; id: string }
   | { type: "PATCH_SPLIT"; patch: Partial<Pick<SplitState, "mode" | "soberIds">> }
@@ -303,6 +324,7 @@ export function normalizeCarrete(s: CarreteState): CarreteState {
     music: { ...DEFAULT_MUSIC, ...s.music },
     live: { ...DEFAULT_LIVE, ...s.live },
     split: { ...DEFAULT_SPLIT, ...s.split },
+    bring: { ...DEFAULT_BRING, ...s.bring },
   };
 }
 
@@ -422,6 +444,34 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
         music: { ...m, requests: (m.requests ?? []).map((r) => (r.id === a.id ? { ...r, played: true } : r)), updatedAt: Math.max(m.updatedAt, at) },
       };
     }
+    case "ADD_BRING": {
+      const b = s.bring ?? DEFAULT_BRING;
+      if (b.items.some((i) => i.id === a.item.id) || b.removed.includes(a.item.id)) return s;
+      return { ...s, bring: { ...b, items: [...b.items, { id: a.item.id, label: a.item.label }] } };
+    }
+    case "CLAIM_BRING": {
+      // Primero gana; quien lo tiene puede soltarlo (volver a tocar)
+      const b = s.bring ?? DEFAULT_BRING;
+      return {
+        ...s,
+        bring: {
+          ...b,
+          items: b.items.map((i) =>
+            i.id !== a.id
+              ? i
+              : !i.claimedBy
+              ? { ...i, claimedBy: a.participantId, claimedAt: at }
+              : i.claimedBy === a.participantId
+              ? { id: i.id, label: i.label }
+              : i
+          ),
+        },
+      };
+    }
+    case "REMOVE_BRING": {
+      const b = s.bring ?? DEFAULT_BRING;
+      return { ...s, bring: { items: b.items.filter((i) => i.id !== a.id), removed: Array.from(new Set([...b.removed, a.id])) } };
+    }
     case "ADD_EXPENSE": {
       const sp = s.split ?? DEFAULT_SPLIT;
       if (sp.expenses.some((e) => e.id === a.expense.id)) return s;
@@ -508,7 +558,22 @@ export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState): CarreteSta
     music: mergeMusic(a.music, b.music),
     live: mergeLive(a.live ?? DEFAULT_LIVE, b.live ?? DEFAULT_LIVE),
     split: mergeSplit(a.split ?? DEFAULT_SPLIT, b.split ?? DEFAULT_SPLIT),
+    bring: mergeBring(a.bring ?? DEFAULT_BRING, b.bring ?? DEFAULT_BRING),
   };
+}
+
+/** "Yo llevo": unión por id menos tombstones; si ambos lados reclamaron, gana el reclamo más antiguo. */
+function mergeBring(a: BringState, b: BringState): BringState {
+  const removed = Array.from(new Set([...a.removed, ...b.removed]));
+  const gone = new Set(removed);
+  const byId = new Map<string, BringItem>();
+  [...a.items, ...b.items].forEach((i) => {
+    if (gone.has(i.id)) return;
+    const prev = byId.get(i.id);
+    if (!prev) byId.set(i.id, i);
+    else if (i.claimedBy && (!prev.claimedBy || (i.claimedAt ?? Infinity) < (prev.claimedAt ?? Infinity))) byId.set(i.id, i);
+  });
+  return { items: Array.from(byId.values()), removed };
 }
 
 /** Gastos: unión por id menos tombstones; modo y abstemios por LWW. */

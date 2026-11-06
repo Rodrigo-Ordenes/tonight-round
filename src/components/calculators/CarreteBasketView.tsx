@@ -34,6 +34,7 @@ import {
 import type { BasketItem, BasketProfile, PriceBase } from "@/lib/carreteState";
 import BudgetPanel from "./BudgetPanel";
 import BasketInsightsCard from "./BasketInsightsCard";
+import BringList from "./BringList";
 import PageHeader from "@/components/ui/PageHeader";
 import SearchableProductModal from "./SearchableProductModal";
 import MultiStoreCompare from "./MultiStoreCompare";
@@ -364,6 +365,8 @@ export default function CarreteBasketView() {
       </div>
 
       <BasketInsightsCard insights={insights} hours={basket.durationHours} items={basket.items} code={code} onAdd={handleAddById} />
+
+      <BringList store={store} />
 
       {/* Lista Dinámica de Productos en la Canasta */}
       <div className="p-5 rounded-3xl bg-night-900/80 border border-slate-800 space-y-4">

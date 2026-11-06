@@ -13,6 +13,7 @@ import { nightMoment } from "@/lib/nightMoment";
 import NowPlayingMini from "@/components/music/NowPlayingMini";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
 import { stockFor } from "@/lib/stock";
+import BringList from "@/components/calculators/BringList";
 import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 import { basketInsights } from "@/lib/basket";
 
@@ -235,6 +236,8 @@ function RoomPanel({ code }: { code: string }) {
           Estimación educativa (Widmark) en g/l. {locale.legal.bacLimitText}: si bebiste, no manejes.
         </p>
       </div>
+
+      {(store.state.bring?.items.length ?? 0) > 0 && <BringList store={store} compact />}
 
       {stock && (
         <div className="surface p-4">
