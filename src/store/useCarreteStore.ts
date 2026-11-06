@@ -122,7 +122,7 @@ export async function carreteExists(code: string): Promise<boolean> {
     if (res.ok) {
       const s = (await res.json()) as CarreteState;
       const local = readLocal(code);
-      writeLocal(local ? mergeCarrete(local, s) : normalizeCarrete(s));
+      writeLocal(local ? mergeCarrete(local, s, "b") : normalizeCarrete(s));
       return true;
     }
   } catch {
@@ -224,7 +224,7 @@ class CarreteEngine {
     if (stillPending.length !== pending.length) writeOutbox(this.code, stillPending);
     if (stillPending.length !== this.snap.pending) this.set({ pending: stillPending.length });
     // El merge conserva lo que este dispositivo tenga y el servidor aún no (p. ej. tras un reinicio del servidor).
-    this.commit(applyEvents(mergeCarrete(this.snap.state, server), stillPending));
+    this.commit(applyEvents(mergeCarrete(this.snap.state, server, "b"), stillPending));
   }
 
   /** Re-siembra la sala con la copia local (servidor reiniciado o instancia serverless nueva). */
@@ -338,7 +338,7 @@ class CarreteEngine {
       this.set({ status: "missing" });
       return;
     }
-    const base = server && local ? mergeCarrete(local, server) : normalizeCarrete((server ?? local) as CarreteState);
+    const base = server && local ? mergeCarrete(local, server, "b") : normalizeCarrete((server ?? local) as CarreteState);
     this.commit(applyEvents(base, readOutbox(this.code)));
     this.set({ status: "ready", meId });
     setActiveCode(this.code);

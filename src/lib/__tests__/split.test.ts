@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { computeSplit } from "@/lib/split";
-import type { Expense } from "@/lib/carreteState";
-import { person } from "./fixtures";
+import { applyEvents, normalizeCarrete, type Expense } from "@/lib/carreteState";
+import { ev, person, room } from "./fixtures";
 
 const withGrams = (id: string, grams: number, role: "drinker" | "driver" = "drinker") =>
   person(id, { role, consumptions: grams ? [{ id: `${id}c`, label: "x", ml: grams / 0.8 / 0.4, abv: 0.4, ts: 1 }] : [] });
@@ -32,4 +32,19 @@ describe("link de pago", () => {
   it("agrega https si falta", () => expect(normalizePayLink("venmo.com/u/juan")).toBe("https://venmo.com/u/juan"));
   it("rechaza esquemas peligrosos", () => expect(normalizePayLink("javascript:alert(1)")).toBeNull());
   it("rechaza texto que no es link", () => expect(normalizePayLink("mi cuenta rut 123")).toBeNull());
+});
+
+describe("link de pago que llega por la sala", () => {
+  it("un PATCH con javascript: no queda guardado; uno válido sí", () => {
+    const base = applyEvents(room(), [ev({ type: "ADD_PARTICIPANT", participant: person("ana") })]);
+    const bad = applyEvents(base, [ev({ type: "PATCH_PARTICIPANT", id: "ana", patch: { payLink: "javascript:alert(document.domain)" } })]);
+    expect(bad.participants[0].payLink).toBeUndefined();
+    const ok = applyEvents(base, [ev({ type: "PATCH_PARTICIPANT", id: "ana", patch: { payLink: "link.mercadopago.cl/ana" } })]);
+    expect(ok.participants[0].payLink).toBe("https://link.mercadopago.cl/ana");
+  });
+
+  it("una siembra o anti-entropía con un link peligroso se limpia al normalizar", () => {
+    const s = normalizeCarrete({ ...room(), participants: [person("ana", { payLink: "javascript:alert(1)" })] });
+    expect(s.participants[0].payLink).toBeUndefined();
+  });
 });

@@ -14,8 +14,8 @@ export interface RoundClock {
 }
 
 /**
- * Reloj de la ronda abierta. Con `driver` (TV o anfitrión) además suena el tic creciente de los
- * últimos 10 s y revela sola cuando votaron todos o se acabó el tiempo (acción idempotente).
+ * Reloj de la ronda abierta. Con `driver` (TV, o el celular que inició la ronda: ver isRoundDriver) revela
+ * cuando votaron todos o se acabó el tiempo (acción idempotente); con `sound` suena el tic de los últimos 10 s.
  */
 export function useRoundClock(
   round: LiveRound | null | undefined,

@@ -6,7 +6,7 @@ import { ChevronDown, Crown, Droplets, Eye, EyeOff, Heart, GlassWater, Music2, R
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import { useWakeLock } from "@/lib/useWakeLock";
-import { TONE_CLASS, bacTone } from "@/lib/bacTone";
+import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
 import { CHEERS_WORD } from "@/components/live/CheersOverlay";
 import { ABSORPTION, DRINK_PRESETS, bacFor, fmtDuration, fmtTime, hydrationFor, type DrinkPreset, type StomachState } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
@@ -223,7 +223,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           <div className="mt-5 flex items-end gap-6">
             <div>
               <p className="eyebrow">Ahora (g/l)</p>
-              <p className={`font-display text-6xl font-extrabold leading-none tabular ${TONE_CLASS[bacTone(r.bac, driver, me.consumptions.length > 0)].text}`}>
+              <p className={`font-display text-6xl font-extrabold leading-none tabular ${TONE_CLASS[bacTone(r.bac, driver, hasAlcohol(me.consumptions))].text}`}>
                 {r.bac.toFixed(2)}
               </p>
             </div>

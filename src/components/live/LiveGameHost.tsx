@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Eye, Play, SkipForward, Square, Tv, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
-import { LIVE_GAMES, LIVE_GAME_BY_ID, buildRound, tally } from "@/lib/liveGames";
+import { LIVE_GAMES, LIVE_GAME_BY_ID, buildRound, tally, isRoundDriver } from "@/lib/liveGames";
 import type { LiveGame } from "@/lib/carreteState";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
@@ -18,7 +18,7 @@ import RoundTimer from "./RoundTimer";
  * Los votos llegan desde los celulares (LiveRoundCard) como acciones idempotentes.
  */
 export default function LiveGameHost({ store }: { store: CarreteStore }) {
-  const { state, participants, dispatch, isSolo, code } = store;
+  const { state, participants, dispatch, isSolo, code, meId } = store;
   const live = state.live;
   const round = live?.round ?? null;
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +30,9 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
     audioEffects.playReveal();
     void fireConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#F7F5F3"] });
   });
-  // El anfitrión también sirve de reloj: si la TV no está abierta, revela solo y suena el tic final.
-  const clock = useRoundClock(round, { participants, dispatch, sound: true });
+  // Entre los celulares solo quien inició la ronda la revela al acabar el tiempo; el tic suena únicamente en la TV.
+  const drives = !!round && isRoundDriver(round, { tv: false, meId });
+  const clock = useRoundClock(round, drives ? { participants, dispatch } : undefined);
 
   if (isSolo) {
     return (
@@ -57,7 +58,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
     }
     audioEffects.playPop();
     if (round && !round.revealedAt) dispatch({ type: "END_ROUND", roundId: round.id });
-    dispatch({ type: "START_ROUND", round: r });
+    dispatch({ type: "START_ROUND", round: meId ? { ...r, hostId: meId } : r });
   };
 
   const reveal = () => {

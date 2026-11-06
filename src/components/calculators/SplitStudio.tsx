@@ -6,7 +6,7 @@ import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import type { ExpenseCategory, SplitMode } from "@/lib/carreteState";
 import { DEFAULT_SPLIT } from "@/lib/carreteState";
-import { ROUND_UNIT, computeSplit } from "@/lib/split";
+import { ROUND_UNIT, computeSplit, normalizePayLink } from "@/lib/split";
 import { useLocale } from "@/lib/useLocale";
 import { audioEffects } from "@/lib/audioEffects";
 
@@ -52,7 +52,11 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
 
   const result = useMemo(() => computeSplit(participants, split.expenses, split.mode, split.soberIds, unit), [participants, split, unit]);
   const name = (id: string) => participants.find((p) => p.id === id)?.name ?? "¿?";
-  const payLink = (id: string) => participants.find((p) => p.id === id)?.payLink;
+  // Se valida otra vez al mostrar: el href nunca recibe algo que no sea http(s)
+  const payLink = (id: string) => {
+    const raw = participants.find((p) => p.id === id)?.payLink;
+    return raw ? normalizePayLink(raw) ?? undefined : undefined;
+  };
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();

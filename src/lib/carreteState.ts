@@ -1,4 +1,5 @@
 import type { Consumption } from "./alcohol";
+import { normalizePayLink } from "./split";
 
 export type Gender = "M" | "F";
 export type Role = "drinker" | "driver";
@@ -129,6 +130,8 @@ export interface LiveRound {
   /** Palabra secreta (El Impostor): todos la ven menos quien es `answer`. */
   secret?: string;
   startedAt: number;
+  /** Participante que inició la ronda: entre los celulares, solo él maneja el reloj */
+  hostId?: string;
   /** Tiempo para votar; al acabarse (con al menos un voto) la TV o el anfitrión revelan solos */
   durationMs?: number;
   revealedAt?: number;
@@ -315,6 +318,8 @@ export function normalizeParticipant(p: Participant): Participant {
     water: live,
     waterCount: live.length,
     removedIds: p.removedIds ?? [],
+    // Cualquiera con el código puede escribir en la sala: solo se guardan links http(s) válidos (nada de javascript:)
+    payLink: p.payLink ? normalizePayLink(p.payLink) ?? undefined : undefined,
   };
 }
 
@@ -555,7 +560,11 @@ function mergeParticipant(a: Participant, b: Participant): Participant {
  * Merge de estados completos. Los tragos y vasos de agua se unen por id (con tombstones), así que
  * ningún registro se pierde; los campos escalares usan LWW por participante/sección.
  */
-export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState): CarreteState {
+/**
+ * `authority` indica qué lado es el servidor ("a" en el servidor, "b" en el cliente al hacer rebase).
+ * Hoy solo lo usa "Yo llevo": el primero en llegar al servidor gana y soltar no se deshace con copias viejas.
+ */
+export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState, authority?: "a" | "b"): CarreteState {
   const a = normalizeCarrete(aRaw);
   const b = normalizeCarrete(bRaw);
   if ((a.epoch ?? 0) !== (b.epoch ?? 0)) {
@@ -580,22 +589,31 @@ export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState): CarreteSta
     music: mergeMusic(a.music, b.music),
     live: mergeLive(a.live ?? DEFAULT_LIVE, b.live ?? DEFAULT_LIVE),
     split: mergeSplit(a.split ?? DEFAULT_SPLIT, b.split ?? DEFAULT_SPLIT),
-    bring: mergeBring(a.bring ?? DEFAULT_BRING, b.bring ?? DEFAULT_BRING),
+    bring: mergeBring(a.bring ?? DEFAULT_BRING, b.bring ?? DEFAULT_BRING, authority),
   };
 }
 
-/** "Yo llevo": unión por id menos tombstones; si ambos lados reclamaron, gana el reclamo más antiguo. */
-function mergeBring(a: BringState, b: BringState): BringState {
+/**
+ * "Yo llevo": unión por id menos tombstones. Si hay autoridad (servidor), su versión de cada ítem que conoce
+ * gana entera (así un "soltar" no lo revive otra copia y el orden de llegada decide el reclamo); sin autoridad
+ * (entre pestañas), gana el reclamo más antiguo.
+ */
+function mergeBring(a: BringState, b: BringState, authority?: "a" | "b"): BringState {
   const removed = Array.from(new Set([...a.removed, ...b.removed]));
   const gone = new Set(removed);
   const byId = new Map<string, BringItem>();
-  [...a.items, ...b.items].forEach((i) => {
+  const [first, second] = authority === "b" ? [b, a] : [a, b];
+  first.items.forEach((i) => {
+    if (!gone.has(i.id)) byId.set(i.id, i);
+  });
+  second.items.forEach((i) => {
     if (gone.has(i.id)) return;
     const prev = byId.get(i.id);
     if (!prev) byId.set(i.id, i);
-    else if (i.claimedBy && (!prev.claimedBy || (i.claimedAt ?? Infinity) < (prev.claimedAt ?? Infinity))) byId.set(i.id, i);
+    else if (!authority && i.claimedBy && (!prev.claimedBy || (i.claimedAt ?? Infinity) < (prev.claimedAt ?? Infinity))) byId.set(i.id, i);
   });
-  return { items: Array.from(byId.values()), removed };
+  const order = new Map([...a.items, ...b.items].map((i, n) => [i.id, n] as const));
+  return { items: Array.from(byId.values()).sort((x, y) => (order.get(x.id) ?? 0) - (order.get(y.id) ?? 0)), removed };
 }
 
 /** Gastos: unión por id menos tombstones; modo y abstemios por LWW. */

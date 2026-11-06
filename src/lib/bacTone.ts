@@ -1,8 +1,14 @@
+import type { Consumption } from "./alcohol";
 /**
  * Tono visual de la alcoholemia con criterio de reducción de daños:
  * colores suaves (teal → ámbar) en vez de alarmas; el rojo queda solo para el conductor que tomó.
  */
 export type BacTone = "calm" | "warm" | "high" | "driver-ok" | "driver-breach";
+
+/** ¿Registró algo con alcohol? Una cerveza 0.0 o un mezclador no cuentan (el conductor sigue en verde). */
+export function hasAlcohol(consumptions: Consumption[]): boolean {
+  return consumptions.some((c) => c.abv > 0 && c.ml > 0);
+}
 
 export function bacTone(bac: number, isDriver: boolean, hasDrinks: boolean): BacTone {
   if (isDriver) return hasDrinks ? "driver-breach" : "driver-ok";

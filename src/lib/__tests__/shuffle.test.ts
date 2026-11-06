@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeGroups } from "@/lib/shuffle";
+import { groupCountFor, makeGroups, seatPool } from "@/lib/shuffle";
 
 const ids = (n: number) => Array.from({ length: n }, (_, i) => `p${i}`);
 const flat = (g: string[][]) => g.flat().sort();
@@ -21,5 +21,31 @@ describe("rotación de puestos y equipos", () => {
 
   it("semillas distintas cambian el orden", () => {
     expect(makeGroups(ids(8), 2, 1)).not.toEqual(makeGroups(ids(8), 2, 2));
+  });
+});
+
+describe("cantidad de grupos por modo", () => {
+  it.each([3, 4, 5, 6, 7])("dos equipos con %i personas son siempre dos", (n) => {
+    const g = makeGroups(ids(n), groupCountFor("equipos", n), 3);
+    expect(g).toHaveLength(2);
+    expect(flat(g)).toEqual(ids(n).sort());
+  });
+
+  it("tríos con 5 personas: dos grupos (3 y 2), no uno de 5", () => {
+    expect(makeGroups(ids(5), groupCountFor("trios", 5), 3).map((g) => g.length).sort()).toEqual([2, 3]);
+  });
+
+  it("parejas con 5: dos grupos; puestos: un solo orden; con 1 persona, un grupo", () => {
+    expect(groupCountFor("parejas", 5)).toBe(2);
+    expect(groupCountFor("puestos", 8)).toBe(1);
+    expect(groupCountFor("equipos", 1)).toBe(1);
+    expect(groupCountFor("parejas", 1)).toBe(1);
+  });
+});
+
+describe("quién entra al sorteo", () => {
+  it("quien va en camino o ya llegó a casa no queda en un equipo", () => {
+    const people = [{ id: "a", status: "party" }, { id: "b", status: "safe" }, { id: "c", status: "transit" }] as const;
+    expect(seatPool(people as never)).toEqual(["a"]);
   });
 });

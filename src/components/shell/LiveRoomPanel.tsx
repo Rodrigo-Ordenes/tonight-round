@@ -14,7 +14,7 @@ import NowPlayingMini from "@/components/music/NowPlayingMini";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
 import { stockFor } from "@/lib/stock";
 import BringList from "@/components/calculators/BringList";
-import { TONE_CLASS, bacTone } from "@/lib/bacTone";
+import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
 import { basketInsights } from "@/lib/basket";
 
 /** Panel persistente de la sala: quién está, cómo va cada uno y acciones rápidas, al lado de cualquier sección. */
@@ -216,7 +216,7 @@ function RoomPanel({ code }: { code: string }) {
             {rows.map(({ p, bac }) => {
               const driver = p.role === "driver";
               const pct = Math.min(100, (bac / 1.2) * 100);
-              const tone = TONE_CLASS[bacTone(bac, driver, p.consumptions.length > 0)].bar;
+              const tone = TONE_CLASS[bacTone(bac, driver, hasAlcohol(p.consumptions))].bar;
               return (
                 <li key={p.id} className="rounded-2xl bg-white/[0.03] px-3 py-2.5">
                   <div className="flex items-center gap-2 text-sm">

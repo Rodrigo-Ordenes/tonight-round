@@ -188,3 +188,12 @@ export function shouldAutoReveal(round: LiveRound, participantCount: number, now
   if (participantCount >= 2 && votes >= participantCount) return true;
   return !!round.durationMs && now >= round.startedAt + round.durationMs;
 }
+
+/**
+ * Quién maneja el reloj (revelado automático y tic): la TV siempre y, entre los celulares, solo quien inició
+ * la ronda. Así no hay N celulares revelando con su propia copia de los votos.
+ */
+export function isRoundDriver(round: Pick<LiveRound, "hostId">, who: { tv: boolean; meId: string | null }): boolean {
+  if (who.tv) return true;
+  return !!who.meId && round.hostId === who.meId;
+}

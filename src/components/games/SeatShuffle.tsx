@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Shuffle } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import type { SeatMode } from "@/lib/carreteState";
-import { makeGroups } from "@/lib/shuffle";
+import { groupCountFor, makeGroups, seatPool } from "@/lib/shuffle";
 import { audioEffects } from "@/lib/audioEffects";
 
 const MODES: { id: SeatMode; label: string; hint: string }[] = [
@@ -13,8 +13,6 @@ const MODES: { id: SeatMode; label: string; hint: string }[] = [
   { id: "trios", label: "Tríos", hint: "Grupos de tres" },
   { id: "equipos", label: "Dos equipos", hint: "Para charadas o vaso pong" },
 ];
-
-const sizeFor = (mode: SeatMode, n: number) => (mode === "puestos" ? n : mode === "parejas" ? 2 : mode === "trios" ? 3 : Math.ceil(n / 2));
 
 export const GROUP_LABEL: Record<SeatMode, (i: number) => string> = {
   puestos: () => "Orden de la mesa",
@@ -34,11 +32,11 @@ export default function SeatShuffle({ store }: { store: CarreteStore }) {
   const name = (id: string) => participants.find((p) => p.id === id)?.name ?? "—";
 
   const shuffle = () => {
-    const ids = participants.map((p) => p.id);
+    const ids = seatPool(participants);
     if (ids.length < 2) return;
     audioEffects.playReveal();
     const seed = Math.floor(Math.random() * 2 ** 31);
-    patchGames({ seats: { mode, groups: makeGroups(ids, sizeFor(mode, ids.length), seed), at: Date.now() } });
+    patchGames({ seats: { mode, groups: makeGroups(ids, groupCountFor(mode, ids.length), seed), at: Date.now() } });
   };
 
   return (

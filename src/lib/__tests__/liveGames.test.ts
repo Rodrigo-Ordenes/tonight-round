@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { tally } from "@/lib/liveGames";
+import { tally, isRoundDriver } from "@/lib/liveGames";
 import type { LiveRound } from "@/lib/carreteState";
 import { person } from "./fixtures";
 
@@ -60,5 +60,20 @@ describe("auto-revelar", () => {
     const r2 = buildRound("impostor", ctx);
     expect("durationMs" in r1 && r1.durationMs).toBe(30_000);
     expect("durationMs" in r2 && r2.durationMs).toBe(45_000);
+  });
+});
+
+describe("quién maneja el reloj de la ronda", () => {
+  const r = { hostId: "ana" } as Parameters<typeof isRoundDriver>[0];
+  it("la TV siempre; entre celulares, solo quien inició la ronda", () => {
+    expect(isRoundDriver(r, { tv: true, meId: null })).toBe(true);
+    expect(isRoundDriver(r, { tv: false, meId: "ana" })).toBe(true);
+    expect(isRoundDriver(r, { tv: false, meId: "beto" })).toBe(false);
+    expect(isRoundDriver(r, { tv: false, meId: null })).toBe(false);
+  });
+  it("una ronda sin anfitrión (anterior a V11) solo la maneja la TV", () => {
+    const old = {} as Parameters<typeof isRoundDriver>[0];
+    expect(isRoundDriver(old, { tv: false, meId: "ana" })).toBe(false);
+    expect(isRoundDriver(old, { tv: true, meId: null })).toBe(true);
   });
 });

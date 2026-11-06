@@ -18,7 +18,7 @@ import {
   type StomachState,
 } from "@/lib/alcohol";
 import type { Participant } from "@/lib/carreteState";
-import { TONE_CLASS, bacTone } from "@/lib/bacTone";
+import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
 
 interface Props {
   store: CarreteStore;
@@ -194,7 +194,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
 
               <p
                 className={`rounded-xl border px-3 py-2 text-xs font-semibold ${
-                  TONE_CLASS[bacTone(r.bac, p.role === "driver", p.consumptions.length > 0)].panel
+                  TONE_CLASS[bacTone(r.bac, p.role === "driver", hasAlcohol(p.consumptions))].panel
                 }`}
               >
                 {r.zeroAt
