@@ -145,7 +145,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
                   {participants.map((p) => (
                     <span
                       key={p.id}
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${voters.includes(p.id) ? "bg-emerald-400/20 text-emerald-100" : "bg-white/[0.04] text-slate-500"}`}
+                      className={`max-w-[16rem] truncate rounded-full px-2.5 py-1 text-xs font-semibold ${voters.includes(p.id) ? "bg-emerald-400/20 text-emerald-100" : "bg-white/[0.04] text-slate-500"}`}
                     >
                       {voters.includes(p.id) ? "✓ " : ""}
                       {p.name}

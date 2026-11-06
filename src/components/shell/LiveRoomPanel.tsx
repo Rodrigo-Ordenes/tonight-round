@@ -24,13 +24,19 @@ export default function LiveRoomPanel({ code }: { code: string }) {
 }
 
 function SoloPanel() {
-  const moment = nightMoment(new Date());
+  // La hora se calcula en el cliente: el servidor (UTC) y el celular (hora local) no coinciden
+  const [moment, setMoment] = useState<ReturnType<typeof nightMoment> | null>(null);
+  useEffect(() => setMoment(nightMoment(new Date())), []);
   return (
     <div className="flex h-full flex-col gap-5 p-6">
-      <div>
-        <h2 className="display text-3xl">{moment.title}</h2>
-        <p className="meta mt-2">{moment.eyebrow}</p>
-        <p className="mt-2 text-sm text-slate-400">{moment.hint}</p>
+      <div className="min-h-[7.5rem]">
+        {moment && (
+          <>
+            <h2 className="display text-3xl">{moment.title}</h2>
+            <p className="meta mt-2">{moment.eyebrow}</p>
+            <p className="mt-2 text-sm text-slate-400">{moment.hint}</p>
+          </>
+        )}
       </div>
       <div className="surface p-5">
         <Users className="w-6 h-6 text-indigo-400" />

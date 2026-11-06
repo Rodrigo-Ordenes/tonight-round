@@ -255,7 +255,7 @@ export default function CarreteBasketView() {
       />
 
       {/* SELECTOR: ¿QUÉ QUIEREN TOMAR HOY? (Quiero tomar... y tengo $X) */}
-      <div className="p-5 rounded-3xl bg-night-900/90 border border-slate-800 space-y-3">
+      <div className="space-y-3 border-t border-white/[0.07] pt-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div>
             <div className="flex items-center gap-2">
@@ -369,7 +369,7 @@ export default function CarreteBasketView() {
       <BringList store={store} />
 
       {/* Lista Dinámica de Productos en la Canasta */}
-      <div className="p-5 rounded-3xl bg-night-900/80 border border-slate-800 space-y-4">
+      <div className="space-y-4 border-t border-white/[0.07] pt-6">
         <div className="flex items-center justify-between border-b border-night-800 pb-3">
           <div>
             <h3 className="font-black text-base text-white">

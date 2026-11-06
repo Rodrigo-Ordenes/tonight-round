@@ -47,7 +47,7 @@ export default function MultiStoreCompare({
   const maxSavings = maxTotal - minTotal;
 
   return (
-    <div className="p-5 rounded-3xl bg-night-900/80 border border-slate-800 space-y-4">
+    <div className="space-y-4 border-t border-white/[0.07] pt-6">
       {/* Encabezado e indicador referencial */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-night-800 pb-3">
         <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ export default function MultiStoreCompare({
               onClick={() => onSelectBase(store.id)}
               className={`p-4 rounded-2xl border text-left transition-all active:scale-[0.98] flex flex-col justify-between ${
                 isSelected
-                  ? "bg-indigo-950/60 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+                  ? "bg-indigo-500/10 border-indigo-400"
                   : "bg-night-950/80 border-slate-800 hover:border-slate-700"
               }`}
             >

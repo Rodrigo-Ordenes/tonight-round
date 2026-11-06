@@ -338,7 +338,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
                   className={`chip ${on ? "chip-on" : ""} disabled:opacity-50`}
                   title={driver ? "Maneja: no se le sirve alcohol" : undefined}
                 >
-                  {driver && <Crown className="w-3 h-3" />} {p.name}
+                  {driver && <Crown className="w-3 h-3" />} <span className="max-w-[10rem] truncate">{p.name}</span>
                 </button>
               );
             })}

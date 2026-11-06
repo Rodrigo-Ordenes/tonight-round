@@ -136,7 +136,7 @@ button,
   }
 }
 
-/* Superficies */
+@layer components {
   /* Superficies: un solo nivel de elevación (borde + fondo), radio máximo 16 px */
   .glass-panel {
     @apply rounded-2xl border border-white/[0.08] bg-night-900;

@@ -195,7 +195,7 @@ function TvStage() {
                   {store.participants.map((p) => (
                     <span
                       key={p.id}
-                      className={`rounded-full px-5 py-2 text-xl font-semibold transition-colors ${voters.includes(p.id) ? "bg-emerald-400 text-night-950" : "bg-white/[0.05] text-slate-400"}`}
+                      className={`max-w-[16rem] truncate rounded-full px-5 py-2 text-xl font-semibold transition-colors ${voters.includes(p.id) ? "bg-emerald-400 text-night-950" : "bg-white/[0.05] text-slate-400"}`}
                     >
                       {p.name}
                     </span>

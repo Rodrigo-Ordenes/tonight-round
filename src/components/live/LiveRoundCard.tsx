@@ -110,7 +110,7 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
                       }`}
                     >
                       <span className="flex items-center justify-between gap-2">
-                        {o.label}
+                        <span className="min-w-0 break-words">{o.label}</span>
                         {on && <Check className="w-5 h-5" />}
                       </span>
                     </button>

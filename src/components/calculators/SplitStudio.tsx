@@ -120,7 +120,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
                     title={p.role === "driver" ? "Conductor designado: no paga alcohol" : "Tocar para marcar si no toma alcohol"}
                   >
                     {p.role === "driver" && <Crown className="w-3.5 h-3.5" />}
-                    {p.name}
+                    <span className="max-w-[10rem] truncate">{p.name}</span>
                     <span className="text-xs font-normal text-slate-400">{sober ? "sin alcohol" : "toma"}</span>
                   </button>
                 );

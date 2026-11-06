@@ -77,7 +77,7 @@ export default function DeliveryTextExporter({
   });
 
   return (
-    <div className="p-5 rounded-3xl bg-night-900/80 border border-slate-800 space-y-4">
+    <div className="space-y-4 border-t border-white/[0.07] pt-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-night-800 pb-3">
         <div>
           <h3 className="font-black text-base text-white">Pedir Canasta por Delivery</h3>
