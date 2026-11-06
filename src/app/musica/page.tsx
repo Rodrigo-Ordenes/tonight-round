@@ -142,8 +142,7 @@ export default function MusicaPage() {
               onClick={() => choose(vibe.id)}
               className={`surface surface-hover relative flex w-full items-center gap-4 overflow-hidden p-4 text-left`}
             >
-              <span className={`absolute inset-0 bg-gradient-to-br ${vibe.gradient} opacity-60`} aria-hidden />
-              <span className="relative font-mono text-xs text-slate-400">0{i + 1}</span>
+              <span className={`absolute inset-0 ${vibe.tint}`} aria-hidden />
               <span className="relative text-3xl">{vibe.emoji}</span>
               <span className="relative min-w-0 flex-1">
                 <span className="block font-display text-lg font-bold text-white">{vibe.name}</span>
@@ -219,7 +218,7 @@ export default function MusicaPage() {
             const active = !auto && music?.vibeId === vibe.id;
             return (
               <div key={vibe.id} className={`surface relative overflow-hidden ${active ? "ring-2 ring-indigo-400" : ""}`}>
-                <span className={`absolute inset-0 bg-gradient-to-br ${vibe.gradient} opacity-40`} aria-hidden />
+                <span className={`absolute inset-0 ${vibe.tint}`} aria-hidden />
                 <button type="button" onClick={() => choose(vibe.id)} className="relative block w-full p-4 text-left">
                   <span className="flex items-start justify-between">
                     <span className="text-3xl">{vibe.emoji}</span>

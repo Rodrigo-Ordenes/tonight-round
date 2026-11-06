@@ -63,7 +63,6 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
     <div className="space-y-4">
       {round ? (
         <section className="surface relative overflow-hidden p-5" aria-live="polite">
-          <span className="absolute -left-16 -top-16 h-40 w-40 rounded-full bg-indigo-500/25 blur-3xl" aria-hidden />
           <p className="eyebrow relative flex items-center gap-2">
             <span className="live-dot" /> {LIVE_GAME_BY_ID.get(round.game)?.emoji} {LIVE_GAME_BY_ID.get(round.game)?.name}
           </p>

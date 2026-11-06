@@ -146,7 +146,7 @@ export default function TVGameMode({
             }}
             className="min-h-[64px] px-8 sm:px-12 rounded-3xl bg-gradient-to-r from-carrete-primary via-indigo-600 to-carrete-secondary hover:brightness-110 text-white text-lg sm:text-xl font-black shadow-glow flex items-center gap-3 transition-transform active:scale-95 border border-white/20"
           >
-            <Dices className="w-7 h-7 animate-bounce" />
+            <Dices className="w-7 h-7" />
             <span>Siguiente Dinámica / Girar Ruleta</span>
           </button>
         </div>

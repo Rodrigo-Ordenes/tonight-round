@@ -318,7 +318,7 @@ export default function FingerChooser() {
         {/* Result Announcement */}
         {selectedFingerId !== null && (
           <div className="absolute top-4 left-4 right-4 z-30 pointer-events-none text-center">
-            <div className="inline-block py-2 px-6 rounded-2xl bg-black/80 backdrop-blur-md border border-amber-400/50 shadow-2xl animate-bounce">
+            <div className="inline-block py-2 px-6 rounded-2xl bg-black/80 backdrop-blur-md border border-amber-400/50 shadow-2xl animate-rise-in">
               <span className="text-sm sm:text-base font-black text-amber-300 block">
                 {mode === "loser" ? "💥 ¡TE TOCÓ A TI, PIERDES! 💥" : "🎉 ¡ERES EL ELEGIDO / GANADOR! 🎉"}
               </span>

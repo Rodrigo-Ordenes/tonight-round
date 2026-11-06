@@ -6,7 +6,6 @@ import { AlertTriangle, ShieldCheck, Gauge, Zap } from "lucide-react";
 interface CanisterGlassMeterProps {
   pressure: number; // 0 - 100
   isDriver?: boolean;
-  theme?: "night" | "halloween";
   drinksCount?: number;
   pureAlcoholGrams?: number;
   heightPx?: number;
@@ -15,7 +14,6 @@ interface CanisterGlassMeterProps {
 export default function CanisterGlassMeter({
   pressure,
   isDriver = false,
-  theme = "night",
   drinksCount = 0,
   pureAlcoholGrams = 0,
   heightPx = 280,
@@ -52,23 +50,14 @@ export default function CanisterGlassMeter({
       };
     }
 
-    if (theme === "halloween") {
-      return {
-        fill: "#22C55E",
-        glow: "rgba(34, 197, 94, 0.65)",
-        gradientTop: "from-[#22C55E]",
-        gradientBottom: "to-purple-950",
-        label: isOverload ? "¡ECTOPLASMA CRÍTICO!" : "PÓCIMA BRUJA",
-      };
-    }
-
     if (isOverload) {
       return {
-        fill: "#EF4444",
-        glow: "rgba(239, 68, 68, 0.6)",
-        gradientTop: "from-red-500",
-        gradientBottom: "to-rose-950",
-        label: "¡SOBREPRESIÓN!",
+        // Reducción de daños: tono cálido, sin alarma roja ni lenguaje punitivo
+        fill: "#F99B07",
+        glow: "rgba(249, 155, 7, 0.45)",
+        gradientTop: "from-amber-500",
+        gradientBottom: "to-amber-950",
+        label: "Hora de bajar el ritmo",
       };
     }
 
@@ -90,7 +79,7 @@ export default function CanisterGlassMeter({
       gradientBottom: "to-indigo-950",
       label: "PRESIÓN NORMAL",
     };
-  }, [clampedPressure, isDriver, isDriverBreached, theme, isOverload, isHigh]);
+  }, [clampedPressure, isDriver, isDriverBreached, isOverload, isHigh]);
 
   return (
     <div className={`relative flex flex-col items-center w-28 sm:w-32 transition-all ${isOverload || isDriverBreached ? "animate-pulse" : ""}`}>
@@ -192,7 +181,7 @@ export default function CanisterGlassMeter({
                 style={{ animationDuration: isOverload ? "0.8s" : "2.2s" }}
               />
               <span
-                className="absolute bottom-12 left-6 w-1 h-1 rounded-full bg-white/70 animate-bounce"
+                className="absolute bottom-12 left-6 w-1 h-1 rounded-full bg-white/70"
                 style={{ animationDuration: "1.2s" }}
               />
             </div>
@@ -221,7 +210,7 @@ export default function CanisterGlassMeter({
           <span className="font-mono text-sm sm:text-base font-black text-white">
             {clampedPressure}%
           </span>
-          {isOverload && <Zap className="w-3.5 h-3.5 text-rose-400 animate-bounce" />}
+          {isOverload && <Zap className="w-3.5 h-3.5 text-amber-400" />}
         </div>
 
         <p

@@ -46,7 +46,6 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
         aria-labelledby="welcome-title"
         className="relative flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-[32px] border border-white/10 bg-night-900 shadow-lift sm:rounded-[32px]"
       >
-        <span className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-indigo-500/25 blur-3xl" aria-hidden />
         <div className="relative overflow-y-auto p-6 sm:p-8">
           <h2 id="welcome-title" className="display text-4xl">
             Antes de empezar<span className="text-accent">.</span>

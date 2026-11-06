@@ -53,7 +53,7 @@ export default function RandomGameTrigger({ games, onSelectGame }: RandomGameTri
           </>
         ) : (
           <>
-            <Dices className="w-6 h-6 animate-bounce" />
+            <Dices className="w-6 h-6" />
             <span className="text-base tracking-tight">
               ¿No se deciden? ¡Juego Aleatorio!
             </span>

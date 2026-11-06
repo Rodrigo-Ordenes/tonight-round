@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { Car, Crown, Droplets, Plus, RefreshCw, RotateCcw, ShieldAlert, Trash2, UserPlus, X } from "lucide-react";
 import CanisterGlassMeter from "./CanisterGlassMeter";
 import type { CarreteStore } from "@/store/useCarreteStore";
-import { useTheme } from "@/lib/theme";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 import {
@@ -31,7 +30,6 @@ const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "�
 export default function MonstruometroRanking({ store, readOnly = false }: Props) {
   const { participants, addConsumption, removeLastConsumption, addWater, addParticipant, removeParticipant, resetAllConsumptions, updateParticipant } =
     store;
-  const { theme } = useTheme();
   const { locale } = useLocale();
   const [now, setNow] = useState(() => Date.now());
   const [driverWarning, setDriverWarning] = useState<string | null>(null);
@@ -167,7 +165,6 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                 <CanisterGlassMeter
                   pressure={Math.min(100, Math.round(r.totalGrams))}
                   isDriver={p.role === "driver"}
-                  theme={theme}
                   drinksCount={p.consumptions.length}
                   pureAlcoholGrams={r.totalGrams}
                   heightPx={180}
@@ -347,7 +344,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
       {driverWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-night-950/90 p-4 backdrop-blur-md">
           <div role="alertdialog" aria-modal="true" className="w-full max-w-md space-y-4 rounded-3xl border-2 border-rose-500 bg-night-900 p-6 text-center">
-            <ShieldAlert className="mx-auto w-10 h-10 animate-bounce text-rose-400" />
+            <ShieldAlert className="mx-auto w-10 h-10 text-rose-400" />
             <h3 className="font-display text-xl font-extrabold text-white">{driverWarning} es {locale.terminology.driverTitle.toLowerCase()}</h3>
             <div className="space-y-2 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-3 text-left text-xs text-rose-100">
               <p className="font-bold">⚠️ {locale.legal.lawsTitle || locale.legal.lawName}</p>

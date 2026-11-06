@@ -88,7 +88,7 @@ export default function ReturnPoolManager({ store }: ReturnPoolManagerProps) {
           href="https://m.uber.com/ul/?action=setPickup&pickup=my_location"
           target="_blank"
           rel="noopener noreferrer"
-          className="min-h-[44px] px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:brightness-110 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/30 shrink-0 active:scale-95 transition-all"
+          className="min-h-[44px] px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/30 shrink-0 active:scale-95 transition-all"
         >
           <Zap className="w-4 h-4 text-amber-300" />
           <span>Bomba de Humo (Pedir Uber)</span>
