@@ -17,9 +17,10 @@ const ink = {
   100: "#EDEAE6",
   200: "#D9D5D0",
   300: "#BAB4C2",
-  400: "#958EA3",
-  500: "#6E6780",
-  600: "#4F4960",
+  400: "#A69FB3",
+  // ≥ 4,5:1 sobre todas las superficies (antes #6E6780 daba 3,6:1)
+  500: "#8E879D",
+  600: "#5A5468",
   700: "#383344",
   800: "#24202D",
   900: "#16131C",
@@ -33,8 +34,9 @@ const ember = {
   300: "#FF9E80",
   400: "#FF7D59",
   500: "#FF5E36",
-  600: "#F0461D",
-  700: "#C73613",
+  // texto blanco ≥ 5:1 (antes #F0461D daba 3,8:1)
+  600: "#CC3711",
+  700: "#A82D0E",
   800: "#9C2C14",
   // 900/950 casi neutros: se usan como fondos de paneles teñidos
   900: "#3A1D15",
@@ -99,6 +101,8 @@ const alert = {
 
 module.exports = {
   darkMode: "class",
+  // Los :hover solo aplican en dispositivos con puntero real (evita hovers pegados en el celular)
+  future: { hoverOnlyWhenSupported: true },
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -155,19 +159,27 @@ module.exports = {
         "tv-md": ["clamp(1.75rem, 2.4vw, 3rem)", { lineHeight: "1.15" }],
         "tv-lg": ["clamp(2.5rem, 4vw, 5rem)", { lineHeight: "1.05" }],
         "tv-hero": ["clamp(3.5rem, 7vw, 9rem)", { lineHeight: "0.95", letterSpacing: "-0.03em" }],
-        "display-xl": ["clamp(2.75rem, 8vw, 6.5rem)", { lineHeight: "0.92", letterSpacing: "-0.04em" }],
+        "display-xl": ["clamp(2.75rem, 8vw, 6rem)", { lineHeight: "0.94", letterSpacing: "-0.035em" }],
         "display-lg": ["clamp(2rem, 5vw, 3.75rem)", { lineHeight: "0.98", letterSpacing: "-0.03em" }],
       },
+      // Elevación neutra: sin halos de color (huella de UI genérica)
       boxShadow: {
-        glow: "0 0 0 1px rgba(255, 94, 54, 0.25), 0 12px 40px -12px rgba(255, 94, 54, 0.55)",
-        "glow-accent": "0 0 0 1px rgba(134, 230, 76, 0.25), 0 12px 40px -12px rgba(134, 230, 76, 0.45)",
-        "glow-amber": "0 0 0 1px rgba(255, 188, 32, 0.25), 0 12px 40px -12px rgba(255, 188, 32, 0.45)",
-        "glow-purple": "0 0 0 1px rgba(156, 130, 255, 0.25), 0 12px 40px -12px rgba(156, 130, 255, 0.5)",
-        "glow-water": "0 0 0 1px rgba(62, 224, 255, 0.3), 0 12px 40px -12px rgba(62, 224, 255, 0.5)",
-        lift: "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 20px 50px -20px rgba(0,0,0,0.8)",
+        glow: "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        "glow-accent": "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        "glow-amber": "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        "glow-purple": "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        "glow-water": "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        lift: "0 18px 40px -24px rgba(0, 0, 0, 0.85)",
       },
+      // Tarjetas a 16 px como máximo; las píldoras siguen siendo "full"
       borderRadius: {
-        "4xl": "2rem",
+        "3xl": "1rem",
+        "4xl": "1.25rem",
+      },
+      transitionTimingFunction: {
+        out: "cubic-bezier(0.23, 1, 0.32, 1)",
+        "in-out": "cubic-bezier(0.77, 0, 0.175, 1)",
+        drawer: "cubic-bezier(0.32, 0.72, 0, 1)",
       },
       keyframes: {
         "fade-in": { from: { opacity: "0", transform: "translateY(6px)" }, to: { opacity: "1", transform: "none" } },

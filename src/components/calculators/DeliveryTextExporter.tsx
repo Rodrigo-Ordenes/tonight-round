@@ -113,7 +113,7 @@ export default function DeliveryTextExporter({
       )}
 
       {/* Vista previa del texto a copiar */}
-      <div className="p-3.5 rounded-2xl bg-night-950 border border-slate-800 font-mono text-[11px] text-slate-300 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed select-all">
+      <div className="p-3.5 rounded-2xl bg-night-950 border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed select-all">
         {orderText}
       </div>
 
@@ -132,7 +132,7 @@ export default function DeliveryTextExporter({
             >
               <div className="text-left">
                 <span className="font-black text-sm text-white block">{app.name}</span>
-                <span className="text-[10px] text-slate-400">{app.badge}</span>
+                <span className="text-xs text-slate-400">{app.badge}</span>
               </div>
               <ExternalLink className="w-4 h-4 shrink-0 text-slate-400" />
             </button>

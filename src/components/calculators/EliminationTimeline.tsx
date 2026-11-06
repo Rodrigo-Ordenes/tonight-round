@@ -357,7 +357,7 @@ export default function EliminationTimeline() {
                 <div className="font-bold text-slate-100 text-xs truncate">
                   {drink.name}
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5">
+                <div className="text-xs text-slate-400 mt-0.5">
                   ~{drink.gramsAlcohol.toFixed(1)}g alcohol por vaso
                 </div>
               </div>
@@ -425,7 +425,7 @@ export default function EliminationTimeline() {
         {/* Time estimations cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="p-4 rounded-2xl bg-night-900 border border-night-800">
-            <span className="text-[11px] text-slate-400 block mb-1">
+            <span className="text-xs text-slate-400 block mb-1">
               Tiempo estimado a 0.00 g/l
             </span>
             <div className="text-xl font-extrabold text-indigo-300">
@@ -433,13 +433,13 @@ export default function EliminationTimeline() {
                 ? `~${stats.hoursToCompleteElimination} horas`
                 : "0 horas (Eliminado)"}
             </div>
-            <span className="text-[10px] text-slate-400 mt-1 block">
+            <span className="text-xs text-slate-400 mt-1 block">
               A tasa hepática estándar
             </span>
           </div>
 
           <div className="p-4 rounded-2xl bg-night-900 border border-night-800">
-            <span className="text-[11px] text-slate-400 block mb-1">
+            <span className="text-xs text-slate-400 block mb-1">
               Bajo umbral penal (&lt; {locale.legal.bacLimitText})
             </span>
             <div className="text-xl font-extrabold text-amber-300">
@@ -447,7 +447,7 @@ export default function EliminationTimeline() {
                 ? `~${stats.hoursToUnder03} horas`
                 : `Bajo ${locale.legal.bacLimitText}`}
             </div>
-            <span className="text-[10px] text-slate-400 mt-1 block">
+            <span className="text-xs text-slate-400 mt-1 block">
               Aún así, ¡no conduzcas!
             </span>
           </div>
@@ -465,7 +465,7 @@ export default function EliminationTimeline() {
                   key={point.hoursAhead}
                   className="p-2.5 rounded-xl bg-night-900 border border-night-800 text-center"
                 >
-                  <span className="text-[10px] text-slate-400 block">
+                  <span className="text-xs text-slate-400 block">
                     {point.hoursAhead === 0 ? "Ahora" : `+${point.hoursAhead}h`}
                   </span>
                   <span

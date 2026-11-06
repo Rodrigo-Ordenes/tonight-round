@@ -26,8 +26,8 @@ function SoloPanel() {
   return (
     <div className="flex h-full flex-col gap-5 p-6">
       <div>
-        <p className="eyebrow">{moment.eyebrow}</p>
-        <h2 className="display mt-2 text-3xl">{moment.title}</h2>
+        <h2 className="display text-3xl">{moment.title}</h2>
+        <p className="meta mt-2">{moment.eyebrow}</p>
         <p className="mt-2 text-sm text-slate-400">{moment.hint}</p>
       </div>
       <div className="surface p-5">
@@ -223,9 +223,9 @@ function RoomPanel({ code }: { code: string }) {
                     {driver && <Crown className="w-3.5 h-3.5 text-amber-400" aria-label={locale.terminology.driverTitle} />}
                     <span className={`truncate font-semibold ${p.id === meId ? "text-white" : "text-slate-200"}`}>
                       {p.name}
-                      {p.id === meId && <span className="ml-1 text-[10px] text-slate-400">(tú)</span>}
+                      {p.id === meId && <span className="ml-1 text-xs text-slate-400">(tú)</span>}
                     </span>
-                    <span className="ml-auto flex items-center gap-2 font-mono text-[11px] text-slate-400 tabular">
+                    <span className="ml-auto flex items-center gap-2 font-mono text-xs text-slate-400 tabular">
                       {p.waterCount > 0 && <span className="text-cyan-300">💧{p.waterCount}</span>}
                       {bac.toFixed(2)}
                     </span>
@@ -238,7 +238,7 @@ function RoomPanel({ code }: { code: string }) {
             })}
           </ul>
         )}
-        <p className="mt-2 text-[10px] leading-relaxed text-slate-500">
+        <p className="mt-2 text-xs leading-relaxed text-slate-500">
           Estimación educativa (Widmark) en g/l. {locale.legal.bacLimitText}: si bebiste, no manejes.
         </p>
       </div>

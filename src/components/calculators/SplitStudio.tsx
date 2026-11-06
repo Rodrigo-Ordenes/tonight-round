@@ -120,7 +120,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
                   >
                     {p.role === "driver" && <Crown className="w-3.5 h-3.5" />}
                     {p.name}
-                    <span className="text-[10px] font-normal text-slate-400">{sober ? "sin alcohol" : "toma"}</span>
+                    <span className="text-xs font-normal text-slate-400">{sober ? "sin alcohol" : "toma"}</span>
                   </button>
                 );
               })}
@@ -272,7 +272,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
             <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
               <span className="truncate text-slate-200">
                 {p.name}
-                {!p.drinks && <span className="ml-1 text-[10px] text-amber-300">sin alcohol</span>}
+                {!p.drinks && <span className="ml-1 text-xs text-amber-300">sin alcohol</span>}
               </span>
               <span className="font-mono text-xs tabular text-slate-400">
                 le toca <span className="text-slate-100">{formatCurrency(p.share)}</span>
@@ -308,7 +308,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
           </div>
         )}
         {meIsCreditor && !bankText && (
-          <p className="mt-3 text-[11px] text-slate-500">Tip: guarda tus datos de {locale.banking.systemName} en la pestaña «Una boleta» y se agregan al mensaje.</p>
+          <p className="mt-3 text-xs text-slate-500">Tip: guarda tus datos de {locale.banking.systemName} en la pestaña «Una boleta» y se agregan al mensaje.</p>
         )}
       </aside>
     </div>

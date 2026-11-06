@@ -81,10 +81,10 @@ export default function MusicaPage() {
     <div className="space-y-10 animate-fade-in">
       {/* Cabecera editorial */}
       <header className="max-w-3xl">
-        <p className="eyebrow">{moment.eyebrow}</p>
-        <h1 className="display text-display-lg mt-3">
-          DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-gradient-ember">.</span>
+        <h1 className="display text-display-lg">
+          DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-accent">.</span>
         </h1>
+        <p className="meta mt-3">{moment.eyebrow}</p>
         <p className="mt-3 text-base text-slate-300">
           {isSolo
             ? "Elige el ambiente o deja que el DJ lo cambie solo según la hora."
@@ -232,7 +232,7 @@ export default function MusicaPage() {
                   href={openForVibe(vibe)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative flex items-center gap-1 px-4 pb-3 text-[11px] font-semibold text-slate-400 hover:text-white"
+                  className="relative flex items-center gap-1 px-4 pb-3 text-xs font-semibold text-slate-400 hover:text-white"
                 >
                   Spotify <ExternalLink className="w-3 h-3" />
                 </a>

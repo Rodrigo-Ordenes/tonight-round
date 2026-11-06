@@ -56,7 +56,7 @@ export default function Navbar() {
               <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-200 bg-clip-text text-transparent">
                 Tonight
               </span>
-              <span className="text-[10px] ml-1.5 px-1.5 py-0.5 rounded-full font-bold bg-carrete-primary/20 text-indigo-300 border border-carrete-primary/30">
+              <span className="text-xs ml-1.5 px-1.5 py-0.5 rounded-full font-bold bg-carrete-primary/20 text-indigo-300 border border-carrete-primary/30">
                 V6
               </span>
             </div>
@@ -94,13 +94,13 @@ export default function Navbar() {
               >
                 <span>{activeCountry.flag}</span>
                 <span className="font-extrabold">{activeCountry.code}</span>
-                <span className="text-[10px] text-slate-400">({activeCountry.currency})</span>
+                <span className="text-xs text-slate-400">({activeCountry.currency})</span>
               </button>
 
               {/* Dropdown Menu */}
               {showCountryMenu && (
                 <div className="absolute right-0 mt-2 w-48 glass-panel bg-night-950 border border-slate-700 rounded-2xl p-1.5 shadow-2xl z-50 animate-fade-in text-xs space-y-1">
-                  <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <div className="px-2.5 py-1 text-xs font-bold text-slate-400 uppercase tracking-wider">
                     Región & Moneda
                   </div>
                   {COUNTRIES.map((c) => (
@@ -121,7 +121,7 @@ export default function Navbar() {
                         <span>{c.flag}</span>
                         <span>{c.name}</span>
                       </div>
-                      <span className="text-[10px] text-slate-400">{c.currency}</span>
+                      <span className="text-xs text-slate-400">{c.currency}</span>
                     </button>
                   ))}
                 </div>

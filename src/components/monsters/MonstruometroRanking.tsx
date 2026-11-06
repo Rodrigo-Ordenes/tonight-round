@@ -85,8 +85,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow">Monstruómetro</p>
-          <h2 className="display mt-1 text-2xl sm:text-3xl">Cómo va cada uno</h2>
+          <h2 className="display text-2xl sm:text-3xl">Monstruómetro</h2>
           <p className="mt-1 max-w-xl text-sm text-slate-400">
             Alcohol puro real (ml × grado × 0.8), absorción según el estómago y hora estimada de volver a 0.00. El agua suma escudo.
           </p>
@@ -149,16 +148,16 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               <header className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="truncate font-display text-lg font-bold text-white">{p.name}</h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-xs text-slate-400">
                     {p.gender === "M" ? "Hombre" : "Mujer"} · {p.weightKg} kg
                   </p>
                 </div>
                 {p.role === "driver" ? (
-                  <span className="flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-1 text-[10px] font-bold uppercase text-amber-200">
+                  <span className="flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-1 text-xs font-bold uppercase text-amber-200">
                     <Crown className="w-3 h-3" /> {breach ? "¡Bebió!" : "Piloto 0.0"}
                   </span>
                 ) : isTop ? (
-                  <span className="rounded-full border border-indigo-400/40 bg-indigo-500/10 px-2 py-1 text-[10px] font-bold uppercase text-indigo-200">
+                  <span className="rounded-full border border-indigo-400/40 bg-indigo-500/10 px-2 py-1 text-xs font-bold uppercase text-indigo-200">
                     Monstruo #1
                   </span>
                 ) : null}
@@ -187,15 +186,15 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
 
               <dl className="grid grid-cols-3 gap-1.5 text-center">
                 <div className="rounded-xl bg-white/[0.03] p-2">
-                  <dt className="text-[10px] text-slate-400">Ahora</dt>
+                  <dt className="text-xs text-slate-400">Ahora</dt>
                   <dd className="font-mono text-sm font-bold text-white tabular">{r.bac.toFixed(2)}</dd>
                 </div>
                 <div className="rounded-xl bg-white/[0.03] p-2">
-                  <dt className="text-[10px] text-slate-400">{rising ? "Pico" : "Máximo"}</dt>
+                  <dt className="text-xs text-slate-400">{rising ? "Pico" : "Máximo"}</dt>
                   <dd className="font-mono text-sm font-bold text-white tabular">{r.peakBac.toFixed(2)}</dd>
                 </div>
                 <div className="rounded-xl bg-white/[0.03] p-2">
-                  <dt className="text-[10px] text-slate-400">Alcohol</dt>
+                  <dt className="text-xs text-slate-400">Alcohol</dt>
                   <dd className="font-mono text-sm font-bold text-white tabular">{r.totalGrams.toFixed(0)} g</dd>
                 </div>
               </dl>
@@ -225,7 +224,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                       role="radio"
                       aria-checked={stomach === s}
                       onClick={() => updateParticipant(p.id, { stomach: s })}
-                      className={`min-h-[34px] rounded-lg text-[10px] font-bold ${stomach === s ? "bg-white text-night-950" : "text-slate-400 hover:text-white"}`}
+                      className={`min-h-[34px] rounded-lg text-xs font-bold ${stomach === s ? "bg-white text-night-950" : "text-slate-400 hover:text-white"}`}
                     >
                       {STOMACH_ICON[s]} {ABSORPTION[s].label}
                     </button>
@@ -234,7 +233,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               )}
 
               {details.length > 0 && (
-                <ul className="space-y-0.5 font-mono text-[11px] text-slate-400">
+                <ul className="space-y-0.5 font-mono text-xs text-slate-400">
                   {details.slice(0, 4).map((d) => (
                     <li key={d.text}>· {d.text}</li>
                   ))}
@@ -266,7 +265,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                             <span className="block truncate">
                               {d.emoji} {d.label}
                             </span>
-                            <span className="block text-[10px] font-normal text-slate-400">
+                            <span className="block text-xs font-normal text-slate-400">
                               {d.ml} ml · {Math.round(d.abv * 1000) / 10}%
                             </span>
                           </button>
@@ -286,11 +285,11 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                             className="w-full rounded-lg border border-white/10 bg-night-950 px-2.5 py-1.5 text-xs text-white outline-none focus:border-indigo-400"
                           />
                           <div className="grid grid-cols-2 gap-2">
-                            <label className="text-[10px] text-slate-400">
+                            <label className="text-xs text-slate-400">
                               Volumen (ml)
                               <input type="number" min={10} max={1000} value={customMl} onChange={(e) => setCustomMl(Number(e.target.value))} className="mt-0.5 w-full rounded-lg border border-white/10 bg-night-950 px-2 py-1 text-xs text-white" />
                             </label>
-                            <label className="text-[10px] text-slate-400">
+                            <label className="text-xs text-slate-400">
                               Grados (%)
                               <input type="number" min={1} max={100} value={customAbv} onChange={(e) => setCustomAbv(Number(e.target.value))} className="mt-0.5 w-full rounded-lg border border-white/10 bg-night-950 px-2 py-1 text-xs text-white" />
                             </label>
@@ -341,7 +340,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
         })}
       </div>
 
-      <p className="text-center text-[11px] text-slate-500">
+      <p className="text-center text-xs text-slate-500">
         Estimación educativa, no medición. {locale.legal.lawName}: {locale.legal.bacLimitText}. Si bebiste, no manejes: la única cifra segura es 0.00.
       </p>
 

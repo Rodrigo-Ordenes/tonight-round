@@ -77,7 +77,7 @@ export default function ReturnPoolManager({ store }: ReturnPoolManagerProps) {
             <h3 className="text-base font-black text-white">
               Pool de Regreso & Compartir Auto (Uber / Cabify / DiDi)
             </h3>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-xs text-slate-400">
               Agrupa amigos que van hacia la misma comuna y divide la tarifa estimada
             </p>
           </div>
@@ -129,7 +129,7 @@ export default function ReturnPoolManager({ store }: ReturnPoolManagerProps) {
                   {members.map((m) => (
                     <span
                       key={m.id}
-                      className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-slate-800 text-slate-200 border border-slate-700"
+                      className="text-xs font-bold px-2.5 py-1 rounded-xl bg-slate-800 text-slate-200 border border-slate-700"
                     >
                       {m.name}
                     </span>
@@ -138,7 +138,7 @@ export default function ReturnPoolManager({ store }: ReturnPoolManagerProps) {
               </div>
 
               <div className="pt-2 border-t border-night-850 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">Pedir viaje directo:</span>
+                <span className="text-xs text-slate-400">Pedir viaje directo:</span>
                 <a
                   href={uberLink}
                   target="_blank"

@@ -82,7 +82,7 @@ export default function SafeReturnHub() {
             >
               <div>
                 <span className="font-black text-base text-white block">{contact.number}</span>
-                <span className="text-[11px] text-slate-400">{contact.name}</span>
+                <span className="text-xs text-slate-400">{contact.name}</span>
               </div>
               <PhoneCall className={`w-4 h-4 ${contact.color}`} />
             </a>

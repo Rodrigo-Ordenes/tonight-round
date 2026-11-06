@@ -85,7 +85,7 @@ export default function RandomPicanteGame({ store }: { store: CarreteStore }) {
         </p>
       </div>
 
-      <p className="text-[11px] text-slate-500">
+      <p className="text-xs text-slate-500">
         {games.neverDeck.length > 0 ? `Frase ${games.neverIdx} de ${games.neverDeck.length}` : `${pool.length} frases en el mazo`}
       </p>
 

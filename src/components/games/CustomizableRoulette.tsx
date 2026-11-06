@@ -89,7 +89,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
               setCatId(c.id);
               setResult(null);
             }}
-            className={`min-h-[48px] rounded-xl text-[11px] font-bold px-1 ${
+            className={`min-h-[48px] rounded-xl text-xs font-bold px-1 ${
               catId === c.id ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-300"
             }`}
           >

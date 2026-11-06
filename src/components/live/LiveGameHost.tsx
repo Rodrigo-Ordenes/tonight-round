@@ -32,8 +32,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
   if (isSolo) {
     return (
       <div className="surface p-6">
-        <p className="eyebrow">Juegos en vivo</p>
-        <h3 className="display mt-2 text-2xl">Necesitan una sala</h3>
+        <h2 className="display text-2xl">Los juegos en vivo necesitan una sala</h2>
         <p className="mt-2 max-w-lg text-sm text-slate-400">
           En los juegos en vivo cada persona vota en secreto desde su celular y la TV revela los resultados. Crea una sala y compartan el código.
         </p>
@@ -69,10 +68,10 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow flex items-center gap-2">
+          <h2 className="display text-2xl sm:text-3xl">La TV es el escenario. Los celulares, el control.</h2>
+          <p className="meta mt-1 flex items-center gap-2">
             <span className="live-dot" /> En vivo · sala {code}
           </p>
-          <h2 className="display mt-1 text-2xl sm:text-3xl">La TV es el escenario. Los celulares, el control.</h2>
         </div>
         <Link href="/carrete/tv" className="btn-ghost !min-h-[44px] text-xs">
           <Tv className="w-4 h-4" /> Abrir en la TV
@@ -102,7 +101,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
               </span>
               <span className="mt-3 font-display text-lg font-bold text-white">{g.name}</span>
               <span className="mt-1 text-xs leading-snug text-slate-400">{g.blurb}</span>
-              {g.id === "confesion" && <span className="mt-2 text-[11px] font-semibold text-indigo-300">{pendingConfessions} confesiones en espera</span>}
+              {g.id === "confesion" && <span className="mt-2 text-xs font-semibold text-indigo-300">{pendingConfessions} confesiones en espera</span>}
             </button>
           );
         })}
@@ -113,7 +112,6 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
       {/* Ronda actual */}
       {round && (
         <section className="surface relative overflow-hidden p-6" aria-live="polite">
-          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-indigo-500/20 blur-3xl" aria-hidden />
           <p className="eyebrow relative">
             {LIVE_GAME_BY_ID.get(round.game)?.emoji} {LIVE_GAME_BY_ID.get(round.game)?.name}
           </p>
@@ -141,7 +139,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
                   {participants.map((p) => (
                     <span
                       key={p.id}
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${voters.includes(p.id) ? "bg-emerald-400/20 text-emerald-100" : "bg-white/[0.04] text-slate-500"}`}
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${voters.includes(p.id) ? "bg-emerald-400/20 text-emerald-100" : "bg-white/[0.04] text-slate-500"}`}
                     >
                       {voters.includes(p.id) ? "✓ " : ""}
                       {p.name}

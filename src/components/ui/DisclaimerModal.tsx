@@ -48,9 +48,8 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
       >
         <span className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-indigo-500/25 blur-3xl" aria-hidden />
         <div className="relative overflow-y-auto p-6 sm:p-8">
-          <p className="eyebrow">Bienvenida</p>
-          <h2 id="welcome-title" className="display mt-2 text-4xl">
-            Antes de empezar<span className="text-gradient-ember">.</span>
+          <h2 id="welcome-title" className="display text-4xl">
+            Antes de empezar<span className="text-accent">.</span>
           </h2>
 
           <div className="mt-5 flex flex-wrap gap-1.5" role="radiogroup" aria-label="País">
@@ -106,7 +105,7 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
           <button type="button" onClick={accept} className="btn-primary w-full !min-h-[54px] text-base">
             Tengo {age} años o más · Entrar
           </button>
-          <p className="mt-2 text-center text-[11px] text-slate-500">
+          <p className="mt-2 text-center text-xs text-slate-500">
             Tonight es para mayores de {age} años, la edad legal para beber en {locale.countryName}.
           </p>
         </div>

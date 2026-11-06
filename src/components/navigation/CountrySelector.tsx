@@ -58,7 +58,7 @@ export default function CountrySelector({ variant = "compact", placement = "down
                   <span className="text-xl">{c.flag}</span>
                   <span className="text-xs font-black">{c.name}</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">
+                <span className="text-xs text-slate-400 font-mono">
                   {c.slang}
                 </span>
               </button>
@@ -89,7 +89,7 @@ export default function CountrySelector({ variant = "compact", placement = "down
 
       {open && (
         <div className={`absolute ${placement === "up-right" ? "left-0 bottom-full mb-2" : "right-0 mt-2"} w-56 rounded-2xl bg-night-900/95 border border-white/10 p-1.5 shadow-lift backdrop-blur-xl z-50 animate-fade-in space-y-1`}>
-          <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-night-800">
+          <div className="px-3 py-1.5 text-xs font-black uppercase tracking-wider text-slate-400 border-b border-night-800">
             Cultura Nocturna & Leyes
           </div>
           {countries.map((c) => {
@@ -109,7 +109,7 @@ export default function CountrySelector({ variant = "compact", placement = "down
                   <span className="text-lg">{c.flag}</span>
                   <div>
                     <span className="block text-xs leading-none">{c.name}</span>
-                    <span className={`text-[10px] ${active ? "text-night-900/80" : "text-slate-400"} font-normal`}>
+                    <span className={`text-xs ${active ? "text-night-900/80" : "text-slate-400"} font-normal`}>
                       {c.slang}
                     </span>
                   </div>

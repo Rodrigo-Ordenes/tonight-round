@@ -73,15 +73,15 @@ export default function Diccionario({ onPick }: { onPick: (recipeId: string) => 
                   <div className="grid gap-5 border-t border-white/[0.06] p-5 animate-fade-in md:grid-cols-2">
                     <dl className="space-y-3 text-sm">
                       <div>
-                        <dt className="eyebrow !text-[10px]">De dónde viene</dt>
+                        <dt className="eyebrow !text-xs">De dónde viene</dt>
                         <dd className="mt-0.5 text-slate-200">{e.origin}</dd>
                       </div>
                       <div>
-                        <dt className="eyebrow !text-[10px]">A qué sabe</dt>
+                        <dt className="eyebrow !text-xs">A qué sabe</dt>
                         <dd className="mt-0.5 text-slate-200">{e.taste}</dd>
                       </div>
                       <div>
-                        <dt className="eyebrow !text-[10px]">Cómo se toma</dt>
+                        <dt className="eyebrow !text-xs">Cómo se toma</dt>
                         <dd className="mt-0.5 text-slate-200">{e.howTo}</dd>
                       </div>
                     </dl>
@@ -89,7 +89,7 @@ export default function Diccionario({ onPick }: { onPick: (recipeId: string) => 
                       <p className="rounded-2xl border border-indigo-400/20 bg-indigo-500/[0.07] p-3 text-sm text-indigo-50">💡 {e.fact}</p>
                       {recipes.length > 0 && (
                         <div>
-                          <p className="eyebrow !text-[10px]">Prepáralo</p>
+                          <p className="eyebrow !text-xs">Prepáralo</p>
                           <div className="mt-2 flex flex-wrap gap-1.5">
                             {recipes.map((r) => (
                               <button key={r.id} type="button" onClick={() => onPick(r.id)} className="chip">

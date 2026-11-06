@@ -46,8 +46,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`dark ${display.variable} ${sans.variable} ${mono.variable}`}>
       <body className="bg-night-950 text-slate-100 font-sans antialiased overflow-x-hidden">
-        <div aria-hidden className="ambient" />
-        <div aria-hidden className="grain" />
         <AppShell>{children}</AppShell>
         <DisclaimerModal />
       </body>

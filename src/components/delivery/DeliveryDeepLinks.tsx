@@ -142,7 +142,7 @@ export default function DeliveryDeepLinks({
             <h3 className="font-extrabold text-sm sm:text-base text-white">
               Pide los Insumos en Delivery Express
             </h3>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-xs text-slate-400">
               Enlaces directos y verificados para abrir en tu celular o computador
             </p>
           </div>
@@ -152,7 +152,7 @@ export default function DeliveryDeepLinks({
         <button
           type="button"
           onClick={handleCopySearchTerms}
-          className="text-[11px] font-bold text-slate-300 hover:text-white px-3 py-1.5 rounded-xl bg-night-900 border border-slate-700 flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+          className="text-xs font-bold text-slate-300 hover:text-white px-3 py-1.5 rounded-xl bg-night-900 border border-slate-700 flex items-center gap-1.5 self-start sm:self-auto transition-colors"
         >
           {copied ? (
             <>
@@ -184,16 +184,16 @@ export default function DeliveryDeepLinks({
             <div>
               <div className="flex items-center justify-between gap-2">
                 <span className="font-black text-sm text-white">{app.name}</span>
-                <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${app.badgeColor}`}>
+                <span className={`text-xs font-extrabold px-2 py-0.5 rounded-full border ${app.badgeColor}`}>
                   {app.badge}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+              <p className="text-xs text-slate-400 mt-1 leading-snug">
                 {app.tagline}
               </p>
             </div>
 
-            <div className="mt-3 pt-2 border-t border-night-800/80 flex items-center justify-between text-[11px] text-indigo-400 font-bold">
+            <div className="mt-3 pt-2 border-t border-night-800/80 flex items-center justify-between text-xs text-indigo-400 font-bold">
               <span>Abrir app / sitio web</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </div>

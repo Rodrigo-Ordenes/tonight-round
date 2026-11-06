@@ -183,7 +183,7 @@ export default function TVGameMode({
               <QrCode className="w-3.5 h-3.5 text-carrete-primary" />
               <span>¡Escanea y ábrelo!</span>
             </div>
-            <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
+            <p className="text-xs text-slate-400 leading-tight mt-0.5">
               Sin login ni descargas.<br />
               Copiloto en tu teléfono.
             </p>

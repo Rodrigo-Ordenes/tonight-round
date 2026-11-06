@@ -102,9 +102,8 @@ export default function BarPage() {
     <div className="space-y-8 animate-fade-in">
       <header className="flex flex-wrap items-end justify-between gap-6">
         <div className="max-w-2xl">
-          <p className="eyebrow">Bar</p>
-          <h1 className="display text-display-lg mt-3">
-            Arma el trago<span className="text-gradient-ember">.</span>
+          <h1 className="display text-display-lg">
+            Arma el trago<span className="text-accent">.</span>
           </h1>
           <p className="mt-3 text-base text-slate-300">
             Primero lo que tienen, después la idea, y al final el vaso con medidas exactas para uno o para la jarra.

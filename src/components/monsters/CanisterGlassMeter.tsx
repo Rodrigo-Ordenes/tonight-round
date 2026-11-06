@@ -144,7 +144,7 @@ export default function CanisterGlassMeter({
         <div className="absolute top-0 right-2 w-1 h-full bg-white/5 pointer-events-none z-20" />
 
         {/* Escala Graduada de Presión (1 a 10) */}
-        <div className="absolute inset-y-0 right-1 w-4 flex flex-col justify-between py-2 pointer-events-none z-20 text-[9px] font-mono text-slate-400 font-bold select-none">
+        <div className="absolute inset-y-0 right-1 w-4 flex flex-col justify-between py-2 pointer-events-none z-20 text-xs font-mono text-slate-400 font-bold select-none">
           <span>10</span>
           <span>8</span>
           <span>6</span>
@@ -202,7 +202,7 @@ export default function CanisterGlassMeter({
         {/* Blindaje Especial: Conductor Designado */}
         {isDriver && (
           <div className="absolute inset-x-1 bottom-2 z-30 p-1 rounded bg-slate-950/90 border border-emerald-400 text-center shadow-lg">
-            <div className="flex items-center justify-center gap-1 text-[10px] font-black text-emerald-400 uppercase tracking-tighter">
+            <div className="flex items-center justify-center gap-1 text-xs font-black text-emerald-400 uppercase tracking-tighter">
               <ShieldCheck className="w-3 h-3 text-emerald-400" />
               <span>PILOTO 0.0%</span>
             </div>
@@ -225,7 +225,7 @@ export default function CanisterGlassMeter({
         </div>
 
         <p
-          className={`text-[9px] font-black uppercase tracking-wider ${
+          className={`text-xs font-black uppercase tracking-wider ${
             isDriverBreached
               ? "text-rose-400 animate-pulse font-extrabold"
               : isOverload
@@ -241,7 +241,7 @@ export default function CanisterGlassMeter({
         </p>
 
         {pureAlcoholGrams > 0 && (
-          <p className="text-[10px] text-slate-400 font-mono">
+          <p className="text-xs text-slate-400 font-mono">
             ~{Math.round(pureAlcoholGrams)}g alc. puro
           </p>
         )}

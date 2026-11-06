@@ -49,7 +49,7 @@ export default function RoundResults({
                   />
                 </div>
                 {round.game !== "impostor" && round.game !== "confesion" && r.voterIds.length > 0 && round.game !== "probable" && (
-                  <p className={`mt-1 ${tv ? "text-xl" : "text-[11px]"} text-slate-400`}>{r.voterIds.map(name).join(", ")}</p>
+                  <p className={`mt-1 ${tv ? "text-xl" : "text-xs"} text-slate-400`}>{r.voterIds.map(name).join(", ")}</p>
                 )}
               </li>
             );

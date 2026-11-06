@@ -64,10 +64,10 @@ export default function TonightWrapped({ store }: { store: CarreteStore }) {
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
       <section>
-        <p className="eyebrow">Tonight Wrapped</p>
-        <h2 className="display text-display-lg mt-2">
-          Qué noche<span className="text-gradient-ember">.</span>
+        <h2 className="display text-display-lg">
+          Qué noche<span className="text-accent">.</span>
         </h2>
+        <p className="meta mt-2">Tonight Wrapped · el resumen del grupo</p>
         <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
           {stats.map((s) => (
             <div key={s.label}>

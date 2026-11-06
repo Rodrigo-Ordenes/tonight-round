@@ -98,12 +98,12 @@ export default function CarreteGatewayModal() {
       {/* ---------- Hero ---------- */}
       <section aria-labelledby="hero-title" className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-end">
         <div className="animate-rise-in">
-          <p className="eyebrow">{moment ? moment.eyebrow : " "}</p>
-          <h1 id="hero-title" className="display text-display-xl mt-5">
+          <h1 id="hero-title" className="display text-display-xl">
             La noche
             <br />
-            se arma <span className="text-gradient-ember">acá.</span>
+            se arma <span className="text-accent">acá.</span>
           </h1>
+          {moment && <p className="meta mt-4">{moment.eyebrow}</p>}
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
             Compras, tragos, juegos en la TV con votos desde el celular, música y la cuenta dividida. Todo el {partyTerm.toLowerCase()} en
             un solo lugar, sin descargas ni cuentas.

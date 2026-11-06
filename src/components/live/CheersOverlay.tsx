@@ -46,7 +46,7 @@ export default function CheersOverlay({ code, big = false }: { code: string; big
   return (
     <div className="pointer-events-none fixed inset-0 z-[70] flex flex-col items-center justify-center bg-night-950/60 backdrop-blur-sm animate-fade-in" role="status">
       <p className={`display text-center ${big ? "text-tv-hero" : "text-display-xl"} animate-rise-in`}>
-        <span className="text-gradient-ember">{CHEERS_WORD[country] ?? "¡Salud!"}</span> 🥂
+        <span className="text-accent">{CHEERS_WORD[country] ?? "¡Salud!"}</span> 🥂
       </p>
       {by && <p className={`mt-4 text-slate-200 ${big ? "text-tv-sm" : "text-lg"}`}>Brindis de {by}</p>}
     </div>

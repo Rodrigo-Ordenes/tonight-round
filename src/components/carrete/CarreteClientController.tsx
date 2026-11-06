@@ -65,8 +65,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
     return (
       <div className="mx-auto max-w-md space-y-5">
         <div>
-          <p className="eyebrow">Tu celular es tu control</p>
-          <h2 className="display mt-2 text-3xl">¿Cómo te llamas?</h2>
+          <h2 className="display text-3xl">¿Cómo te llamas?</h2>
           <p className="mt-2 text-sm text-slate-400">Con tu peso y sexo estimamos tu alcoholemia (solo como referencia educativa). Nada sale de esta sala.</p>
         </div>
 
@@ -120,7 +119,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
                   type="button"
                   onClick={() => setStomach(s)}
                   aria-pressed={stomach === s}
-                  className={`min-h-[40px] rounded-lg text-[11px] font-bold ${stomach === s ? "bg-white text-night-950" : "text-slate-400"}`}
+                  className={`min-h-[40px] rounded-lg text-xs font-bold ${stomach === s ? "bg-white text-night-950" : "text-slate-400"}`}
                 >
                   {STOMACH_ICON[s]} {ABSORPTION[s].label}
                 </button>
@@ -166,14 +165,14 @@ export default function CarreteClientController({ store }: { store: CarreteStore
       {/* Yo */}
       <section className={`surface p-5 ${breach ? "!border-rose-500 ring-2 ring-rose-500/50" : ""}`}>
         {breach && (
-          <p className="-mx-5 -mt-5 mb-4 flex items-center justify-center gap-1.5 rounded-t-3xl bg-rose-500 py-2 text-center text-[11px] font-bold uppercase text-white">
+          <p className="-mx-5 -mt-5 mb-4 flex items-center justify-center gap-1.5 rounded-t-3xl bg-rose-500 py-2 text-center text-xs font-bold uppercase text-white">
             <ShieldAlert className="w-3.5 h-3.5" /> Tomaste alcohol: hoy no manejas
           </p>
         )}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="eyebrow">{driver ? `👑 ${locale.terminology.driverTitle}` : "Tú"}</p>
-            <h2 className="display mt-1 truncate text-3xl">{me.name}</h2>
+            <h2 className="display truncate text-3xl">{me.name}</h2>
+            <p className="meta mt-1">{driver ? `${locale.terminology.driverTitle} · 0.0 toda la noche` : "Este celular es tu control"}</p>
           </div>
           {participants.length > 1 && (
             <label className="relative">
@@ -196,7 +195,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
 
         <div className="mt-5 flex items-end gap-6">
           <div>
-            <p className="eyebrow !text-[10px]">Ahora (g/l)</p>
+            <p className="eyebrow !text-xs">Ahora (g/l)</p>
             <p className="font-display text-6xl font-extrabold leading-none text-white tabular">{r.bac.toFixed(2)}</p>
           </div>
           <div className="pb-1 text-sm text-slate-300">
@@ -222,7 +221,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
               role="radio"
               aria-checked={(me.stomach ?? "normal") === s}
               onClick={() => updateParticipant(me.id, { stomach: s })}
-              className={`min-h-[36px] rounded-lg text-[11px] font-bold ${(me.stomach ?? "normal") === s ? "bg-white text-night-950" : "text-slate-400"}`}
+              className={`min-h-[36px] rounded-lg text-xs font-bold ${(me.stomach ?? "normal") === s ? "bg-white text-night-950" : "text-slate-400"}`}
             >
               {STOMACH_ICON[s]} {ABSORPTION[s].label}
             </button>
@@ -357,7 +356,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
               <span className="block truncate text-sm font-bold text-white">
                 {p.emoji} {p.label}
               </span>
-              <span className="font-mono text-[10px] text-slate-400">
+              <span className="font-mono text-xs text-slate-400">
                 {p.ml} ml · {Math.round(p.abv * 1000) / 10}%
               </span>
             </button>
@@ -397,7 +396,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             {songSent ? "¡Listo!" : "Pedir"}
           </button>
         </form>
-        <p className="mt-2 text-[11px] text-slate-500">Aparece en la cola de la TV y en la página de Música.</p>
+        <p className="mt-2 text-xs text-slate-500">Aparece en la cola de la TV y en la página de Música.</p>
       </section>
 
       {!store.state.live?.round && <LiveRoundCard store={store} />}
@@ -411,7 +410,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         </div>
       )}
 
-      <p className="text-center text-[11px] text-slate-500">
+      <p className="text-center text-xs text-slate-500">
         Estimación educativa, no medición. {locale.legal.bacLimitText}: si bebiste, no manejes.
       </p>
     </div>

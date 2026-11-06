@@ -210,7 +210,7 @@ function TvStage() {
           <section>
             <h1 className="display text-tv-hero">
               Escanea
-              <br />y <span className="text-gradient-ember">juega.</span>
+              <br />y <span className="text-accent">juega.</span>
             </h1>
             <p className="mt-6 max-w-3xl text-tv-sm text-slate-300">
               Apunta la cámara al código. Tu celular se vuelve tu control: votos secretos, tragos, agua y confesiones. O entra a{" "}

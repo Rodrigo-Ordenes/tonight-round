@@ -246,7 +246,7 @@ export default function FingerChooser() {
                 2-8 Dedos
               </span>
             </h2>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-xs text-slate-400">
               Apoyen los dedos en la pantalla. Quien sea elegido paga o cumple el reto.
             </p>
           </div>
@@ -322,7 +322,7 @@ export default function FingerChooser() {
               <span className="text-sm sm:text-base font-black text-amber-300 block">
                 {mode === "loser" ? "💥 ¡TE TOCÓ A TI, PIERDES! 💥" : "🎉 ¡ERES EL ELEGIDO / GANADOR! 🎉"}
               </span>
-              <span className="text-[10px] text-slate-300">
+              <span className="text-xs text-slate-300">
                 Toca la pantalla para jugar de nuevo
               </span>
             </div>

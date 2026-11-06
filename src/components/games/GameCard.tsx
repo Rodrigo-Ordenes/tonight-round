@@ -38,7 +38,7 @@ export default function GameCard({ game, isFeatured = false }: GameCardProps) {
             {game.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-night-850 text-indigo-300 border border-night-700/60"
+                className="px-2 py-0.5 rounded-full text-xs font-bold bg-night-850 text-indigo-300 border border-night-700/60"
               >
                 {tag}
               </span>
@@ -55,7 +55,7 @@ export default function GameCard({ game, isFeatured = false }: GameCardProps) {
       </div>
 
       {/* Meta Pills */}
-      <div className="grid grid-cols-3 gap-2 mt-3.5 pt-3 border-t border-night-850 text-[11px] text-slate-400">
+      <div className="grid grid-cols-3 gap-2 mt-3.5 pt-3 border-t border-night-850 text-xs text-slate-400">
         <div className="flex items-center gap-1.5 truncate">
           <Users className="w-3.5 h-3.5 text-carrete-primary shrink-0" />
           <span className="truncate">{game.players}</span>
@@ -90,14 +90,14 @@ export default function GameCard({ game, isFeatured = false }: GameCardProps) {
       {expanded && (
         <div className="mt-4 space-y-4 pt-3 border-t border-night-800 text-xs animate-fade-in">
           <div>
-            <h4 className="font-bold text-slate-300 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
+            <h4 className="font-bold text-slate-300 uppercase tracking-wider text-xs mb-2 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
               <span>Reglas de la Ronda</span>
             </h4>
             <div className="space-y-2">
               {game.rules.map((rule, idx) => (
                 <div key={idx} className="flex items-start gap-2 text-slate-300 leading-relaxed">
-                  <span className="w-5 h-5 rounded-full bg-carrete-primary/20 text-indigo-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-carrete-primary/20 text-indigo-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
                   <span>{rule}</span>
@@ -108,11 +108,11 @@ export default function GameCard({ game, isFeatured = false }: GameCardProps) {
 
           {/* Non-Alcoholic / Points Variant */}
           <div className="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 text-emerald-200">
-            <div className="flex items-center gap-1.5 font-bold text-emerald-300 mb-1 text-[11px]">
+            <div className="flex items-center gap-1.5 font-bold text-emerald-300 mb-1 text-xs">
               <Award className="w-3.5 h-3.5 text-emerald-400" />
               <span>Variante Sin Alcohol / Por Puntos</span>
             </div>
-            <p className="text-[11px] text-emerald-100/90 leading-relaxed">
+            <p className="text-xs text-emerald-100/90 leading-relaxed">
               {game.non_alcoholic_variant}
             </p>
           </div>

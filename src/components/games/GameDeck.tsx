@@ -61,10 +61,10 @@ export default function GameDeck() {
 
       <section aria-labelledby="rapidos-title" className="space-y-6">
         <div>
-          <p className="eyebrow">Un solo celular</p>
-          <h2 id="rapidos-title" className="display mt-1 text-2xl sm:text-3xl">
+          <h2 id="rapidos-title" className="display text-2xl sm:text-3xl">
             Juegos rápidos
           </h2>
+          <p className="meta mt-1">Con un solo celular que pasa de mano en mano.</p>
         </div>
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
           {QUICK.map((g) => (
@@ -94,10 +94,10 @@ export default function GameDeck() {
 
       <section aria-labelledby="catalogo-title" className="space-y-5">
         <div>
-          <p className="eyebrow">Sin pantalla</p>
-          <h2 id="catalogo-title" className="display mt-1 text-2xl sm:text-3xl">
+          <h2 id="catalogo-title" className="display text-2xl sm:text-3xl">
             {filteredGames.length} clásicos de carrete
           </h2>
+          <p className="meta mt-1">Sin pantalla: cartas, vasos o solo el grupo.</p>
         </div>
         <div className="flex flex-col gap-3">
           <label className="relative block">

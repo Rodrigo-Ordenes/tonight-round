@@ -23,7 +23,7 @@ function Stepper({ label, value, unit, icon, onDec, onInc }: { label: string; va
       <span className="flex items-center gap-2.5">
         <span className="text-slate-400">{icon}</span>
         <span>
-          <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</span>
+          <span className="block text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</span>
           <span className="font-display text-xl font-bold text-white tabular">
             {value} <span className="text-sm font-semibold text-slate-400">{unit}</span>
           </span>
@@ -117,7 +117,7 @@ export default function BudgetPanel({ attendees, hours, budget, onChange, foreig
           onInc={() => onChange({ hours: Math.min(14, hours + 1) })}
         />
         <label className="flex flex-col justify-center rounded-2xl bg-white/[0.03] p-3">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
             {mode === "persona" ? "Cada uno pone" : "Presupuesto total"} {foreign ? "(CLP)" : ""}
           </span>
           <span className="mt-0.5 flex items-center gap-1">
@@ -132,7 +132,7 @@ export default function BudgetPanel({ attendees, hours, budget, onChange, foreig
               className="w-full min-w-0 bg-transparent font-display text-xl font-bold text-white outline-none tabular"
             />
           </span>
-          <span className="text-[11px] text-slate-500">
+          <span className="text-xs text-slate-500">
             {mode === "persona" ? `Total: ${fmtCLP(budget)}` : `${fmtCLP(budget / Math.max(1, attendees))} por persona`}
           </span>
         </label>

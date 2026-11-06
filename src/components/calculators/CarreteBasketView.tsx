@@ -261,7 +261,7 @@ export default function CarreteBasketView() {
               <span className="text-base font-black text-white">
                 🎯 ¿Qué quieren tomar hoy?
               </span>
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+              <span className="text-xs font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
                 Prioriza Alcohol
               </span>
             </div>
@@ -352,12 +352,12 @@ export default function CarreteBasketView() {
               <div className="flex items-center justify-between">
                 <span className="font-black text-sm text-white">{prof.label}</span>
                 {basket.profile === prof.id && (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                  <span className="text-xs font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
                     Activa
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">{prof.desc}</p>
+              <p className="text-xs text-slate-400 mt-1">{prof.desc}</p>
             </button>
           ))}
         </div>
@@ -414,7 +414,7 @@ export default function CarreteBasketView() {
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-sm text-white truncate">{item.name}</h4>
                       {item.custom && (
-                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        <span className="text-xs font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                           Personalizado
                         </span>
                       )}

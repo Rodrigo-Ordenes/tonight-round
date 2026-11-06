@@ -85,7 +85,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="hidden lg:flex sticky top-0 h-[100dvh] flex-col items-center gap-2 border-r border-white/[0.06] bg-night-950/40 py-5 backdrop-blur-xl">
         <Link href="/" aria-label="Tonight, inicio" className="mb-4 flex flex-col items-center gap-1">
           <MoonMark className="w-9 h-9" />
-          <span className="font-display text-[11px] font-extrabold tracking-[0.2em] text-white">TONIGHT</span>
+          <span className="font-display text-xs font-extrabold tracking-[0.2em] text-white">TONIGHT</span>
         </Link>
         <nav aria-label="Navegación principal" className="flex flex-col gap-1">
           {NAV.map((item) => {
@@ -97,7 +97,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.key}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`group flex w-[72px] flex-col items-center gap-1 rounded-2xl py-2.5 text-[11px] font-semibold transition-colors ${
+                className={`group flex w-[72px] flex-col items-center gap-1 rounded-2xl py-2.5 text-xs font-semibold transition-colors ${
                   active ? "bg-white/[0.07] text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -178,7 +178,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.key}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-14 flex-col items-center justify-center gap-0.5 rounded-[22px] text-[10px] font-bold transition-colors ${
+                className={`flex h-14 flex-col items-center justify-center gap-0.5 rounded-[22px] text-xs font-bold transition-colors ${
                   active ? "bg-indigo-500 text-night-950" : "text-slate-400"
                 }`}
               >

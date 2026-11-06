@@ -54,7 +54,7 @@ export default function MultiStoreCompare({
           <Store className="w-5 h-5 text-indigo-400" />
           <h3 className="text-base font-black text-white">Comparador Multitienda</h3>
         </div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 text-[11px] text-slate-300 border border-slate-700">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 text-xs text-slate-300 border border-slate-700">
           <Info className="w-3.5 h-3.5 text-slate-400" />
           <span>Valor referencial estimado en Chile</span>
         </div>
@@ -85,21 +85,21 @@ export default function MultiStoreCompare({
                 <div className="flex items-center justify-between gap-1">
                   <span className="font-black text-sm text-white">{store.label}</span>
                   {isSelected && (
-                    <span className="flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                    <span className="flex items-center gap-1 text-xs font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
                       <Check className="w-3 h-3" /> Activo
                     </span>
                   )}
                   {!isSelected && isCheapest && (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    <span className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                       Más bajo
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-0.5">{store.subtitle}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{store.subtitle}</p>
               </div>
 
               <div className="mt-3 pt-2 border-t border-night-800 flex items-baseline justify-between">
-                <span className="text-[11px] text-slate-400">Total canasta:</span>
+                <span className="text-xs text-slate-400">Total canasta:</span>
                 <span className="text-base font-black text-white font-mono">
                   ${store.total.toLocaleString("es-CL")} CLP
                 </span>

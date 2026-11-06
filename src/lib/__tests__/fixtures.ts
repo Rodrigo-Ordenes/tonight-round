@@ -1,7 +1,7 @@
-import { emptyCarrete, type CarreteEvent, type CarreteState, type Participant } from "@/lib/carreteState";
+import { emptyCarrete, type CarreteAction, type CarreteEvent, type CarreteState, type Participant } from "@/lib/carreteState";
 
 let n = 0;
-export const ev = (a: Omit<CarreteEvent, "eventId" | "at"> & { eventId?: string; at?: number }): CarreteEvent =>
+export const ev = (a: CarreteAction & { eventId?: string; at?: number }): CarreteEvent =>
   ({ eventId: a.eventId ?? `e${++n}`, at: a.at ?? 1_000 + n, ...a }) as CarreteEvent;
 
 export function person(id: string, over: Partial<Participant> = {}): Participant {

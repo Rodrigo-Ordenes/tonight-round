@@ -351,7 +351,7 @@ export default function CarreteCalculator() {
             onChange={(e) => setAttendees(Number(e.target.value))}
             className="w-full h-2 bg-night-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
           />
-          <div className="flex justify-between text-[11px] text-slate-400">
+          <div className="flex justify-between text-xs text-slate-400">
             <span>2 (íntimo)</span>
             <span>12 (media)</span>
             <span>25 (casa llena)</span>
@@ -379,7 +379,7 @@ export default function CarreteCalculator() {
             onChange={(e) => setDurationHours(Number(e.target.value))}
             className="w-full h-2 bg-night-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
           />
-          <div className="flex justify-between text-[11px] text-slate-400">
+          <div className="flex justify-between text-xs text-slate-400">
             <span>2h (previa corta)</span>
             <span>5h (carrete normal)</span>
             <span>8h+ (hasta el amanecer)</span>
@@ -435,7 +435,7 @@ export default function CarreteCalculator() {
                     <Icon className="w-3.5 h-3.5" />
                     <span>{opt.label}</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 mt-0.5">{opt.desc}</span>
+                  <span className="text-xs text-slate-400 mt-0.5">{opt.desc}</span>
                 </button>
               );
             })}
@@ -507,7 +507,7 @@ export default function CarreteCalculator() {
         <div className="space-y-2.5">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
             <span>2. Desglose de Insumos Sugeridos</span>
-            <span className="text-[11px] text-slate-400 font-normal">
+            <span className="text-xs text-slate-400 font-normal">
               {calculation.items.length} items
             </span>
           </h3>
@@ -527,7 +527,7 @@ export default function CarreteCalculator() {
                       {item.name}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1 truncate pl-1">
+                  <p className="text-xs text-slate-400 mt-1 truncate pl-1">
                     {item.notes}
                   </p>
                 </div>
@@ -535,7 +535,7 @@ export default function CarreteCalculator() {
                   <div className="font-bold text-slate-100">
                     {locale.currency.format(item.totalPrice)}
                   </div>
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-xs text-slate-400">
                     {locale.currency.format(item.unitPrice)} c/u
                   </span>
                 </div>

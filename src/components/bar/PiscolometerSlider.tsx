@@ -205,7 +205,7 @@ export default function PiscolometerSlider() {
 
             {/* Pisco Bottom Layer */}
             <div
-              className="w-full bg-amber-400/80 transition-all duration-300 flex items-center justify-center text-[10px] font-black text-slate-950 shadow-inner"
+              className="w-full bg-amber-400/80 transition-all duration-300 flex items-center justify-center text-xs font-black text-slate-950 shadow-inner"
               style={{ height: `${piscoPercentage}%` }}
             >
               <span>{piscoPercentage}% Pisco</span>
@@ -213,7 +213,7 @@ export default function PiscolometerSlider() {
 
             {/* Coca-Cola Top Layer */}
             <div
-              className="w-full bg-[#381608] transition-all duration-300 flex items-center justify-center text-[10px] font-black text-amber-200 shadow-inner"
+              className="w-full bg-[#381608] transition-all duration-300 flex items-center justify-center text-xs font-black text-amber-200 shadow-inner"
               style={{ height: `${100 - piscoPercentage}%` }}
             >
               <span>{100 - piscoPercentage}% Cola</span>
@@ -224,7 +224,7 @@ export default function PiscolometerSlider() {
             <span className="text-2xl font-black text-white block">
               {100 - piscoPercentage} / {piscoPercentage}
             </span>
-            <span className="text-[11px] text-slate-400">
+            <span className="text-xs text-slate-400">
               ({100 - piscoPercentage}% Bebida Cola • {piscoPercentage}% Pisco)
             </span>
           </div>
@@ -282,7 +282,7 @@ export default function PiscolometerSlider() {
                 {ratioDetails.icon}
                 <h4 className="text-sm font-black text-white">{ratioDetails.name}</h4>
               </div>
-              <span className={`text-[11px] font-bold block mb-1.5 ${ratioDetails.color}`}>
+              <span className={`text-xs font-bold block mb-1.5 ${ratioDetails.color}`}>
                 {ratioDetails.tag}
               </span>
               <p className="text-xs text-slate-300 leading-relaxed">{ratioDetails.desc}</p>
@@ -302,7 +302,7 @@ export default function PiscolometerSlider() {
               <h3 className="text-base font-black text-white">
                 ¿Cuántas piscolas salen de cada una? (Rendimiento Real)
               </h3>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-xs text-slate-400">
                 Calculado con abundante hielo y tu proporción actual de {100 - piscoPercentage}/{piscoPercentage}
               </p>
             </div>
@@ -355,18 +355,18 @@ export default function PiscolometerSlider() {
                 <span className="font-bold text-amber-300 flex items-center gap-1">
                   <span>🥃 1 Botella de Pisco ({piscoBottleSize}cc)</span>
                 </span>
-                <span className="text-[10px] text-slate-400">~{yieldStats.piscoCcPerGlass}cc c/vaso</span>
+                <span className="text-xs text-slate-400">~{yieldStats.piscoCcPerGlass}cc c/vaso</span>
               </div>
               <div className="mt-1">
                 <span className="text-3xl font-black text-amber-400 block">
                   ~{yieldStats.piscolasPerPiscoBottle} piscolas
                 </span>
-                <span className="text-[11px] text-slate-300">
+                <span className="text-xs text-slate-300">
                   salen de esta botella en proporción {100 - piscoPercentage}/{piscoPercentage}
                 </span>
               </div>
             </div>
-            <div className="pt-2 border-t border-night-800 text-[10px] text-slate-400">
+            <div className="pt-2 border-t border-night-800 text-xs text-slate-400">
               💡 {piscoBottleSize === 750 ? "Si fuera botellón de 1L saldrían ~" + Math.floor(1000 / yieldStats.piscoCcPerGlass) + " piscolas." : "Formato botellón de 1 litro."}
             </div>
           </div>
@@ -378,18 +378,18 @@ export default function PiscolometerSlider() {
                 <span className="font-bold text-indigo-300 flex items-center gap-1">
                   <span>🥤 1 Botella de Cola (3L / 2.5L)</span>
                 </span>
-                <span className="text-[10px] text-slate-400">~{yieldStats.colaCcPerGlass}cc c/vaso</span>
+                <span className="text-xs text-slate-400">~{yieldStats.colaCcPerGlass}cc c/vaso</span>
               </div>
               <div className="mt-1">
                 <span className="text-3xl font-black text-indigo-400 block">
                   ~{yieldStats.piscolasPerCola3L} piscolas
                 </span>
-                <span className="text-[11px] text-slate-300">
+                <span className="text-xs text-slate-300">
                   rinden con 1 botella de 3L (~{yieldStats.piscolasPerCola25L} si es de 2.5L)
                 </span>
               </div>
             </div>
-            <div className="pt-2 border-t border-night-800 text-[10px] text-slate-400">
+            <div className="pt-2 border-t border-night-800 text-xs text-slate-400">
               💡 Con 1 retornable de 2L rinden ~{Math.floor(2000 / yieldStats.colaCcPerGlass)} piscolas.
             </div>
           </div>
@@ -401,18 +401,18 @@ export default function PiscolometerSlider() {
                 <span className="font-bold text-emerald-300 flex items-center gap-1">
                   <span>📦 Total para tus {bottlesOfPisco} botellas</span>
                 </span>
-                <span className="text-[10px] text-emerald-400 font-bold">Autonomía</span>
+                <span className="text-xs text-emerald-400 font-bold">Autonomía</span>
               </div>
               <div className="mt-1">
                 <span className="text-3xl font-black text-emerald-400 block">
                   ~{yieldStats.totalPiscolas} piscolas en total
                 </span>
-                <span className="text-[11px] text-slate-200 font-medium">
+                <span className="text-xs text-slate-200 font-medium">
                   Abastece a <strong className="text-white">{yieldStats.peopleAt3Drinks} personas</strong> (3 piscolas c/u) o a <strong className="text-white">{yieldStats.peopleAt4Drinks} personas</strong> (4 c/u)
                 </span>
               </div>
             </div>
-            <div className="pt-2 border-t border-night-800 text-[10px] text-emerald-300/80 font-semibold">
+            <div className="pt-2 border-t border-night-800 text-xs text-emerald-300/80 font-semibold">
               Necesitas comprar ~{yieldStats.totalColaLitrosNeeded}L de bebida cola ({yieldStats.bottles3LNeeded} de 3L).
             </div>
           </div>
@@ -430,7 +430,7 @@ export default function PiscolometerSlider() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="text-[11px] font-bold text-slate-400 block mb-1">
+            <label className="text-xs font-bold text-slate-400 block mb-1">
               Botellas de Pisco disponibles
             </label>
             <div className="flex items-center gap-2">
@@ -455,7 +455,7 @@ export default function PiscolometerSlider() {
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-slate-400 block mb-1">
+            <label className="text-xs font-bold text-slate-400 block mb-1">
               Tamaño de botella
             </label>
             <select
@@ -470,13 +470,13 @@ export default function PiscolometerSlider() {
 
           {/* Result Display */}
           <div className="bg-indigo-950/40 border border-indigo-500/30 p-3 rounded-2xl flex flex-col justify-center text-center">
-            <span className="text-[10px] uppercase font-bold text-indigo-300">
+            <span className="text-xs uppercase font-bold text-indigo-300">
               Bebida cola necesaria recomendada:
             </span>
             <span className="text-xl font-black text-white">
               ~{yieldStats.totalColaLitrosNeeded} Litros
             </span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-xs text-slate-400">
               ({yieldStats.bottles3LNeeded} de 3L ó {yieldStats.bottles25LNeeded} de 2.5L)
             </span>
           </div>
