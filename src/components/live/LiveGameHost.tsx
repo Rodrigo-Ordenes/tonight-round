@@ -90,14 +90,15 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
 
       {/* Selector de juego */}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3">
-        {LIVE_GAMES.map((g) => {
+        {LIVE_GAMES.map((g, i) => {
           const active = round?.game === g.id;
           return (
             <button
+              style={{ animationDelay: `${i * 40}ms` }}
               key={g.id}
               type="button"
               onClick={() => start(g.id)}
-              className={`surface surface-hover flex flex-col p-4 text-left ${active ? "ring-2 ring-indigo-400" : ""}`}
+              className={`surface surface-hover flex flex-col p-4 text-left animate-rise-in ${active ? "ring-2 ring-indigo-400" : ""}`}
             >
               <span className="flex items-center justify-between">
                 <span className="text-3xl">{g.emoji}</span>

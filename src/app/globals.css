@@ -31,6 +31,8 @@
 }
 
 html {
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
   background-color: var(--bg);
   color: var(--text);
   color-scheme: dark;
@@ -52,8 +54,8 @@ a {
   text-underline-offset: 3px;
 }
 
-/* iOS hace zoom al enfocar un campo de menos de 16 px */
-@media (max-width: 767px) {
+/* iOS hace zoom al enfocar un campo de menos de 16 px (táctil, por capacidad y no por ancho) */
+@media (pointer: coarse) {
   input,
   select,
   textarea {
@@ -66,6 +68,16 @@ a,
 input,
 select {
   touch-action: manipulation;
+}
+
+/* Los controles no se seleccionan al mantener presionado; el contenido sí */
+button,
+[role="button"],
+[role="tab"],
+[role="radio"] {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 :focus-visible {

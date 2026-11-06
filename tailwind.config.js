@@ -183,7 +183,7 @@ module.exports = {
       },
       keyframes: {
         "fade-in": { from: { opacity: "0", transform: "translateY(6px)" }, to: { opacity: "1", transform: "none" } },
-        "rise-in": { from: { opacity: "0", transform: "translateY(18px) scale(0.98)" }, to: { opacity: "1", transform: "none" } },
+        "rise-in": { from: { opacity: "0", transform: "translateY(8px)" }, to: { opacity: "1", transform: "none" } },
         "liquid-wave": {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
@@ -217,8 +217,9 @@ module.exports = {
         },
       },
       animation: {
-        "fade-in": "fade-in 0.35s cubic-bezier(.2,.8,.2,1) both",
-        "rise-in": "rise-in 0.5s cubic-bezier(.2,.8,.2,1) both",
+        // Entradas: ease-out fuerte, bajo 300 ms (se ven decenas de veces por noche)
+        "fade-in": "fade-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both",
+        "rise-in": "rise-in 280ms cubic-bezier(0.23, 1, 0.32, 1) both",
         "liquid-wave": "liquid-wave 3.2s linear infinite",
         "canister-bubble": "canister-bubble 2.4s ease-in infinite",
         "bomb-pulse": "bomb-pulse 0.9s ease-in-out infinite",

@@ -39,6 +39,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // En Android el teclado achica el viewport (igual que iOS): los campos fijos abajo no quedan tapados
+  interactiveWidget: "resizes-content",
   themeColor: "#07060A",
 };
 

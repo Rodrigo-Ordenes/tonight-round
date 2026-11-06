@@ -198,7 +198,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             aria-modal="true"
             aria-label="Sala en vivo"
             onClick={(e) => e.stopPropagation()}
-            className="relative max-h-[86dvh] w-full max-w-lg overflow-y-auto rounded-t-[32px] border border-white/10 bg-night-900 pb-[env(safe-area-inset-bottom,16px)] animate-rise-in"
+            className="relative max-h-[86dvh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[20px] border border-white/10 bg-night-900 pb-[env(safe-area-inset-bottom,16px)] animate-rise-in"
           >
             <button
               type="button"

@@ -7,6 +7,7 @@ import { buildWrapped, drawWrapped } from "@/lib/wrapped";
 import { useLocale } from "@/lib/useLocale";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
+import CountUp from "@/components/ui/CountUp";
 
 /** Resumen de la noche con premios automáticos y tarjeta descargable para historias. */
 export default function TonightWrapped({ store }: { store: CarreteStore }) {
@@ -72,7 +73,7 @@ export default function TonightWrapped({ store }: { store: CarreteStore }) {
         <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
           {stats.map((s) => (
             <div key={s.label}>
-              <dd className={`font-display text-5xl font-extrabold tabular ${s.water ? "text-cyan-300" : "text-white"}`}>{s.n}</dd>
+              <dd className={`font-display text-5xl font-extrabold tabular ${s.water ? "text-cyan-300" : "text-white"}`}>{typeof s.n === "number" ? <CountUp value={s.n} /> : s.n}</dd>
               <dt className="mt-1 text-sm text-slate-400">{s.label}</dt>
             </div>
           ))}
