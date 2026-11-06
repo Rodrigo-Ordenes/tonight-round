@@ -22,6 +22,8 @@ export interface Participant {
   waterCount: number; // derivado de `water` (se mantiene por compatibilidad de lectura)
   water?: WaterLog[];
   removedIds?: string[]; // tombstones de tragos/agua borrados (para que un merge no los resucite)
+  /** Link de pago propio (Mercado Pago, MACH, Venmo, PayPay…) para cobrar en Cuentas */
+  payLink?: string;
   /** Afecta la absorción en la estimación de Widmark (vacío = pico antes y más alto). */
   stomach?: Stomach;
   status: "party" | "transit" | "safe";

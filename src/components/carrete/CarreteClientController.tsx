@@ -12,6 +12,7 @@ import { ABSORPTION, DRINK_PRESETS, bacFor, fmtDuration, fmtTime, hydrationFor, 
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
+import { normalizePayLink } from "@/lib/split";
 
 const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "🥨", full: "🍝" };
 
@@ -404,6 +405,13 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         </button>
       </section>
 
+      {/* Link de pago para Cuentas */}
+      <PayLinkField
+        value={me.payLink ?? ""}
+        system={locale.banking.systemName}
+        onSave={(link) => updateParticipant(me.id, { payLink: link ?? undefined })}
+      />
+
       {/* Pedido de canción */}
       <section className="surface p-4">
         <p className="eyebrow flex items-center gap-1.5">
@@ -451,5 +459,55 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         Estimación educativa, no medición. {locale.legal.bacLimitText}: si bebiste, no manejes.
       </p>
     </div>
+  );
+}
+
+/** Campo para guardar el link de pago propio; Cuentas lo muestra como botón "Pagar" a quien te debe. */
+function PayLinkField({ value, system, onSave }: { value: string; system: string; onSave: (link: string | null) => void }) {
+  const [text, setText] = useState(value);
+  const [state, setState] = useState<"idle" | "saved" | "error">("idle");
+  return (
+    <section className="surface p-4">
+      <label htmlFor="paylink" className="eyebrow">
+        Mi link de pago
+      </label>
+      <p className="mt-1 text-xs text-slate-400">Mercado Pago, MACH, Venmo, PayPay… Aparece en Cuentas para que te paguen en un toque ({system} también sirve con datos en «Una boleta»).</p>
+      <form
+        className="mt-3 flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!text.trim()) {
+            onSave(null);
+            setState("saved");
+            return;
+          }
+          const link = normalizePayLink(text);
+          if (!link) {
+            setState("error");
+            return;
+          }
+          setText(link);
+          onSave(link);
+          setState("saved");
+        }}
+      >
+        <input
+          id="paylink"
+          inputMode="url"
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            setState("idle");
+          }}
+          placeholder="link.mercadopago.cl/tu-nombre"
+          aria-invalid={state === "error"}
+          className="min-h-[46px] min-w-0 flex-1 rounded-xl border border-white/10 bg-night-950/60 px-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-400"
+        />
+        <button type="submit" className="btn-ghost !min-h-[46px]">
+          {state === "saved" ? "Listo" : "Guardar"}
+        </button>
+      </form>
+      {state === "error" && <p className="mt-2 text-xs text-rose-300">Eso no parece un link. Pega el link que te da tu app de pagos.</p>}
+    </section>
   );
 }

@@ -24,3 +24,12 @@ describe("división de cuentas", () => {
     expect(pedro.share).toBe(5000);
   });
 });
+
+import { normalizePayLink } from "@/lib/split";
+
+describe("link de pago", () => {
+  it("acepta links https de pago", () => expect(normalizePayLink(" https://link.mercadopago.cl/juan ")).toBe("https://link.mercadopago.cl/juan"));
+  it("agrega https si falta", () => expect(normalizePayLink("venmo.com/u/juan")).toBe("https://venmo.com/u/juan"));
+  it("rechaza esquemas peligrosos", () => expect(normalizePayLink("javascript:alert(1)")).toBeNull());
+  it("rechaza texto que no es link", () => expect(normalizePayLink("mi cuenta rut 123")).toBeNull());
+});

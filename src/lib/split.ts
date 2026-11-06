@@ -104,3 +104,21 @@ export function settle(rows: PersonBalance[], unit: number): Transfer[] {
   }
   return out;
 }
+
+/**
+ * Link de pago (Mercado Pago, MACH, Venmo, PayPay…): solo http(s), sin espacios.
+ * Devuelve el link normalizado o null si no es un link utilizable.
+ */
+export function normalizePayLink(input: string): string | null {
+  const raw = input.trim();
+  if (!raw || /\s/.test(raw)) return null;
+  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`;
+  try {
+    const u = new URL(withScheme);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    if (!u.hostname.includes(".")) return null;
+    return u.toString().replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
