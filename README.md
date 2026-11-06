@@ -27,7 +27,7 @@ Web app gratuita y sin cuentas para armar, jugar y cerrar la noche con tu grupo.
 
 ## Novedades de la V11
 
-- **Sistema visual nuevo.** Fuera el tema Halloween, los degradados de texto, los halos y las etiquetas sobre títulos. Paleta medianoche con un acento coral sólido, contraste ≥ 4,5:1, texto funcional ≥ 12 px y radios ≤ 16 px.
+- **Paleta «Brasa», basada en un estudio.** Carbón cálido en vez de negro azulado (menos luz azul de noche y sin arrastre OLED), coral como marca, menta para «en vivo», ámbar pisco para avisos y frambuesa solo para el conductor que tomó. Generada en OKLCH y validada con WCAG 2.2, APCA y simulación de daltonismo; detalle en [`docs/paleta-v11.md`](docs/paleta-v11.md). Fuera el tema Halloween, los degradados de texto, los halos y las etiquetas sobre títulos.
 - **Rondas que se cierran solas.** Temporizador visible (30 s, 45 s en Impostor), tic en los últimos 10 s y revelado cuando todos votaron o se acabó el tiempo.
 - **Más mecánicas de sala:** sorteo de puestos (parejas, tríos, equipos, puestos), lista «Yo llevo», votos a canciones y links de pago por persona.
 - **Monstruómetro con criterio:** tonos `bacTone`, sin "Monstruo #1", orden por llegada y modo discreto.
@@ -35,7 +35,7 @@ Web app gratuita y sin cuentas para armar, jugar y cerrar la noche con tu grupo.
 - **Motion medido:** entradas de 200–280 ms con `cubic-bezier(0.23, 1, 0.32, 1)`, escalonado solo donde ayuda, nada animado sobre datos en vivo y `prefers-reduced-motion` que suaviza sin apagar.
 - **Piso móvil:** inputs de 16 px en pantallas táctiles, sin rebote ni pull-to-refresh, controles que no se seleccionan al mantener presionado y teclado de Android que redimensiona el contenido.
 - **Sincronización adaptativa:** sondeo cada 700 ms con una votación abierta, 2 s en reposo, backoff hasta 16 s ante errores y ≥ 8 s con la pestaña oculta.
-- **Pruebas:** 44 pruebas con Vitest sobre la lógica pura (reductor y merge, cuentas, juegos, canasta, tonos, sorteo, «Yo llevo», música, Wrapped y sondeo).
+- **Pruebas:** 97 pruebas con Vitest sobre la lógica pura (reductor y merge, cuentas, juegos, canasta, tonos, sorteo, «Yo llevo», música, Wrapped, sondeo) y sobre la paleta (contraste, regla 500/600 y rampas).
 
 Detalle y fuentes en [`docs/estado-del-arte-v11.md`](docs/estado-del-arte-v11.md), el diseño en [`docs/superpowers/specs/2026-11-06-tonight-v11-design.md`](docs/superpowers/specs/2026-11-06-tonight-v11-design.md) y el plan en [`docs/superpowers/plans/2026-11-06-tonight-v11.md`](docs/superpowers/plans/2026-11-06-tonight-v11.md).
 

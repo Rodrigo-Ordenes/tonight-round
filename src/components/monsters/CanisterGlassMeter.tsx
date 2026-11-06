@@ -32,8 +32,8 @@ export default function CanisterGlassMeter({
   const liquidColors = useMemo(() => {
     if (isDriverBreached) {
       return {
-        fill: "#EF4444",
-        glow: "rgba(239, 68, 68, 0.6)",
+        fill: "#FD4576",
+        glow: "rgba(253, 69, 118, 0.6)",
         gradientTop: "from-rose-500",
         gradientBottom: "to-red-950",
         label: "¡RUPTURA DE CONTENCIÓN!",
@@ -42,8 +42,8 @@ export default function CanisterGlassMeter({
 
     if (isDriver) {
       return {
-        fill: "#10B981",
-        glow: "rgba(16, 185, 129, 0.4)",
+        fill: "#59D2B1",
+        glow: "rgba(89, 210, 177, 0.4)",
         gradientTop: "from-emerald-400",
         gradientBottom: "to-emerald-950",
         label: "PILOTO 0.0% SEGURO",
@@ -53,8 +53,8 @@ export default function CanisterGlassMeter({
     if (isOverload) {
       return {
         // Reducción de daños: tono cálido, sin alarma roja ni lenguaje punitivo
-        fill: "#F99B07",
-        glow: "rgba(249, 155, 7, 0.45)",
+        fill: "#F8C655",
+        glow: "rgba(248, 198, 85, 0.45)",
         gradientTop: "from-amber-500",
         gradientBottom: "to-amber-950",
         label: "Hora de bajar el ritmo",
@@ -63,8 +63,8 @@ export default function CanisterGlassMeter({
 
     if (isHigh) {
       return {
-        fill: "#EC4899",
-        glow: "rgba(236, 72, 153, 0.5)",
+        fill: "#FD4576",
+        glow: "rgba(253, 69, 118, 0.5)",
         gradientTop: "from-pink-500",
         gradientBottom: "to-fuchsia-950",
         label: "ALTA ENERGÍA",
@@ -73,8 +73,8 @@ export default function CanisterGlassMeter({
 
     // Normal (0 - 50%)
     return {
-      fill: "#06B6D4",
-      glow: "rgba(6, 182, 212, 0.45)",
+      fill: "#95D1FF",
+      glow: "rgba(149, 209, 255, 0.45)",
       gradientTop: "from-cyan-400",
       gradientBottom: "to-indigo-950",
       label: "PRESIÓN NORMAL",
@@ -101,7 +101,7 @@ export default function CanisterGlassMeter({
 
             {/* Aguja del Manómetro */}
             <div
-              className="absolute w-0.5 h-4 bg-rose-500 origin-bottom rounded-full transition-transform duration-700 ease-out shadow-[0_0_5px_rgba(239,68,68,0.8)]"
+              className="absolute w-0.5 h-4 bg-rose-500 origin-bottom rounded-full transition-transform duration-700 ease-out shadow-[0_0_5px_rgba(253,69,118,0.8)]"
               style={{
                 transform: `rotate(${needleRotation}deg)`,
                 bottom: "50%",

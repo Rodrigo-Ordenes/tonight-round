@@ -185,7 +185,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
       {/* Yo */}
       <section className={`surface p-5 ${breach ? "!border-rose-500 ring-2 ring-rose-500/50" : ""}`}>
         {breach && (
-          <p className="-mx-5 -mt-5 mb-4 flex items-center justify-center gap-1.5 rounded-t-3xl bg-rose-500 py-2 text-center text-xs font-bold uppercase text-white">
+          <p className="-mx-5 -mt-5 mb-4 flex items-center justify-center gap-1.5 rounded-t-3xl bg-rose-600 py-2 text-center text-xs font-bold uppercase text-white">
             <ShieldAlert className="w-3.5 h-3.5" /> Tomaste alcohol: hoy no manejas
           </p>
         )}

@@ -68,7 +68,7 @@ export default function PiscolometerSlider() {
         name: "Piscola Caballo (50/50)",
         tag: "Peligro: Vas al suelo",
         color: "text-red-400",
-        border: "border-red-500/50 shadow-[0_0_25px_rgba(239,68,68,0.35)]",
+        border: "border-red-500/50 shadow-[0_0_25px_rgba(253,69,118,0.35)]",
         bg: "bg-red-950/30",
         badge: "bg-red-500/20 text-red-300 border-red-500/40 animate-pulse",
         desc: "Alerta Roja: Mitad pisco y mitad bebida. A este ritmo el carrete termina antes de las 01:00 AM con lagunas mentales.",
@@ -80,7 +80,7 @@ export default function PiscolometerSlider() {
         name: "Pisco Pintado con Coca-Cola (>60%)",
         tag: "Demolición Inminente",
         color: "text-red-500",
-        border: "border-red-600 bg-red-950/50 shadow-[0_0_35px_rgba(239,68,68,0.5)] animate-pulse",
+        border: "border-red-600 bg-red-950/50 shadow-[0_0_35px_rgba(253,69,118,0.5)] animate-pulse",
         bg: "bg-red-950/40",
         badge: "bg-red-600 text-white border-red-500 font-black",
         desc: "Esto no es una piscola, es un vaso de pisco con colorante. ¿Quién te hizo tanto daño?",
@@ -292,7 +292,7 @@ export default function PiscolometerSlider() {
       </div>
 
       {/* NEW SECTION: ¿CUÁNTAS SALEN DE CADA UNA? */}
-      <div className="glass-panel p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-night-950 via-night-900 to-indigo-950/40 border border-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.15)] space-y-4">
+      <div className="glass-panel p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-night-950 via-night-900 to-indigo-950/40 border border-amber-500/30 shadow-[0_0_25px_rgba(255,211,117,0.15)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-night-800 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">

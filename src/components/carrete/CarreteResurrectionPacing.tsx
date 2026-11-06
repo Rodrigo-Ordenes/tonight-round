@@ -83,7 +83,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
               key={p.id}
               className={`p-5 rounded-3xl border transition-all space-y-4 ${
                 lightStatus === "red"
-                  ? "bg-rose-950/40 border-rose-500/60 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                  ? "bg-rose-950/40 border-rose-500/60 shadow-[0_0_20px_rgba(253,69,118,0.2)]"
                   : lightStatus === "yellow"
                   ? "bg-amber-950/30 border-amber-500/50"
                   : "bg-night-900/90 border-slate-800"

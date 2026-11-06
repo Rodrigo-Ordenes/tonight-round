@@ -97,14 +97,14 @@ function TvStage() {
 
   useEffect(() => {
     if (!valid) return;
-    QRCode.toDataURL(`${window.location.origin}/carrete/${code}?modo=celular`, { width: 520, margin: 1, color: { dark: "#07060A", light: "#F7F5F3" } })
+    QRCode.toDataURL(`${window.location.origin}/carrete/${code}?modo=celular`, { width: 520, margin: 1, color: { dark: "#0D0907", light: "#F1ECE8" } })
       .then(setQr)
       .catch(() => setQr(""));
   }, [code, valid]);
 
   useRevealMoment(round, () => {
     audioEffects.playReveal();
-    void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#3EE0FF"] });
+    void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF8346", "#BFAAFF", "#59D2B1", "#95D1FF"] });
   });
   const clock = useRoundClock(valid ? round : null, { participants: store.participants, dispatch: store.dispatch, sound: true });
 
@@ -258,9 +258,9 @@ function TvStage() {
               <p className="eyebrow !text-lg">{seats.mode === "puestos" ? "Nuevos puestos" : "Sorteo de la sala"}</p>
               <div className="mt-4 flex flex-wrap gap-4">
                 {seats.groups.map((g, i) => (
-                  <div key={i} className="min-w-[14rem] rounded-2xl border border-white/10 px-6 py-4 animate-rise-in" style={{ animationDelay: `${i * 80}ms` }}>
+                  <div key={i} className="min-w-[14rem] max-w-full rounded-2xl border border-white/10 px-6 py-4 animate-rise-in" style={{ animationDelay: `${i * 80}ms` }}>
                     <p className="text-xl text-slate-400">{GROUP_LABEL[seats.mode](i)}</p>
-                    <p className="mt-1 text-tv-sm font-bold text-white">{g.map((id) => store.participants.find((p) => p.id === id)?.name ?? "—").join(seats.mode === "puestos" ? " → " : " · ")}</p>
+                    <p className="mt-1 break-words text-tv-sm font-bold text-white [overflow-wrap:anywhere]">{g.map((id) => store.participants.find((p) => p.id === id)?.name ?? "—").join(seats.mode === "puestos" ? " → " : " · ")}</p>
                   </div>
                 ))}
               </div>

@@ -20,7 +20,7 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
         particleCount: 65,
         spread: 75,
         origin: { y: 0.75 },
-        colors: ["#10b981", "#34d399", "#ffffff", "#6366f1"],
+        colors: ["#59d2b1", "#85e1c4", "#ffffff", "#ff8346"],
       });
       updateParticipant(pId, { status, arrivedAt: Date.now() });
     } else {

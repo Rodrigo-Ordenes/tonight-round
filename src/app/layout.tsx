@@ -41,7 +41,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   // En Android el teclado achica el viewport (igual que iOS): los campos fijos abajo no quedan tapados
   interactiveWidget: "resizes-content",
-  themeColor: "#07060A",
+  themeColor: "#0D0907",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -136,9 +136,9 @@ export default function MitosPage() {
               className="glass-panel p-5 rounded-3xl border border-night-800 hover:border-night-700 transition-all bg-night-950/70"
             >
               <div className="flex items-start justify-between gap-3 mb-2.5">
-                <h3 className="font-extrabold text-sm text-white tracking-tight leading-snug">
+                <h2 className="font-extrabold text-sm text-white tracking-tight leading-snug">
                   {myth.title}
-                </h3>
+                </h2>
                 <div className="shrink-0">
                   {getVerdictBadge(myth.verdict_type, myth.verdict)}
                 </div>
@@ -166,10 +166,10 @@ export default function MitosPage() {
               {isExpanded && (
                 <div className="mt-3.5 pt-3 border-t border-night-800 space-y-3 text-xs animate-fade-in">
                   <div>
-                    <h4 className="font-bold text-slate-300 text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <h3 className="font-bold text-slate-300 text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5">
                       <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
                       <span>Fisiología y Mecanismo Biológico</span>
-                    </h4>
+                    </h3>
                     <p className="text-slate-400 leading-relaxed">
                       {myth.scientific_details}
                     </p>

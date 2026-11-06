@@ -3,24 +3,25 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------
-   Tonight V10 — tokens "Neón de Medianoche"
+   Tonight V11 — paleta "Brasa" (carbón cálido, coral, menta, ámbar).
+   Fuente de verdad: tailwind.config.js · estudio y validación: docs/paleta-v11.md
    ------------------------------------------------------------------ */
 :root {
-  --bg: #07060a;
-  --surface-1: #0e0c13;
-  --surface-2: #14111a;
-  --surface-3: #1b1723;
-  --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(255, 255, 255, 0.14);
-  --text: #f7f5f3;
-  --text-muted: #bab4c2;
-  --text-faint: #958ea3;
-  --ember: #ff5e36;
-  --lime: #86e64c;
-  --iris: #9c82ff;
-  --gold: #ffbc20;
-  --aqua: #3ee0ff;
-  --alert: #fa2d4a;
+  --bg: #0d0907;
+  --surface-1: #171310;
+  --surface-2: #201a17;
+  --surface-3: #29231f;
+  --line: rgba(241, 236, 232, 0.08);
+  --line-strong: rgba(241, 236, 232, 0.14);
+  --text: #f1ece8;
+  --text-muted: #c3bcb8;
+  --text-faint: #a8a09b;
+  --ember: #ff8346;
+  --lime: #59d2b1;
+  --iris: #bfaaff;
+  --gold: #ffd375;
+  --aqua: #95d1ff;
+  --alert: #fd4576;
   --background: var(--bg);
   --foreground: var(--text);
 }
@@ -87,8 +88,8 @@ button,
 }
 
 ::selection {
-  background: rgba(255, 94, 54, 0.45);
-  color: #fff;
+  background: rgba(255, 131, 70, 0.4);
+  color: var(--text);
 }
 
 ::-webkit-scrollbar {
@@ -99,11 +100,11 @@ button,
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #272231;
+  background: #362F2A;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #363043;
+  background: #463E39;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -166,7 +167,7 @@ button,
   }
   /* Acento sólido: el énfasis viene del color y el peso, no de un degradado */
   .text-accent {
-    color: #ff7d59;
+    color: #ffa176;
   }
 
   /* Botones */

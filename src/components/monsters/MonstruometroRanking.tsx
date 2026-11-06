@@ -115,7 +115,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                 resetAllConsumptions();
                 setShowResetConfirm(false);
               }}
-              className="btn !min-h-[38px] bg-rose-500 text-white"
+              className="btn !min-h-[38px] bg-rose-600 text-white"
             >
               Sí, reiniciar
             </button>
@@ -349,7 +349,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                 <Car className="mr-1 inline w-3.5 h-3.5" /> Que alguien más maneje o pidan un transporte.
               </p>
             </div>
-            <button onClick={() => setDriverWarning(null)} className="btn w-full bg-rose-500 text-white">
+            <button onClick={() => setDriverWarning(null)} className="btn w-full bg-rose-600 text-white">
               Entendido
             </button>
           </div>

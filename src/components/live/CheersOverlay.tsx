@@ -31,7 +31,7 @@ export default function CheersOverlay({ code, big = false }: { code: string; big
     setShow(cheers.id);
     audioEffects.playReveal();
     audioEffects.triggerHaptic([80, 60, 80]);
-    void fireConfetti({ particleCount: big ? 200 : 90, spread: 110, origin: { y: 0.6 }, colors: ["#FFBC20", "#FF5E36", "#F7F5F3"] });
+    void fireConfetti({ particleCount: big ? 200 : 90, spread: 110, origin: { y: 0.6 }, colors: ["#FFD375", "#FF8346", "#F1ECE8"] });
   }, [cheers, big, status]);
 
   // Ocultar en un efecto aparte: si el estado se re-sincroniza, no debe cancelar el cierre.

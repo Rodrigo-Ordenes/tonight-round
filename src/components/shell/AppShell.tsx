@@ -27,13 +27,13 @@ function MoonMark({ className = "" }: { className?: string }) {
     <svg viewBox="0 0 32 32" className={className} aria-hidden>
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#FFD2C2" />
-          <stop offset="0.5" stopColor="#FF5E36" />
-          <stop offset="1" stopColor="#9C82FF" />
+          <stop offset="0" stopColor="#FFD5C3" />
+          <stop offset="0.5" stopColor="#FF8346" />
+          <stop offset="1" stopColor="#BFAAFF" />
         </linearGradient>
       </defs>
       <path d="M20.5 3.5A12.5 12.5 0 1 0 28.5 22 10 10 0 0 1 20.5 3.5Z" fill={`url(#${gid})`} />
-      <circle cx="24.5" cy="8.5" r="1.6" fill="#86E64C" />
+      <circle cx="24.5" cy="8.5" r="1.6" fill="#59D2B1" />
     </svg>
   );
 }

@@ -95,7 +95,7 @@ export default function DynamicTimeBomb({ store }: { store: CarreteStore }) {
     <section className="surface relative overflow-hidden p-6 text-center">
       <span
         className="pointer-events-none absolute inset-0 transition-opacity duration-700"
-        style={{ background: "radial-gradient(circle at 50% 40%, rgba(250,45,74,0.35), transparent 60%)", opacity: phase === "ticking" ? heat : phase === "boom" ? 1 : 0 }}
+        style={{ background: "radial-gradient(circle at 50% 40%, rgba(253,69,118,0.35), transparent 60%)", opacity: phase === "ticking" ? heat : phase === "boom" ? 1 : 0 }}
         aria-hidden
       />
       <p className="eyebrow relative">La Bomba · {passes} pases</p>
@@ -147,7 +147,7 @@ export default function DynamicTimeBomb({ store }: { store: CarreteStore }) {
             ¡Dije algo! Pasar{nextUp ? ` a ${nextUp.name}` : ""} →
           </button>
         ) : (
-          <button onClick={start} className="btn w-full !min-h-[64px] bg-rose-500 text-base text-white">
+          <button onClick={start} className="btn w-full !min-h-[64px] bg-rose-600 text-base text-white">
             {phase === "boom" ? <RotateCcw className="w-5 h-5" /> : <Bomb className="w-5 h-5" />}
             {phase === "boom" ? "Otra ronda" : "Encender la bomba"}
           </button>

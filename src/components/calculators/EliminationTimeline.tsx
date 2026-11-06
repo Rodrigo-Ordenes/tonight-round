@@ -192,7 +192,7 @@ export default function EliminationTimeline() {
   return (
     <div className="space-y-6">
       {/* Obligatory Chilean Legal Disclaimer Banner */}
-      <div className="p-4 rounded-3xl bg-amber-500/10 border-2 border-amber-500/40 shadow-glow-amber">
+      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/40">
         <div className="flex items-start gap-3">
           <div className="p-2 rounded-2xl bg-amber-500/20 text-amber-400 shrink-0 mt-0.5">
             <AlertTriangle className="w-5 h-5" />
@@ -209,7 +209,7 @@ export default function EliminationTimeline() {
       </div>
 
       {/* Intro Header */}
-      <div className="bg-gradient-to-r from-night-900 to-night-850 p-5 rounded-3xl border border-indigo-500/20 shadow-glow">
+      <div className="surface p-5">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2.5 rounded-2xl bg-indigo-500/20 text-indigo-400">
             <Clock className="w-6 h-6" />
@@ -388,7 +388,7 @@ export default function EliminationTimeline() {
       </div>
 
       {/* Biological & Legal Output */}
-      <div className="glass-panel p-5 rounded-3xl space-y-5 border-amber-500/30">
+      <div className="glass-panel p-5 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-night-800 pb-4">
           <div>
             <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
@@ -412,7 +412,7 @@ export default function EliminationTimeline() {
         </div>
 
         {/* Legal Explanation */}
-        <div className="p-3.5 rounded-2xl bg-night-900/90 border border-night-800 text-xs text-slate-300 space-y-1.5">
+        <div className="p-3.5 rounded-xl bg-white/[0.03] text-xs text-slate-300 space-y-1.5">
           <div className="flex items-center gap-2 font-bold text-slate-200">
             <Car className="w-4 h-4 text-carrete-danger" />
             <span>Marco Legal ({locale.countryName}):</span>
@@ -424,7 +424,7 @@ export default function EliminationTimeline() {
 
         {/* Time estimations cards */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-4 rounded-2xl bg-night-900 border border-night-800">
+          <div className="p-4 rounded-xl bg-white/[0.03]">
             <span className="text-xs text-slate-400 block mb-1">
               Tiempo estimado a 0.00 g/l
             </span>
@@ -438,7 +438,7 @@ export default function EliminationTimeline() {
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-night-900 border border-night-800">
+          <div className="p-4 rounded-xl bg-white/[0.03]">
             <span className="text-xs text-slate-400 block mb-1">
               Bajo umbral penal (&lt; {locale.legal.bacLimitText})
             </span>
@@ -463,7 +463,7 @@ export default function EliminationTimeline() {
               {stats.timelinePoints.slice(0, 6).map((point) => (
                 <div
                   key={point.hoursAhead}
-                  className="p-2.5 rounded-xl bg-night-900 border border-night-800 text-center"
+                  className="p-2.5 rounded-lg bg-white/[0.03] text-center"
                 >
                   <span className="text-xs text-slate-400 block">
                     {point.hoursAhead === 0 ? "Ahora" : `+${point.hoursAhead}h`}
