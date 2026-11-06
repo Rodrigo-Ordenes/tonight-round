@@ -10,6 +10,8 @@ import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
 import RoundResults from "./RoundResults";
 import { useRevealMoment } from "@/lib/useRevealMoment";
+import { useRoundClock } from "@/lib/useRoundClock";
+import RoundTimer from "./RoundTimer";
 
 /**
  * Control del anfitrión: elige el juego, lanza la ronda, ve quién votó y revela.
@@ -28,6 +30,8 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
     audioEffects.playReveal();
     void fireConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#F7F5F3"] });
   });
+  // El anfitrión también sirve de reloj: si la TV no está abierta, revela solo y suena el tic final.
+  const clock = useRoundClock(round, { participants, dispatch, sound: true });
 
   if (isSolo) {
     return (
@@ -126,7 +130,8 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
 
           {!round.revealedAt ? (
             <>
-              <div className="relative mt-6">
+              <div className="relative mt-6 space-y-4">
+                <RoundTimer clock={clock} />
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-300">
                     Votaron <span className="font-mono font-bold text-white">{voters.length}</span> de {participants.length}

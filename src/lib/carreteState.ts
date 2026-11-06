@@ -115,6 +115,8 @@ export interface LiveRound {
   /** Palabra secreta (El Impostor): todos la ven menos quien es `answer`. */
   secret?: string;
   startedAt: number;
+  /** Tiempo para votar; al acabarse (con al menos un voto) la TV o el anfitrión revelan solos */
+  durationMs?: number;
   revealedAt?: number;
   endedAt?: number;
   votes: Record<string, LiveVote>;

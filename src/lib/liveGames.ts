@@ -39,7 +39,7 @@ export function buildRound(
     const unused = xs.filter((x) => !ctx.usedPrompts.has(key(x)));
     return pick(unused.length ? unused : xs);
   };
-  const base = { id: rid(), game, startedAt: Date.now() };
+  const base = { id: rid(), game, startedAt: Date.now(), durationMs: game === "impostor" ? 45_000 : 30_000 };
   const peopleOptions = people.map((p) => ({ id: p.id, label: p.name }));
 
   switch (game) {
@@ -175,4 +175,16 @@ export function penaltyFor(p: Participant, roundId: string, now = Date.now()): {
   }
   if (bac >= 0.5) return { text: "Un sorbo chico… y después un vaso de agua 💧", water: false };
   return { text: "Toma un sorbo 🍻", water: false };
+}
+
+/**
+ * ¿Se revela sola la ronda? Cuando votaron todos (con 2 o más personas) o cuando se acabó el tiempo
+ * con al menos un voto. Nunca con 0 votos ni dos veces.
+ */
+export function shouldAutoReveal(round: LiveRound, participantCount: number, now: number): boolean {
+  if (round.revealedAt) return false;
+  const votes = Object.keys(round.votes).length;
+  if (votes === 0) return false;
+  if (participantCount >= 2 && votes >= participantCount) return true;
+  return !!round.durationMs && now >= round.startedAt + round.durationMs;
 }

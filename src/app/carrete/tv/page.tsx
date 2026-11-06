@@ -20,6 +20,8 @@ import { buildRound, tally } from "@/lib/liveGames";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 import { useRevealMoment } from "@/lib/useRevealMoment";
+import { useRoundClock } from "@/lib/useRoundClock";
+import RoundTimer from "@/components/live/RoundTimer";
 import { uid } from "@/store/useCarreteStore";
 
 export default function CarreteTVPage() {
@@ -103,6 +105,7 @@ function TvStage() {
     audioEffects.playReveal();
     void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#3EE0FF"] });
   });
+  const clock = useRoundClock(valid ? round : null, { participants: store.participants, dispatch: store.dispatch, sound: true });
 
   const rows = useMemo(
     () => store.participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => a.p.joinedAt - b.p.joinedAt),
@@ -180,7 +183,8 @@ function TvStage() {
                 </div>
               )}
               {round.game === "impostor" && <p className="mt-6 max-w-[80vw] text-tv-sm text-slate-300">{round.prompt}</p>}
-              <div className="mt-12">
+              <div className="mt-12 space-y-6">
+                <RoundTimer clock={clock} size="tv" />
                 <p className="text-tv-sm text-slate-300">
                   Votaron <span className="font-mono font-bold text-white">{voters.length}</span> de {store.participants.length} · voten desde el celular
                 </p>
