@@ -10,18 +10,20 @@ import CustomizableRoulette from "./CustomizableRoulette";
 import DynamicTimeBomb from "./DynamicTimeBomb";
 import RandomPicanteGame from "./RandomPicanteGame";
 import FingerChooser from "./FingerChooser";
+import SeatShuffle from "./SeatShuffle";
 import LiveGameHost from "@/components/live/LiveGameHost";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
 import PageHeader from "@/components/ui/PageHeader";
 import { audioEffects } from "@/lib/audioEffects";
 
-type Quick = "ruleta" | "bomba" | "nunca" | "dedazo";
+type Quick = "ruleta" | "bomba" | "nunca" | "dedazo" | "puestos";
 
 const QUICK: { id: Quick; label: string; emoji: string; blurb: string }[] = [
   { id: "ruleta", label: "La Ruleta", emoji: "🎡", blurb: "Castigos, retos y verdades con los nombres de la sala." },
   { id: "bomba", label: "La Bomba", emoji: "💣", blurb: "Categoría al azar y el celular pasa de mano en mano." },
   { id: "nunca", label: "Yo nunca", emoji: "🙊", blurb: "Mazo barajado sin repetir, por niveles." },
   { id: "dedazo", label: "El Dedazo", emoji: "☝️", blurb: "Todos ponen un dedo en la pantalla: el celular elige." },
+  { id: "puestos", label: "Cambio de puestos", emoji: "🔀", blurb: "Mezcla puestos, parejas o equipos y lo muestra en la TV." },
 ];
 
 export default function GameDeck() {
@@ -66,7 +68,7 @@ export default function GameDeck() {
           </h2>
           <p className="meta mt-1">Con un solo celular que pasa de mano en mano.</p>
         </div>
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
           {QUICK.map((g) => (
             <button
               key={g.id}
@@ -89,6 +91,7 @@ export default function GameDeck() {
           {quick === "bomba" && <DynamicTimeBomb store={store} />}
           {quick === "nunca" && <RandomPicanteGame store={store} />}
           {quick === "dedazo" && <FingerChooser />}
+          {quick === "puestos" && <SeatShuffle store={store} />}
         </div>
       </section>
 

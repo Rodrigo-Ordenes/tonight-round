@@ -15,6 +15,7 @@ import { nightMoment } from "@/lib/nightMoment";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
 import RoundResults from "@/components/live/RoundResults";
+import { GROUP_LABEL } from "@/components/games/SeatShuffle";
 import CheersOverlay from "@/components/live/CheersOverlay";
 import { buildRound, tally } from "@/lib/liveGames";
 import { useWakeLock } from "@/lib/useWakeLock";
@@ -138,6 +139,8 @@ function TvStage() {
   const voters = round ? Object.keys(round.votes) : [];
 
   const requests = (store.state.music?.requests ?? []).filter((r) => !r.played).slice(-4);
+  // Un sorteo de puestos se muestra 10 minutos en la TV
+  const seats = store.games.seats && now - store.games.seats.at < 10 * 60_000 ? store.games.seats : null;
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col px-[4vw] py-[3vh]">
@@ -249,6 +252,20 @@ function TvStage() {
               </div>
             </div>
           </section>
+
+          {seats && (
+            <section aria-label="Nuevos puestos" className="lg:col-span-2 animate-rise-in">
+              <p className="eyebrow !text-lg">{seats.mode === "puestos" ? "Nuevos puestos" : "Sorteo de la sala"}</p>
+              <div className="mt-4 flex flex-wrap gap-4">
+                {seats.groups.map((g, i) => (
+                  <div key={i} className="min-w-[14rem] rounded-2xl border border-white/10 px-6 py-4 animate-rise-in" style={{ animationDelay: `${i * 80}ms` }}>
+                    <p className="text-xl text-slate-400">{GROUP_LABEL[seats.mode](i)}</p>
+                    <p className="mt-1 text-tv-sm font-bold text-white">{g.map((id) => store.participants.find((p) => p.id === id)?.name ?? "—").join(seats.mode === "puestos" ? " → " : " · ")}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section aria-label="Monstruómetro" className="space-y-3">
             <p className="eyebrow !text-lg">Monstruómetro</p>

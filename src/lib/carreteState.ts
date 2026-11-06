@@ -70,7 +70,17 @@ export interface GamesState {
   bombLast: string;
   rouletteCustom: Record<string, string[]>; // frases propias por categoría
   rouletteDisabled: string[];
+  /** Último sorteo de puestos/equipos (se muestra en la TV) */
+  seats?: SeatDraw | null;
   updatedAt: number;
+}
+
+export type SeatMode = "parejas" | "trios" | "equipos" | "puestos";
+
+export interface SeatDraw {
+  mode: SeatMode;
+  groups: string[][];
+  at: number;
 }
 
 export interface MusicState {
