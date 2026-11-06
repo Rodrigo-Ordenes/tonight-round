@@ -197,3 +197,9 @@ export function isRoundDriver(round: Pick<LiveRound, "hostId">, who: { tv: boole
   if (who.tv) return true;
   return !!who.meId && round.hostId === who.meId;
 }
+
+/** Tiempo restante (ms) acotado a [0, duración]: un reloj atrasado nunca muestra más que la duración. */
+export function roundRemaining(round: Pick<LiveRound, "startedAt" | "durationMs">, now: number): number | null {
+  if (!round.durationMs) return null;
+  return Math.min(round.durationMs, Math.max(0, round.startedAt + round.durationMs - now));
+}

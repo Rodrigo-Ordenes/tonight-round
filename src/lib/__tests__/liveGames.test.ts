@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { tally, isRoundDriver } from "@/lib/liveGames";
+import { tally, isRoundDriver, roundRemaining } from "@/lib/liveGames";
 import type { LiveRound } from "@/lib/carreteState";
 import { person } from "./fixtures";
 
@@ -76,4 +76,14 @@ describe("quién maneja el reloj de la ronda", () => {
     expect(isRoundDriver(old, { tv: false, meId: "ana" })).toBe(false);
     expect(isRoundDriver(old, { tv: true, meId: null })).toBe(true);
   });
+});
+
+describe("tiempo restante de la ronda", () => {
+  const r = { startedAt: 10_000, durationMs: 30_000 } as Parameters<typeof roundRemaining>[0];
+  it("con un reloj anterior al inicio no muestra más que la duración", () => expect(roundRemaining(r, 0)).toBe(30_000));
+  it("cuenta hacia cero y no baja de cero", () => {
+    expect(roundRemaining(r, 25_000)).toBe(15_000);
+    expect(roundRemaining(r, 99_000)).toBe(0);
+  });
+  it("sin duración devuelve null", () => expect(roundRemaining({ startedAt: 0 } as never, 5)).toBeNull());
 });

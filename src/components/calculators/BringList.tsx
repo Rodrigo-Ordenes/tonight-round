@@ -5,17 +5,7 @@ import { Check, Plus, X } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { DEFAULT_BRING } from "@/lib/carreteState";
 import { audioEffects } from "@/lib/audioEffects";
-
-const SUGGESTED = ["Hielo", "Agua", "Vasos", "Picoteo", "Parlante", "Hielera", "Limones", "Servilletas"];
-
-const slug = (s: string) =>
-  s
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 40);
+import { bringSuggestions, newBringItem } from "@/lib/bring";
 
 /** Lista "Yo llevo": cada invitado se adjudica algo desde su celular y todos ven quién trae qué. */
 export default function BringList({ store, compact = false }: { store: CarreteStore; compact?: boolean }) {
@@ -24,13 +14,13 @@ export default function BringList({ store, compact = false }: { store: CarreteSt
   const [text, setText] = useState("");
   const name = (id?: string) => participants.find((p) => p.id === id)?.name;
   const canClaim = !!meId && !isSolo;
-  const missing = SUGGESTED.filter((l) => !bring.items.some((i) => i.id === slug(l)) && !bring.removed.includes(slug(l)));
+  const missing = bringSuggestions(state.basket.items, bring);
 
   const add = (label: string) => {
-    const clean = label.trim().slice(0, 40);
-    if (!clean) return;
+    const item = newBringItem(label, bring);
+    if (!item) return;
     audioEffects.playPop();
-    dispatch({ type: "ADD_BRING", item: { id: slug(clean) || `item-${Date.now()}`, label: clean } });
+    dispatch({ type: "ADD_BRING", item });
   };
 
   const items = compact ? bring.items.slice(0, 6) : bring.items;

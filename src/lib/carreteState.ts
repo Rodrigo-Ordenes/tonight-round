@@ -586,7 +586,7 @@ export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState, authority?:
     participants: Array.from(map.values()).sort((x, y) => x.joinedAt - y.joinedAt),
     basket: b.basket.updatedAt > a.basket.updatedAt ? b.basket : a.basket,
     games: b.games.updatedAt > a.games.updatedAt ? b.games : a.games,
-    music: mergeMusic(a.music, b.music),
+    music: mergeMusic(a.music, b.music, authority),
     live: mergeLive(a.live ?? DEFAULT_LIVE, b.live ?? DEFAULT_LIVE),
     split: mergeSplit(a.split ?? DEFAULT_SPLIT, b.split ?? DEFAULT_SPLIT),
     bring: mergeBring(a.bring ?? DEFAULT_BRING, b.bring ?? DEFAULT_BRING, authority),
@@ -652,12 +652,14 @@ function mergeLive(a: LiveState, b: LiveState): LiveState {
 }
 
 /** Música: ambiente por LWW; los pedidos de canciones se unen por id (un "ya sonó" no se pierde). */
-function mergeMusic(a?: MusicState, b?: MusicState): MusicState | undefined {
+function mergeMusic(a?: MusicState, b?: MusicState, authority?: "a" | "b"): MusicState | undefined {
   if (!a || !b) return a ?? b;
   const newer = b.updatedAt > a.updatedAt ? b : a;
   const all = [...(a.requests ?? []), ...(b.requests ?? [])];
-  // Los votos de un pedido siguen al estado de música más reciente (se puede quitar un voto)
-  const newerVotes = new Map((newer.requests ?? []).map((r) => [r.id, r.votes]));
+  // Los votos de un pedido siguen al servidor si se sabe cuál es (un reloj adelantado no los congela);
+  // si no, al estado de música más reciente (se puede quitar un voto)
+  const votesFrom = authority === "a" ? a : authority === "b" ? b : newer;
+  const newerVotes = new Map((votesFrom.requests ?? []).map((r) => [r.id, r.votes]));
   const requests = uniqBy(all, (r) => r.id)
     .map((r) => ({
       ...r,

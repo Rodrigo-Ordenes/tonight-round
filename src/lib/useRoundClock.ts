@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { LiveRound, Participant } from "./carreteState";
-import { shouldAutoReveal, tally } from "./liveGames";
+import { roundRemaining, shouldAutoReveal, tally } from "./liveGames";
 import { audioEffects } from "./audioEffects";
 import type { CarreteAction } from "./carreteState";
 
@@ -27,12 +27,13 @@ export function useRoundClock(
 
   useEffect(() => {
     if (!open) return;
+    setNow(Date.now()); // sin esto, el primer cuadro usa la hora de cuando se montó el componente
     const iv = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(iv);
   }, [open]);
 
-  const remainingMs = round?.durationMs ? Math.max(0, round.startedAt + round.durationMs - now) : null;
-  const progress = round?.durationMs ? Math.min(1, (now - round.startedAt) / round.durationMs) : 0;
+  const remainingMs = round ? roundRemaining(round, now) : null;
+  const progress = round?.durationMs && remainingMs !== null ? 1 - remainingMs / round.durationMs : 0;
 
   useEffect(() => {
     if (!driver || !round || round.revealedAt) return;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyEvents } from "@/lib/carreteState";
+import { applyEvents, mergeCarrete } from "@/lib/carreteState";
 import { songQueue } from "@/lib/music";
 import { buildWrapped } from "@/lib/wrapped";
 import { ev, person, room } from "./fixtures";
@@ -32,5 +32,15 @@ describe("Wrapped ampliado", () => {
     expect(w.topDrink).toBe("Piscola");
     expect(w.topSong).toBe("Bad Bunny");
     expect(w.hydrationPct).toBe(67);
+  });
+});
+
+describe("votos de canciones entre celulares", () => {
+  it("un celular con el reloj adelantado igual ve los votos que llegan al servidor", () => {
+    const base = applyEvents(room(), [req("a", 1)]);
+    const phoneA = applyEvents(base, [ev({ type: "VOTE_SONG", id: "a", participantId: "ana", at: 9_999 })]);
+    const server = applyEvents(phoneA, [ev({ type: "VOTE_SONG", id: "a", participantId: "beto", at: 2_000 })]);
+    const after = mergeCarrete(phoneA, server, "b");
+    expect(after.music!.requests!.find((r) => r.id === "a")!.votes).toEqual(expect.arrayContaining(["ana", "beto"]));
   });
 });
