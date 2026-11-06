@@ -2,10 +2,11 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Crown, Droplets, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
+import { ChevronDown, Crown, Droplets, Eye, EyeOff, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import { useWakeLock } from "@/lib/useWakeLock";
+import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 import { CHEERS_WORD } from "@/components/live/CheersOverlay";
 import { ABSORPTION, DRINK_PRESETS, bacFor, fmtDuration, fmtTime, hydrationFor, type DrinkPreset, type StomachState } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
@@ -33,6 +34,23 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const [songSent, setSongSent] = useState(false);
   const [waterToast, setWaterToast] = useState(false);
   const warnedAt = useRef(0);
+  const [discreet, setDiscreet] = useState(false);
+  useEffect(() => {
+    try {
+      setDiscreet(localStorage.getItem("tonight_discreet") === "1");
+    } catch {
+      /* sin almacenamiento */
+    }
+  }, []);
+  const toggleDiscreet = () => {
+    const next = !discreet;
+    setDiscreet(next);
+    try {
+      localStorage.setItem("tonight_discreet", next ? "1" : "0");
+    } catch {
+      /* sin almacenamiento */
+    }
+  };
 
   const me = participants.find((p) => p.id === meId) ?? null;
   // El celular que es control no se apaga en plena noche.
@@ -193,25 +211,44 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           )}
         </div>
 
-        <div className="mt-5 flex items-end gap-6">
-          <div>
-            <p className="eyebrow !text-xs">Ahora (g/l)</p>
-            <p className="font-display text-6xl font-extrabold leading-none text-white tabular">{r.bac.toFixed(2)}</p>
+        {discreet ? (
+          <div className="mt-5">
+            {/* Modo discreto: nadie alrededor ve una cifra; solo la hora de volver a 0.00 */}
+            <p className="font-display text-5xl font-extrabold leading-none text-white tabular">{r.zeroAt ? fmtTime(r.zeroAt) : "0.00"}</p>
+            <p className="meta mt-2">{r.zeroAt ? "Hora estimada de volver a 0.00" : "Sin alcohol estimado"}</p>
           </div>
-          <div className="pb-1 text-sm text-slate-300">
-            {r.zeroAt ? (
-              <>
-                {rising && <p>Sube hasta {r.peakBac.toFixed(2)} a las {fmtTime(r.peakAt!)}</p>}
-                <p>
-                  Vuelves a 0.00 ≈ <span className="font-semibold text-white">{fmtTime(r.zeroAt)}</span>
-                </p>
-                <p className="text-xs text-slate-400">en {fmtDuration(r.hoursToZero)}</p>
-              </>
-            ) : (
-              <p className="text-emerald-200">Estás en 0.00</p>
-            )}
+        ) : (
+          <div className="mt-5 flex items-end gap-6">
+            <div>
+              <p className="eyebrow">Ahora (g/l)</p>
+              <p className={`font-display text-6xl font-extrabold leading-none tabular ${TONE_CLASS[bacTone(r.bac, driver, me.consumptions.length > 0)].text}`}>
+                {r.bac.toFixed(2)}
+              </p>
+            </div>
+            <div className="pb-1 text-sm text-slate-300">
+              {r.zeroAt ? (
+                <>
+                  {rising && <p>Sube hasta {r.peakBac.toFixed(2)} a las {fmtTime(r.peakAt!)}</p>}
+                  <p>
+                    Vuelves a 0.00 ≈ <span className="font-semibold text-white">{fmtTime(r.zeroAt)}</span>
+                  </p>
+                  <p className="text-xs text-slate-400">en {fmtDuration(r.hoursToZero)}</p>
+                </>
+              ) : (
+                <p className="text-cyan-200">Estás en 0.00</p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+        <button
+          type="button"
+          onClick={() => toggleDiscreet()}
+          aria-pressed={discreet}
+          className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white"
+        >
+          {discreet ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+          {discreet ? "Mostrar cifras" : "Modo discreto"}
+        </button>
 
         <div className="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-white/[0.03] p-1" role="radiogroup" aria-label="¿Comiste?">
           {(Object.keys(ABSORPTION) as StomachState[]).map((s) => (

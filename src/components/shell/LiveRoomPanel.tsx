@@ -13,6 +13,7 @@ import { nightMoment } from "@/lib/nightMoment";
 import NowPlayingMini from "@/components/music/NowPlayingMini";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
 import { stockFor } from "@/lib/stock";
+import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 import { basketInsights } from "@/lib/basket";
 
 /** Panel persistente de la sala: quién está, cómo va cada uno y acciones rápidas, al lado de cualquier sección. */
@@ -208,15 +209,7 @@ function RoomPanel({ code }: { code: string }) {
             {rows.map(({ p, bac }) => {
               const driver = p.role === "driver";
               const pct = Math.min(100, (bac / 1.2) * 100);
-              const tone = driver
-                ? bac > 0
-                  ? "bg-rose-500"
-                  : "bg-amber-400"
-                : bac >= 0.8
-                ? "bg-rose-500"
-                : bac >= 0.3
-                ? "bg-amber-400"
-                : "bg-emerald-400";
+              const tone = TONE_CLASS[bacTone(bac, driver, p.consumptions.length > 0)].bar;
               return (
                 <li key={p.id} className="rounded-2xl bg-white/[0.03] px-3 py-2.5">
                   <div className="flex items-center gap-2 text-sm">

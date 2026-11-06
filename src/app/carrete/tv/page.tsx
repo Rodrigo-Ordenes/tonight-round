@@ -18,6 +18,7 @@ import RoundResults from "@/components/live/RoundResults";
 import CheersOverlay from "@/components/live/CheersOverlay";
 import { buildRound, tally } from "@/lib/liveGames";
 import { useWakeLock } from "@/lib/useWakeLock";
+import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 import { useRevealMoment } from "@/lib/useRevealMoment";
 import { uid } from "@/store/useCarreteStore";
 
@@ -104,7 +105,7 @@ function TvStage() {
   });
 
   const rows = useMemo(
-    () => store.participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => b.r.totalGrams - a.r.totalGrams),
+    () => store.participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => a.p.joinedAt - b.p.joinedAt),
     [store.participants, now]
   );
 
@@ -248,14 +249,14 @@ function TvStage() {
           <section aria-label="Monstruómetro" className="space-y-3">
             <p className="eyebrow !text-lg">Monstruómetro</p>
             {rows.length === 0 && <p className="text-tv-sm text-slate-400">Esperando a los primeros…</p>}
-            {rows.slice(0, 8).map(({ p, r, h }, i) => {
+            {rows.slice(0, 8).map(({ p, r, h }) => {
               const driver = p.role === "driver";
               const pct = Math.min(100, (r.bac / 1.2) * 100);
-              const tone = driver ? (r.totalGrams > 0 ? "bg-rose-500" : "bg-amber-400") : r.bac >= 0.8 ? "bg-rose-500" : r.bac >= 0.3 ? "bg-amber-400" : "bg-emerald-400";
+              const tone = TONE_CLASS[bacTone(r.bac, driver, r.totalGrams > 0)].bar;
               return (
                 <div key={p.id} className="rounded-3xl bg-white/[0.04] px-6 py-4">
                   <div className="flex items-center gap-4 text-tv-sm">
-                    <span className="w-10 font-mono text-slate-500">{driver ? "👑" : String(i + 1).padStart(2, "0")}</span>
+                    {driver && <span className="text-amber-300" aria-label="Conductor designado">👑</span>}
                     <span className="flex-1 truncate font-bold text-white">{p.name}</span>
                     {p.waterCount > 0 && <span className="text-cyan-200">💧{p.waterCount}</span>}
                     {h.needsWater && p.consumptions.length > 0 && <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-lg text-cyan-100">¡agua!</span>}

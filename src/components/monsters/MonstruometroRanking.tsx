@@ -18,6 +18,7 @@ import {
   type StomachState,
 } from "@/lib/alcohol";
 import type { Participant } from "@/lib/carreteState";
+import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 
 interface Props {
   store: CarreteStore;
@@ -51,7 +52,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
     return () => clearInterval(iv);
   }, []);
 
-  const rows = participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => b.r.totalGrams - a.r.totalGrams);
+  const rows = participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => a.p.joinedAt - b.p.joinedAt);
 
   const drink = (p: Participant, preset: Pick<DrinkPreset, "label" | "ml" | "abv">) => {
     audioEffects.playBubble();
@@ -132,8 +133,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
       )}
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
-        {rows.map(({ p, r, h }, idx) => {
-          const isTop = idx === 0 && r.totalGrams > 0 && p.role !== "driver";
+        {rows.map(({ p, r, h }) => {
           const breach = p.role === "driver" && p.consumptions.length > 0;
           const details = groupConsumptions(p.consumptions);
           const stomach = p.stomach ?? "normal";
@@ -141,7 +141,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
           return (
             <article
               key={p.id}
-              className={`surface relative flex flex-col gap-3 p-4 ${breach ? "!border-rose-500 ring-2 ring-rose-500/60" : isTop ? "!border-amber-400/40" : ""}`}
+              className={`surface relative flex flex-col gap-3 p-4 ${breach ? "!border-rose-500 ring-2 ring-rose-500/60" : ""}`}
             >
               <header className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
@@ -153,10 +153,6 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                 {p.role === "driver" ? (
                   <span className="flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-1 text-xs font-bold uppercase text-amber-200">
                     <Crown className="w-3 h-3" /> {breach ? "¡Bebió!" : "Piloto 0.0"}
-                  </span>
-                ) : isTop ? (
-                  <span className="rounded-full border border-indigo-400/40 bg-indigo-500/10 px-2 py-1 text-xs font-bold uppercase text-indigo-200">
-                    Monstruo #1
                   </span>
                 ) : null}
               </header>
@@ -198,7 +194,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
 
               <p
                 className={`rounded-xl border px-3 py-2 text-xs font-semibold ${
-                  r.bac >= 0.8 ? "border-rose-500/40 bg-rose-500/10 text-rose-100" : r.bac > 0 ? "border-amber-400/30 bg-amber-400/[0.07] text-amber-100" : "border-emerald-400/30 bg-emerald-400/[0.07] text-emerald-100"
+                  TONE_CLASS[bacTone(r.bac, p.role === "driver", p.consumptions.length > 0)].panel
                 }`}
               >
                 {r.zeroAt
