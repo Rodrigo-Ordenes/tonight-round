@@ -1,5 +1,5 @@
 import type { CountryCode } from "@/config/locales";
-import type { CarreteState, MusicState } from "./carreteState";
+import type { CarreteState, MusicState, SongRequest } from "./carreteState";
 import { nightMoment, type MomentKey } from "./nightMoment";
 
 /**
@@ -269,4 +269,12 @@ export function resolveNowPlaying(music: MusicState | undefined, ctx: DjContext)
   }
   const pick = djSuggestions(ctx)[0];
   return { title: pick.vibe.name, embed: embedForVibe(pick.vibe), open: openForVibe(pick.vibe), vibe: pick.vibe, reason: `DJ automático · ${pick.reason}` };
+}
+
+/** Cola de pedidos pendientes: más votos primero; a igual votos, el más antiguo. */
+export function songQueue(music: MusicState | undefined): SongRequest[] {
+  return (music?.requests ?? [])
+    .filter((r) => !r.played)
+    .slice()
+    .sort((a, b) => (b.votes?.length ?? 0) - (a.votes?.length ?? 0) || a.at - b.at);
 }

@@ -103,6 +103,8 @@ export interface SongRequest {
   text: string;
   at: number;
   played?: boolean;
+  /** Participantes que votaron este pedido (la cola se ordena por votos) */
+  votes?: string[];
 }
 
 /* ---------------- Rondas en vivo (TV = escenario, celulares = control) ---------------- */
@@ -282,6 +284,7 @@ export type CarreteAction =
   | { type: "CHEERS"; id: string; by: string }
   | { type: "SONG_REQUEST"; request: SongRequest }
   | { type: "SONG_PLAYED"; id: string }
+  | { type: "VOTE_SONG"; id: string; participantId: string }
   | { type: "ADD_BRING"; item: { id: string; label: string } }
   | { type: "CLAIM_BRING"; id: string; participantId: string }
   | { type: "REMOVE_BRING"; id: string }
@@ -438,6 +441,23 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
       const m = s.music ?? DEFAULT_MUSIC;
       if ((m.requests ?? []).some((r) => r.id === a.request.id)) return s;
       return { ...s, music: { ...m, requests: [...(m.requests ?? []), a.request].slice(-30), updatedAt: Math.max(m.updatedAt, at) } };
+    }
+    case "VOTE_SONG": {
+      const m = s.music ?? DEFAULT_MUSIC;
+      return {
+        ...s,
+        music: {
+          ...m,
+          requests: (m.requests ?? []).map((r) => {
+            if (r.id !== a.id) return r;
+            const v = new Set(r.votes ?? []);
+            if (v.has(a.participantId)) v.delete(a.participantId);
+            else v.add(a.participantId);
+            return { ...r, votes: Array.from(v) };
+          }),
+          updatedAt: Math.max(m.updatedAt, at),
+        },
+      };
     }
     case "SONG_PLAYED": {
       const m = s.music ?? DEFAULT_MUSIC;
@@ -618,8 +638,14 @@ function mergeMusic(a?: MusicState, b?: MusicState): MusicState | undefined {
   if (!a || !b) return a ?? b;
   const newer = b.updatedAt > a.updatedAt ? b : a;
   const all = [...(a.requests ?? []), ...(b.requests ?? [])];
+  // Los votos de un pedido siguen al estado de música más reciente (se puede quitar un voto)
+  const newerVotes = new Map((newer.requests ?? []).map((r) => [r.id, r.votes]));
   const requests = uniqBy(all, (r) => r.id)
-    .map((r) => ({ ...r, played: all.some((x) => x.id === r.id && x.played) || undefined }))
+    .map((r) => ({
+      ...r,
+      played: all.some((x) => x.id === r.id && x.played) || undefined,
+      votes: newerVotes.has(r.id) ? newerVotes.get(r.id) : r.votes,
+    }))
     .sort((x, y) => x.at - y.at)
     .slice(-30);
   return { ...newer, requests };

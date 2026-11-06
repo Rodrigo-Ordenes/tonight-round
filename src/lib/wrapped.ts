@@ -15,6 +15,12 @@ export interface WrappedData {
   rounds: number;
   hours: number;
   distinctDrinks: number;
+  /** Pedido de canción con más votos (o el primero si nadie votó) */
+  topSong: string | null;
+  /** Trago más registrado de la noche */
+  topDrink: string | null;
+  /** Vasos de agua por trago del grupo, 0–100 (100 = un vaso por trago) */
+  hydrationPct: number;
   awards: Award[];
 }
 
@@ -86,8 +92,16 @@ export function buildWrapped(state: CarreteState): WrappedData {
   const famous = top(Array.from(spotlight.entries()), ([, n]) => n);
   if (famous && byId(famous[0])) awards.push({ emoji: "🎤", title: "El más votado", who: byId(famous[0])!.name, detail: `La sala lo eligió ${famous[1]} veces.` });
 
+  const counts = new Map<string, number>();
+  people.forEach((p) => p.consumptions.forEach((c) => counts.set(c.label, (counts.get(c.label) ?? 0) + 1)));
+  const topDrinkEntry = top(Array.from(counts.entries()), ([, n]) => n);
+  const reqs = (state.music?.requests ?? []).slice().sort((a, b) => (b.votes?.length ?? 0) - (a.votes?.length ?? 0) || a.at - b.at);
+
   return {
     code: state.code,
+    topSong: reqs[0]?.text ?? null,
+    topDrink: topDrinkEntry ? topDrinkEntry[0] : null,
+    hydrationPct: drinks ? Math.round(Math.min(1, waters / drinks) * 100) : 0,
     people: people.length,
     drinks,
     waterLiters: waters * 0.25,
@@ -168,6 +182,11 @@ export async function drawWrapped(canvas: HTMLCanvasElement, d: WrappedData, par
     ctx.fillText(a.title, pad + 100, y + 36, W - pad * 2 - 100);
   });
 
+  if (d.topDrink || d.topSong) {
+    ctx.fillStyle = "#BAB4C2";
+    ctx.font = `600 32px ${sans}`;
+    ctx.fillText([d.topDrink ? `Trago: ${d.topDrink}` : "", d.topSong ? `Canción: ${d.topSong}` : ""].filter(Boolean).join("  ·  "), pad, H - 190, W - pad * 2);
+  }
   ctx.fillStyle = "#FF5E36";
   ctx.font = `800 40px ${display}`;
   ctx.fillText(`El ${partyName.toLowerCase()} se armó en Tonight`, pad, H - 120);

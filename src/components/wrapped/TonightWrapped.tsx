@@ -59,6 +59,7 @@ export default function TonightWrapped({ store }: { store: CarreteStore }) {
     { n: data.rounds, label: "rondas jugadas" },
     { n: data.distinctDrinks, label: "tragos distintos" },
     { n: data.hours > 0 ? `${data.hours.toFixed(1)} h` : "—", label: "de carrete" },
+    { n: `${data.hydrationPct}%`, label: "de hidratación del grupo", water: true },
   ];
 
   return (
@@ -77,7 +78,24 @@ export default function TonightWrapped({ store }: { store: CarreteStore }) {
           ))}
         </dl>
 
-        <p className="eyebrow mt-12">Premios de la noche</p>
+        {(data.topSong || data.topDrink) && (
+          <dl className="mt-10 grid gap-6 sm:grid-cols-2">
+            {data.topDrink && (
+              <div>
+                <dt className="eyebrow">Trago de la noche</dt>
+                <dd className="mt-1 font-display text-3xl font-extrabold text-white">{data.topDrink}</dd>
+              </div>
+            )}
+            {data.topSong && (
+              <div>
+                <dt className="eyebrow">Canción más pedida</dt>
+                <dd className="mt-1 truncate font-display text-3xl font-extrabold text-white">{data.topSong}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+
+        <h3 className="mt-12 font-display text-xl font-bold text-white">Premios de la noche</h3>
         {data.awards.length === 0 ? (
           <p className="mt-3 text-sm text-slate-400">Registren tragos, agua y jueguen algunas rondas: los premios aparecen solos.</p>
         ) : (

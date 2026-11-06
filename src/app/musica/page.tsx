@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { ExternalLink, Link2, Sparkles, Wand2 } from "lucide-react";
+import { ExternalLink, Heart, Link2, Sparkles, Wand2 } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore } from "@/store/useCarreteStore";
 import { useLocale } from "@/lib/useLocale";
@@ -12,6 +12,7 @@ import {
   openForVibe,
   resolveNowPlaying,
   roomPulse,
+  songQueue,
   spotifyEmbedFromUrl,
   vibesFor,
   youtubeMusicSearch,
@@ -179,14 +180,24 @@ export default function MusicaPage() {
       {/* Pedidos de la sala */}
       {(music?.requests ?? []).length > 0 && (
         <section>
-          <p className="eyebrow mb-4">Pedidos de la sala</p>
+          <h2 className="font-display text-2xl font-bold text-white">Pedidos de la sala</h2>
+          <p className="meta mb-4 mt-1">La cola se ordena por votos: tocar el corazón suma o quita el tuyo.</p>
           <ul className="grid gap-2 sm:grid-cols-2">
-            {(music?.requests ?? [])
-              .slice()
-              .reverse()
+            {[...songQueue(music), ...(music?.requests ?? []).filter((r) => r.played)]
               .map((r) => (
                 <li key={r.id} className={`surface flex items-center gap-3 p-3 ${r.played ? "opacity-50" : ""}`}>
-                  <span className="text-xl">🎵</span>
+                  <button
+                    type="button"
+                    disabled={!store.meId || r.played}
+                    onClick={() => store.meId && dispatch({ type: "VOTE_SONG", id: r.id, participantId: store.meId })}
+                    aria-pressed={!!store.meId && (r.votes ?? []).includes(store.meId)}
+                    aria-label={`Votar ${r.text}`}
+                    className={`flex h-11 min-w-[44px] shrink-0 items-center justify-center gap-1 rounded-xl text-sm font-bold ${
+                      store.meId && (r.votes ?? []).includes(store.meId) ? "bg-indigo-500/20 text-indigo-100" : "bg-white/[0.04] text-slate-300"
+                    } disabled:opacity-50`}
+                  >
+                    <Heart className="w-4 h-4" /> {r.votes?.length ?? 0}
+                  </button>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold text-white">{r.text}</span>
                     <span className="block text-xs text-slate-400">pedida por {state.participants.find((p) => p.id === r.by)?.name ?? "alguien"}</span>

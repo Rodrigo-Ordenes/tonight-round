@@ -10,7 +10,7 @@ import { useCarreteStore, SOLO } from "@/store/useCarreteStore";
 import { useLocale } from "@/lib/useLocale";
 import { bacFor, hydrationFor } from "@/lib/alcohol";
 import { LIVE_GAME_BY_ID } from "@/lib/liveGames";
-import { resolveNowPlaying } from "@/lib/music";
+import { resolveNowPlaying, songQueue } from "@/lib/music";
 import { nightMoment } from "@/lib/nightMoment";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
@@ -138,7 +138,7 @@ function TvStage() {
   const moment = nightMoment(new Date(now));
   const voters = round ? Object.keys(round.votes) : [];
 
-  const requests = (store.state.music?.requests ?? []).filter((r) => !r.played).slice(-4);
+  const requests = songQueue(store.state.music).slice(0, 4);
   // Un sorteo de puestos se muestra 10 minutos en la TV
   const seats = store.games.seats && now - store.games.seats.at < 10 * 60_000 ? store.games.seats : null;
 
@@ -238,7 +238,7 @@ function TvStage() {
                     <ul className="mt-2 space-y-1">
                       {requests.map((r) => (
                         <li key={r.id} className="text-xl text-slate-200">
-                          🎵 {r.text} <span className="text-slate-500">· {store.participants.find((p) => p.id === r.by)?.name ?? "alguien"}</span>
+                          {r.text} <span className="text-slate-500">· {store.participants.find((p) => p.id === r.by)?.name ?? "alguien"}{r.votes?.length ? ` · ♥ ${r.votes.length}` : ""}</span>
                         </li>
                       ))}
                     </ul>

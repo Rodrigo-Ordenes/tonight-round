@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Crown, Droplets, Eye, EyeOff, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
+import { ChevronDown, Crown, Droplets, Eye, EyeOff, Heart, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import { useWakeLock } from "@/lib/useWakeLock";
@@ -13,6 +13,7 @@ import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
 import { normalizePayLink } from "@/lib/split";
+import { songQueue } from "@/lib/music";
 
 const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "🥨", full: "🍝" };
 
@@ -442,6 +443,29 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           </button>
         </form>
         <p className="mt-2 text-xs text-slate-500">Aparece en la cola de la TV y en la página de Música.</p>
+        {songQueue(store.state.music).length > 0 && (
+          <ul className="mt-3 space-y-1.5">
+            {songQueue(store.state.music)
+              .slice(0, 4)
+              .map((r) => {
+                const voted = (r.votes ?? []).includes(me.id);
+                return (
+                  <li key={r.id} className="flex items-center gap-2 text-sm">
+                    <span className="min-w-0 flex-1 truncate text-slate-200">{r.text}</span>
+                    <button
+                      type="button"
+                      onClick={() => dispatch({ type: "VOTE_SONG", id: r.id, participantId: me.id })}
+                      aria-pressed={voted}
+                      aria-label={`Votar ${r.text}`}
+                      className={`flex h-9 min-w-[44px] items-center justify-center gap-1 rounded-lg text-xs font-bold ${voted ? "bg-indigo-500/20 text-indigo-100" : "bg-white/[0.04] text-slate-300"}`}
+                    >
+                      <Heart className="w-3.5 h-3.5" /> {r.votes?.length ?? 0}
+                    </button>
+                  </li>
+                );
+              })}
+          </ul>
+        )}
       </section>
 
       {!store.state.live?.round && <LiveRoundCard store={store} />}
