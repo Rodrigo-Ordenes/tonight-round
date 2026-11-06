@@ -85,7 +85,7 @@ export default function ConfessionsGame() {
 
       {/* Main Dilemma Box */}
       <div className="p-6 rounded-3xl bg-purple-950/30 border-2 border-purple-500/50 max-w-lg mx-auto shadow-glow space-y-4">
-        <span className="text-[10px] font-extrabold text-purple-300 uppercase tracking-widest block">
+        <span className="text-xs font-extrabold text-purple-300 uppercase tracking-widest block">
           Dilema #{activeIndex + 1} de {confessions.length}
         </span>
 
@@ -117,7 +117,7 @@ export default function ConfessionsGame() {
 
       {/* Add your own confession input */}
       <form onSubmit={handleAddQuestion} className="max-w-md mx-auto pt-2 space-y-2">
-        <label className="text-[11px] font-semibold text-slate-400 block text-left">
+        <label className="text-xs font-semibold text-slate-400 block text-left">
           ¿Tienes una pregunta anónima picante o divertida para el grupo?
         </label>
         <div className="flex gap-2">

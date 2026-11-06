@@ -2,15 +2,18 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Crown, Droplets, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
+import { ChevronDown, Crown, Droplets, Eye, EyeOff, Heart, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import { useWakeLock } from "@/lib/useWakeLock";
+import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
 import { CHEERS_WORD } from "@/components/live/CheersOverlay";
 import { ABSORPTION, DRINK_PRESETS, bacFor, fmtDuration, fmtTime, hydrationFor, type DrinkPreset, type StomachState } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
+import { normalizePayLink } from "@/lib/split";
+import { songQueue } from "@/lib/music";
 
 const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "🥨", full: "🍝" };
 
@@ -33,6 +36,23 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const [songSent, setSongSent] = useState(false);
   const [waterToast, setWaterToast] = useState(false);
   const warnedAt = useRef(0);
+  const [discreet, setDiscreet] = useState(false);
+  useEffect(() => {
+    try {
+      setDiscreet(localStorage.getItem("tonight_discreet") === "1");
+    } catch {
+      /* sin almacenamiento */
+    }
+  }, []);
+  const toggleDiscreet = () => {
+    const next = !discreet;
+    setDiscreet(next);
+    try {
+      localStorage.setItem("tonight_discreet", next ? "1" : "0");
+    } catch {
+      /* sin almacenamiento */
+    }
+  };
 
   const me = participants.find((p) => p.id === meId) ?? null;
   // El celular que es control no se apaga en plena noche.
@@ -65,8 +85,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
     return (
       <div className="mx-auto max-w-md space-y-5">
         <div>
-          <p className="eyebrow">Tu celular es tu control</p>
-          <h2 className="display mt-2 text-3xl">¿Cómo te llamas?</h2>
+          <h2 className="display text-3xl">¿Cómo te llamas?</h2>
           <p className="mt-2 text-sm text-slate-400">Con tu peso y sexo estimamos tu alcoholemia (solo como referencia educativa). Nada sale de esta sala.</p>
         </div>
 
@@ -120,7 +139,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
                   type="button"
                   onClick={() => setStomach(s)}
                   aria-pressed={stomach === s}
-                  className={`min-h-[40px] rounded-lg text-[11px] font-bold ${stomach === s ? "bg-white text-night-950" : "text-slate-400"}`}
+                  className={`min-h-[40px] rounded-lg text-xs font-bold ${stomach === s ? "bg-white text-night-950" : "text-slate-400"}`}
                 >
                   {STOMACH_ICON[s]} {ABSORPTION[s].label}
                 </button>
@@ -166,14 +185,14 @@ export default function CarreteClientController({ store }: { store: CarreteStore
       {/* Yo */}
       <section className={`surface p-5 ${breach ? "!border-rose-500 ring-2 ring-rose-500/50" : ""}`}>
         {breach && (
-          <p className="-mx-5 -mt-5 mb-4 flex items-center justify-center gap-1.5 rounded-t-3xl bg-rose-500 py-2 text-center text-[11px] font-bold uppercase text-white">
+          <p className="-mx-5 -mt-5 mb-4 flex items-center justify-center gap-1.5 rounded-t-3xl bg-rose-600 py-2 text-center text-xs font-bold uppercase text-white">
             <ShieldAlert className="w-3.5 h-3.5" /> Tomaste alcohol: hoy no manejas
           </p>
         )}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="eyebrow">{driver ? `👑 ${locale.terminology.driverTitle}` : "Tú"}</p>
-            <h2 className="display mt-1 truncate text-3xl">{me.name}</h2>
+            <h2 className="display truncate text-3xl">{me.name}</h2>
+            <p className="meta mt-1">{driver ? `${locale.terminology.driverTitle} · 0.0 toda la noche` : "Este celular es tu control"}</p>
           </div>
           {participants.length > 1 && (
             <label className="relative">
@@ -194,25 +213,44 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           )}
         </div>
 
-        <div className="mt-5 flex items-end gap-6">
-          <div>
-            <p className="eyebrow !text-[10px]">Ahora (g/l)</p>
-            <p className="font-display text-6xl font-extrabold leading-none text-white tabular">{r.bac.toFixed(2)}</p>
+        {discreet ? (
+          <div className="mt-5">
+            {/* Modo discreto: nadie alrededor ve una cifra; solo la hora de volver a 0.00 */}
+            <p className="font-display text-5xl font-extrabold leading-none text-white tabular">{r.zeroAt ? fmtTime(r.zeroAt) : "0.00"}</p>
+            <p className="meta mt-2">{r.zeroAt ? "Hora estimada de volver a 0.00" : "Sin alcohol estimado"}</p>
           </div>
-          <div className="pb-1 text-sm text-slate-300">
-            {r.zeroAt ? (
-              <>
-                {rising && <p>Sube hasta {r.peakBac.toFixed(2)} a las {fmtTime(r.peakAt!)}</p>}
-                <p>
-                  Vuelves a 0.00 ≈ <span className="font-semibold text-white">{fmtTime(r.zeroAt)}</span>
-                </p>
-                <p className="text-xs text-slate-400">en {fmtDuration(r.hoursToZero)}</p>
-              </>
-            ) : (
-              <p className="text-emerald-200">Estás en 0.00</p>
-            )}
+        ) : (
+          <div className="mt-5 flex items-end gap-6">
+            <div>
+              <p className="eyebrow">Ahora (g/l)</p>
+              <p className={`font-display text-6xl font-extrabold leading-none tabular ${TONE_CLASS[bacTone(r.bac, driver, hasAlcohol(me.consumptions))].text}`}>
+                {r.bac.toFixed(2)}
+              </p>
+            </div>
+            <div className="pb-1 text-sm text-slate-300">
+              {r.zeroAt ? (
+                <>
+                  {rising && <p>Sube hasta {r.peakBac.toFixed(2)} a las {fmtTime(r.peakAt!)}</p>}
+                  <p>
+                    Vuelves a 0.00 ≈ <span className="font-semibold text-white">{fmtTime(r.zeroAt)}</span>
+                  </p>
+                  <p className="text-xs text-slate-400">en {fmtDuration(r.hoursToZero)}</p>
+                </>
+              ) : (
+                <p className="text-cyan-200">Estás en 0.00</p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+        <button
+          type="button"
+          onClick={() => toggleDiscreet()}
+          aria-pressed={discreet}
+          className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white"
+        >
+          {discreet ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+          {discreet ? "Mostrar cifras" : "Modo discreto"}
+        </button>
 
         <div className="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-white/[0.03] p-1" role="radiogroup" aria-label="¿Comiste?">
           {(Object.keys(ABSORPTION) as StomachState[]).map((s) => (
@@ -222,7 +260,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
               role="radio"
               aria-checked={(me.stomach ?? "normal") === s}
               onClick={() => updateParticipant(me.id, { stomach: s })}
-              className={`min-h-[36px] rounded-lg text-[11px] font-bold ${(me.stomach ?? "normal") === s ? "bg-white text-night-950" : "text-slate-400"}`}
+              className={`min-h-[36px] rounded-lg text-xs font-bold ${(me.stomach ?? "normal") === s ? "bg-white text-night-950" : "text-slate-400"}`}
             >
               {STOMACH_ICON[s]} {ABSORPTION[s].label}
             </button>
@@ -300,7 +338,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
                   className={`chip ${on ? "chip-on" : ""} disabled:opacity-50`}
                   title={driver ? "Maneja: no se le sirve alcohol" : undefined}
                 >
-                  {driver && <Crown className="w-3 h-3" />} {p.name}
+                  {driver && <Crown className="w-3 h-3" />} <span className="max-w-[10rem] truncate">{p.name}</span>
                 </button>
               );
             })}
@@ -357,7 +395,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
               <span className="block truncate text-sm font-bold text-white">
                 {p.emoji} {p.label}
               </span>
-              <span className="font-mono text-[10px] text-slate-400">
+              <span className="font-mono text-xs text-slate-400">
                 {p.ml} ml · {Math.round(p.abv * 1000) / 10}%
               </span>
             </button>
@@ -367,6 +405,13 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           {showAll ? "Ver menos" : `Ver ${DRINK_PRESETS.length - 8} tragos más`}
         </button>
       </section>
+
+      {/* Link de pago para Cuentas */}
+      <PayLinkField
+        value={me.payLink ?? ""}
+        system={locale.banking.systemName}
+        onSave={(link) => updateParticipant(me.id, { payLink: link ?? undefined })}
+      />
 
       {/* Pedido de canción */}
       <section className="surface p-4">
@@ -397,7 +442,30 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             {songSent ? "¡Listo!" : "Pedir"}
           </button>
         </form>
-        <p className="mt-2 text-[11px] text-slate-500">Aparece en la cola de la TV y en la página de Música.</p>
+        <p className="mt-2 text-xs text-slate-500">Aparece en la cola de la TV y en la página de Música.</p>
+        {songQueue(store.state.music).length > 0 && (
+          <ul className="mt-3 space-y-1.5">
+            {songQueue(store.state.music)
+              .slice(0, 4)
+              .map((r) => {
+                const voted = (r.votes ?? []).includes(me.id);
+                return (
+                  <li key={r.id} className="flex items-center gap-2 text-sm">
+                    <span className="min-w-0 flex-1 truncate text-slate-200">{r.text}</span>
+                    <button
+                      type="button"
+                      onClick={() => dispatch({ type: "VOTE_SONG", id: r.id, participantId: me.id })}
+                      aria-pressed={voted}
+                      aria-label={`Votar ${r.text}`}
+                      className={`flex h-9 min-w-[44px] items-center justify-center gap-1 rounded-lg text-xs font-bold ${voted ? "bg-indigo-500/20 text-indigo-100" : "bg-white/[0.04] text-slate-300"}`}
+                    >
+                      <Heart className="w-3.5 h-3.5" /> {r.votes?.length ?? 0}
+                    </button>
+                  </li>
+                );
+              })}
+          </ul>
+        )}
       </section>
 
       {!store.state.live?.round && <LiveRoundCard store={store} />}
@@ -411,9 +479,59 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         </div>
       )}
 
-      <p className="text-center text-[11px] text-slate-500">
+      <p className="text-center text-xs text-slate-500">
         Estimación educativa, no medición. {locale.legal.bacLimitText}: si bebiste, no manejes.
       </p>
     </div>
+  );
+}
+
+/** Campo para guardar el link de pago propio; Cuentas lo muestra como botón "Pagar" a quien te debe. */
+function PayLinkField({ value, system, onSave }: { value: string; system: string; onSave: (link: string | null) => void }) {
+  const [text, setText] = useState(value);
+  const [state, setState] = useState<"idle" | "saved" | "error">("idle");
+  return (
+    <section className="surface p-4">
+      <label htmlFor="paylink" className="eyebrow">
+        Mi link de pago
+      </label>
+      <p className="mt-1 text-xs text-slate-400">Mercado Pago, MACH, Venmo, PayPay… Aparece en Cuentas para que te paguen en un toque ({system} también sirve con datos en «Una boleta»).</p>
+      <form
+        className="mt-3 flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!text.trim()) {
+            onSave(null);
+            setState("saved");
+            return;
+          }
+          const link = normalizePayLink(text);
+          if (!link) {
+            setState("error");
+            return;
+          }
+          setText(link);
+          onSave(link);
+          setState("saved");
+        }}
+      >
+        <input
+          id="paylink"
+          inputMode="url"
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            setState("idle");
+          }}
+          placeholder="link.mercadopago.cl/tu-nombre"
+          aria-invalid={state === "error"}
+          className="min-h-[46px] min-w-0 flex-1 rounded-xl border border-white/10 bg-night-950/60 px-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-400"
+        />
+        <button type="submit" className="btn-ghost !min-h-[46px]">
+          {state === "saved" ? "Listo" : "Guardar"}
+        </button>
+      </form>
+      {state === "error" && <p className="mt-2 text-xs text-rose-300">Eso no parece un link. Pega el link que te da tu app de pagos.</p>}
+    </section>
   );
 }

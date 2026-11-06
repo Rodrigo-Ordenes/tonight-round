@@ -39,15 +39,15 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#07060A",
+  // En Android el teclado achica el viewport (igual que iOS): los campos fijos abajo no quedan tapados
+  interactiveWidget: "resizes-content",
+  themeColor: "#0D0907",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`dark ${display.variable} ${sans.variable} ${mono.variable}`}>
       <body className="bg-night-950 text-slate-100 font-sans antialiased overflow-x-hidden">
-        <div aria-hidden className="ambient" />
-        <div aria-hidden className="grain" />
         <AppShell>{children}</AppShell>
         <DisclaimerModal />
       </body>

@@ -4,19 +4,21 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Eye, Play, SkipForward, Square, Tv, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
-import { LIVE_GAMES, LIVE_GAME_BY_ID, buildRound, tally } from "@/lib/liveGames";
+import { LIVE_GAMES, LIVE_GAME_BY_ID, buildRound, tally, isRoundDriver } from "@/lib/liveGames";
 import type { LiveGame } from "@/lib/carreteState";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
 import RoundResults from "./RoundResults";
 import { useRevealMoment } from "@/lib/useRevealMoment";
+import { useRoundClock } from "@/lib/useRoundClock";
+import RoundTimer from "./RoundTimer";
 
 /**
  * Control del anfitrión: elige el juego, lanza la ronda, ve quién votó y revela.
  * Los votos llegan desde los celulares (LiveRoundCard) como acciones idempotentes.
  */
 export default function LiveGameHost({ store }: { store: CarreteStore }) {
-  const { state, participants, dispatch, isSolo, code } = store;
+  const { state, participants, dispatch, isSolo, code, meId } = store;
   const live = state.live;
   const round = live?.round ?? null;
   const [error, setError] = useState<string | null>(null);
@@ -26,14 +28,16 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
 
   useRevealMoment(round, () => {
     audioEffects.playReveal();
-    void fireConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#F7F5F3"] });
+    void fireConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 }, colors: ["#FF8346", "#BFAAFF", "#59D2B1", "#F1ECE8"] });
   });
+  // Entre los celulares solo quien inició la ronda la revela al acabar el tiempo; el tic suena únicamente en la TV.
+  const drives = !!round && isRoundDriver(round, { tv: false, meId });
+  const clock = useRoundClock(round, drives ? { participants, dispatch } : undefined);
 
   if (isSolo) {
     return (
       <div className="surface p-6">
-        <p className="eyebrow">Juegos en vivo</p>
-        <h3 className="display mt-2 text-2xl">Necesitan una sala</h3>
+        <h2 className="display text-2xl">Los juegos en vivo necesitan una sala</h2>
         <p className="mt-2 max-w-lg text-sm text-slate-400">
           En los juegos en vivo cada persona vota en secreto desde su celular y la TV revela los resultados. Crea una sala y compartan el código.
         </p>
@@ -54,7 +58,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
     }
     audioEffects.playPop();
     if (round && !round.revealedAt) dispatch({ type: "END_ROUND", roundId: round.id });
-    dispatch({ type: "START_ROUND", round: r });
+    dispatch({ type: "START_ROUND", round: meId ? { ...r, hostId: meId } : r });
   };
 
   const reveal = () => {
@@ -69,10 +73,10 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow flex items-center gap-2">
+          <h2 className="display text-2xl sm:text-3xl">La TV es el escenario. Los celulares, el control.</h2>
+          <p className="meta mt-1 flex items-center gap-2">
             <span className="live-dot" /> En vivo · sala {code}
           </p>
-          <h2 className="display mt-1 text-2xl sm:text-3xl">La TV es el escenario. Los celulares, el control.</h2>
         </div>
         <Link href="/carrete/tv" className="btn-ghost !min-h-[44px] text-xs">
           <Tv className="w-4 h-4" /> Abrir en la TV
@@ -87,14 +91,15 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
 
       {/* Selector de juego */}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3">
-        {LIVE_GAMES.map((g) => {
+        {LIVE_GAMES.map((g, i) => {
           const active = round?.game === g.id;
           return (
             <button
+              style={{ animationDelay: `${i * 40}ms` }}
               key={g.id}
               type="button"
               onClick={() => start(g.id)}
-              className={`surface surface-hover flex flex-col p-4 text-left ${active ? "ring-2 ring-indigo-400" : ""}`}
+              className={`surface surface-hover flex flex-col p-4 text-left animate-rise-in ${active ? "ring-2 ring-indigo-400" : ""}`}
             >
               <span className="flex items-center justify-between">
                 <span className="text-3xl">{g.emoji}</span>
@@ -102,7 +107,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
               </span>
               <span className="mt-3 font-display text-lg font-bold text-white">{g.name}</span>
               <span className="mt-1 text-xs leading-snug text-slate-400">{g.blurb}</span>
-              {g.id === "confesion" && <span className="mt-2 text-[11px] font-semibold text-indigo-300">{pendingConfessions} confesiones en espera</span>}
+              {g.id === "confesion" && <span className="mt-2 text-xs font-semibold text-indigo-300">{pendingConfessions} confesiones en espera</span>}
             </button>
           );
         })}
@@ -113,7 +118,6 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
       {/* Ronda actual */}
       {round && (
         <section className="surface relative overflow-hidden p-6" aria-live="polite">
-          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-indigo-500/20 blur-3xl" aria-hidden />
           <p className="eyebrow relative">
             {LIVE_GAME_BY_ID.get(round.game)?.emoji} {LIVE_GAME_BY_ID.get(round.game)?.name}
           </p>
@@ -128,7 +132,8 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
 
           {!round.revealedAt ? (
             <>
-              <div className="relative mt-6">
+              <div className="relative mt-6 space-y-4">
+                <RoundTimer clock={clock} />
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-300">
                     Votaron <span className="font-mono font-bold text-white">{voters.length}</span> de {participants.length}
@@ -141,7 +146,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
                   {participants.map((p) => (
                     <span
                       key={p.id}
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${voters.includes(p.id) ? "bg-emerald-400/20 text-emerald-100" : "bg-white/[0.04] text-slate-500"}`}
+                      className={`max-w-[16rem] truncate rounded-full px-2.5 py-1 text-xs font-semibold ${voters.includes(p.id) ? "bg-emerald-400/20 text-emerald-100" : "bg-white/[0.04] text-slate-500"}`}
                     >
                       {voters.includes(p.id) ? "✓ " : ""}
                       {p.name}

@@ -20,7 +20,7 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
         particleCount: 65,
         spread: 75,
         origin: { y: 0.75 },
-        colors: ["#10b981", "#34d399", "#ffffff", "#6366f1"],
+        colors: ["#59d2b1", "#85e1c4", "#ffffff", "#ff8346"],
       });
       updateParticipant(pId, { status, arrivedAt: Date.now() });
     } else {
@@ -44,11 +44,11 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
           <div>
             <h3 className="text-base font-black text-white flex items-center gap-2">
               <span>Tablero &apos;Llegué a Salvo&apos;</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
                 Check-in Seguro
               </span>
             </h3>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-xs text-slate-400">
               Confirma en vivo cuando estés en tu cama para que el grupo sepa que estás bien
             </p>
           </div>
@@ -90,7 +90,7 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
                     {p.name} {isMe && "(Tú)"}
                   </span>
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+                    className={`text-xs font-bold px-2 py-0.5 rounded-full border shrink-0 ${
                       p.status === "safe"
                         ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
                         : p.status === "transit"
@@ -106,7 +106,7 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
                   </span>
                 </div>
 
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   Destino: <strong className="text-slate-300">{p.commune || "Sin comuna asignada"}</strong>
                 </p>
               </div>

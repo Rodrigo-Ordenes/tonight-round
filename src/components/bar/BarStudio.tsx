@@ -144,9 +144,8 @@ export default function BarStudio({
         <section aria-labelledby="barra-title">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="eyebrow">Paso 1 · inventario</p>
-              <h2 id="barra-title" className="display mt-1 text-2xl sm:text-3xl">
-                Lo que hay en la mesa
+              <h2 id="barra-title" className="display text-2xl sm:text-3xl">
+                <span className="text-slate-500">1.</span> Lo que hay en la mesa
               </h2>
               <p className="mt-1 text-sm text-slate-400">Marca lo que tienen. Esto no se sirve: solo sirve para saber qué pueden preparar.</p>
             </div>
@@ -225,7 +224,7 @@ export default function BarStudio({
                   <span className="text-lg">{i.emoji}</span>
                   <span className="min-w-0 flex-1 leading-tight">
                     <span className="block truncate font-semibold">{i.name}</span>
-                    {i.abv > 0 && <span className="block font-mono text-[10px] text-slate-400">{Math.round(i.abv * 100)}°</span>}
+                    {i.abv > 0 && <span className="block font-mono text-xs text-slate-400">{Math.round(i.abv * 100)}°</span>}
                   </span>
                   {on && <Check className="w-4 h-4 shrink-0 text-emerald-400" />}
                 </button>
@@ -236,9 +235,8 @@ export default function BarStudio({
 
         {/* ---------------- 2. Qué pueden preparar ---------------- */}
         <section aria-labelledby="pueden-title">
-          <p className="eyebrow">Paso 2 · ideas</p>
-          <h2 id="pueden-title" className="display mt-1 text-2xl sm:text-3xl">
-            {pantry.size === 0 ? "Marca tu barra para ver ideas" : `Pueden preparar ${match.ready.length} ${match.ready.length === 1 ? "trago" : "tragos"}`}
+          <h2 id="pueden-title" className="display text-2xl sm:text-3xl">
+            <span className="text-slate-500">2.</span> {pantry.size === 0 ? "Marca tu barra para ver ideas" : `Pueden preparar ${match.ready.length} ${match.ready.length === 1 ? "trago" : "tragos"}`}
           </h2>
 
           {match.ready.length > 0 && (
@@ -255,7 +253,7 @@ export default function BarStudio({
                     <span className="block truncate font-display text-base font-bold text-white">{r.name}</span>
                     <span className="block truncate text-xs text-slate-400">{r.family}</span>
                   </span>
-                  <span className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[10px] font-bold text-emerald-200">Listo</span>
+                  <span className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-xs font-bold text-emerald-200">Listo</span>
                 </button>
               ))}
             </div>
@@ -272,12 +270,12 @@ export default function BarStudio({
                       <span className="truncate font-semibold text-white">{r.name}</span>
                     </button>
                     <span className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-[11px] text-slate-400">falta</span>
+                      <span className="text-xs text-slate-400">falta</span>
                       {missing.map((m) => {
                         const ing = INGREDIENT_BY_ID.get(m.id);
                         const inList = shopping.includes(m.id);
                         return (
-                          <span key={m.id} className="inline-flex items-center overflow-hidden rounded-full border border-amber-400/40 text-[11px] font-semibold text-amber-100">
+                          <span key={m.id} className="inline-flex items-center overflow-hidden rounded-full border border-amber-400/40 text-xs font-semibold text-amber-100">
                             <span className="px-2.5 py-1">
                               {ing?.emoji} {ing?.name}
                             </span>
@@ -361,8 +359,8 @@ export default function BarStudio({
       <aside id="vaso" aria-labelledby="vaso-title" className="surface scroll-mt-20 p-5 lg:sticky lg:top-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="eyebrow">Paso 3 · en el vaso</p>
-            <h2 id="vaso-title" className="display mt-1 truncate text-2xl">
+            <h2 id="vaso-title" className="display truncate text-2xl">
+              <span className="text-slate-500">3.</span> 
               {recipe ? `${recipe.emoji} ${recipe.name}` : "Mezcla libre"}
             </h2>
             <p className="text-xs text-slate-400">
@@ -402,22 +400,22 @@ export default function BarStudio({
           <GlassVisual lines={lines} glass={servings > 1 ? "jarro" : glass} missingIds={missingInGlass} className="h-56 w-36 shrink-0 drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)]" />
           <dl className="grid flex-1 grid-cols-1 gap-3 pb-2">
             <div>
-              <dt className="eyebrow !text-[10px]">Alcohol servido</dt>
+              <dt className="eyebrow !text-xs">Alcohol servido</dt>
               <dd className="font-display text-3xl font-extrabold text-white tabular">{analysis.abv.toFixed(1)}%</dd>
             </div>
             <div>
-              <dt className="eyebrow !text-[10px]">Por porción</dt>
+              <dt className="eyebrow !text-xs">Por porción</dt>
               <dd className="font-mono text-sm text-slate-200 tabular">
                 {Math.round(perServingMl)} ml · {(analysis.grams / Math.max(1, servings)).toFixed(0)} g
               </dd>
             </div>
             <div>
-              <dt className="eyebrow !text-[10px]">Equivale a</dt>
+              <dt className="eyebrow !text-xs">Equivale a</dt>
               <dd className="font-mono text-sm text-slate-200 tabular">{analysis.standardDrinks.toFixed(1)} tragos estándar</dd>
             </div>
             {analysis.iceCubes > 0 && (
               <div>
-                <dt className="eyebrow !text-[10px]">Hielo</dt>
+                <dt className="eyebrow !text-xs">Hielo</dt>
                 <dd className="font-mono text-sm text-slate-200 tabular">
                   {analysis.iceCubes} cubos (~{((analysis.iceCubes * 25) / 1000).toFixed(analysis.iceCubes * 25 >= 1000 ? 1 : 2)} kg)
                 </dd>
@@ -442,9 +440,9 @@ export default function BarStudio({
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-slate-100">
                     {ing?.name ?? l.id}
-                    {l.optional && <span className="ml-1 text-[10px] text-slate-500">(opcional)</span>}
+                    {l.optional && <span className="ml-1 text-xs text-slate-500">(opcional)</span>}
                   </span>
-                  {missing && <span className="block text-[10px] font-semibold text-amber-300">No está en tu barra</span>}
+                  {missing && <span className="block text-xs font-semibold text-amber-300">No está en tu barra</span>}
                 </span>
                 {recipe ? (
                   <span className="shrink-0 font-mono text-xs text-slate-300 tabular">{l.ml > 0 ? fmtMl(l.ml) : l.label}</span>

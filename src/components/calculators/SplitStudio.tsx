@@ -6,7 +6,7 @@ import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import type { ExpenseCategory, SplitMode } from "@/lib/carreteState";
 import { DEFAULT_SPLIT } from "@/lib/carreteState";
-import { ROUND_UNIT, computeSplit } from "@/lib/split";
+import { ROUND_UNIT, computeSplit, normalizePayLink } from "@/lib/split";
 import { useLocale } from "@/lib/useLocale";
 import { audioEffects } from "@/lib/audioEffects";
 
@@ -52,6 +52,11 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
 
   const result = useMemo(() => computeSplit(participants, split.expenses, split.mode, split.soberIds, unit), [participants, split, unit]);
   const name = (id: string) => participants.find((p) => p.id === id)?.name ?? "¿?";
+  // Se valida otra vez al mostrar: el href nunca recibe algo que no sea http(s)
+  const payLink = (id: string) => {
+    const raw = participants.find((p) => p.id === id)?.payLink;
+    return raw ? normalizePayLink(raw) ?? undefined : undefined;
+  };
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +86,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
     `Total: ${formatCurrency(result.total)} (alcohol ${formatCurrency(result.alcoholTotal)} · común ${formatCurrency(result.commonTotal)})`,
     `Modo: ${MODES.find((m) => m.id === result.effectiveMode)?.label}`,
     "",
-    ...result.transfers.map((t) => `• ${name(t.from)} → ${name(t.to)}: *${formatCurrency(t.amount)}*`),
+    ...result.transfers.map((t) => `• ${name(t.from)} → ${name(t.to)}: *${formatCurrency(t.amount)}*${payLink(t.to) ? ` · pagar: ${payLink(t.to)}` : ""}`),
     drivers.length ? `\n👑 ${drivers.map((d) => d.name).join(" y ")} no paga alcohol: fue ${locale.terminology.driverTitle.toLowerCase()}. ¡Gracias!` : "",
     meIsCreditor && bankText ? `\n${bankText}` : "",
   ]
@@ -119,8 +124,8 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
                     title={p.role === "driver" ? "Conductor designado: no paga alcohol" : "Tocar para marcar si no toma alcohol"}
                   >
                     {p.role === "driver" && <Crown className="w-3.5 h-3.5" />}
-                    {p.name}
-                    <span className="text-[10px] font-normal text-slate-400">{sober ? "sin alcohol" : "toma"}</span>
+                    <span className="max-w-[10rem] truncate">{p.name}</span>
+                    <span className="text-xs font-normal text-slate-400">{sober ? "sin alcohol" : "toma"}</span>
                   </button>
                 );
               })}
@@ -272,7 +277,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
             <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
               <span className="truncate text-slate-200">
                 {p.name}
-                {!p.drinks && <span className="ml-1 text-[10px] text-amber-300">sin alcohol</span>}
+                {!p.drinks && <span className="ml-1 text-xs text-amber-300">sin alcohol</span>}
               </span>
               <span className="font-mono text-xs tabular text-slate-400">
                 le toca <span className="text-slate-100">{formatCurrency(p.share)}</span>
@@ -288,10 +293,15 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
           <ul className="mt-2 space-y-2">
             {result.transfers.map((t, i) => (
               <li key={i} className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 text-sm ${t.from === meId || t.to === meId ? "bg-indigo-500/15" : "bg-white/[0.04]"}`}>
-                <span className="truncate font-semibold text-white">{name(t.from)}</span>
+                <span className="min-w-0 truncate font-semibold text-white">{name(t.from)}</span>
                 <ArrowRight className="w-3.5 h-3.5 shrink-0 text-slate-400" />
-                <span className="truncate font-semibold text-white">{name(t.to)}</span>
-                <span className="ml-auto font-mono font-bold tabular text-emerald-300">{formatCurrency(t.amount)}</span>
+                <span className="min-w-0 truncate font-semibold text-white">{name(t.to)}</span>
+                <span className="ml-auto shrink-0 font-mono font-bold tabular text-emerald-300">{formatCurrency(t.amount)}</span>
+                {payLink(t.to) && t.from === meId && (
+                  <a href={payLink(t.to)} target="_blank" rel="noopener noreferrer" className="chip !min-h-[30px] shrink-0">
+                    Pagar
+                  </a>
+                )}
               </li>
             ))}
           </ul>
@@ -308,7 +318,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
           </div>
         )}
         {meIsCreditor && !bankText && (
-          <p className="mt-3 text-[11px] text-slate-500">Tip: guarda tus datos de {locale.banking.systemName} en la pestaña «Una boleta» y se agregan al mensaje.</p>
+          <p className="mt-3 text-xs text-slate-500">Tip: guarda tus datos de {locale.banking.systemName} en la pestaña «Una boleta» y se agregan al mensaje.</p>
         )}
       </aside>
     </div>

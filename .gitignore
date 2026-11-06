@@ -36,3 +36,4 @@ next-env.d.ts
 scraper/__pycache__
 *.pyc
 *.tmp.json
+scripts/palette/candidate.json

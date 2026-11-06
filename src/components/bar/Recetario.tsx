@@ -71,7 +71,7 @@ export default function Recetario({ pantry, onPick }: { pantry: Set<string>; onP
                 <span className="flex flex-col items-end gap-1">
                   <span className="font-mono text-xs text-slate-300 tabular">{a.abv.toFixed(0)}%</span>
                   {missing !== null && (
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${missing === 0 ? "bg-emerald-400/15 text-emerald-200" : "bg-white/[0.06] text-slate-400"}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${missing === 0 ? "bg-emerald-400/15 text-emerald-200" : "bg-white/[0.06] text-slate-400"}`}>
                       {missing === 0 ? "Lo tienen" : `Faltan ${missing}`}
                     </span>
                   )}
@@ -84,12 +84,12 @@ export default function Recetario({ pantry, onPick }: { pantry: Set<string>; onP
                   .filter((l) => l.id !== "hielo")
                   .slice(0, 5)
                   .map((l) => (
-                    <span key={l.id} className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[11px] text-slate-300">
+                    <span key={l.id} className="rounded-full bg-white/[0.05] px-2 py-0.5 text-xs text-slate-300">
                       {INGREDIENT_BY_ID.get(l.id)?.name}
                     </span>
                   ))}
               </span>
-              <span className="mt-auto pt-4 text-[11px] text-slate-500">
+              <span className="mt-auto pt-4 text-xs text-slate-500">
                 {r.family} · {GLASS_LABEL[r.glass]}
               </span>
             </button>

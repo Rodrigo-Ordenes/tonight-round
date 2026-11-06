@@ -8,6 +8,8 @@ import { LIVE_GAME_BY_ID, penaltyFor, tally } from "@/lib/liveGames";
 import { audioEffects } from "@/lib/audioEffects";
 import RoundResults from "./RoundResults";
 import { useRevealMoment } from "@/lib/useRevealMoment";
+import { useRoundClock } from "@/lib/useRoundClock";
+import RoundTimer from "./RoundTimer";
 
 /**
  * Mando del celular: vota en la ronda activa (en secreto) y manda confesiones anónimas.
@@ -36,6 +38,7 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
   useRevealMoment(round, (r) => {
     if (me && tally(r, participants).loserIds.includes(me.id)) audioEffects.triggerHaptic([200, 80, 200]);
   });
+  const clock = useRoundClock(round);
 
   if (!me) return null;
 
@@ -63,7 +66,6 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
     <div className="space-y-4">
       {round ? (
         <section className="surface relative overflow-hidden p-5" aria-live="polite">
-          <span className="absolute -left-16 -top-16 h-40 w-40 rounded-full bg-indigo-500/25 blur-3xl" aria-hidden />
           <p className="eyebrow relative flex items-center gap-2">
             <span className="live-dot" /> {LIVE_GAME_BY_ID.get(round.game)?.emoji} {LIVE_GAME_BY_ID.get(round.game)?.name}
           </p>
@@ -84,6 +86,12 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
             {round.game === "confesion" ? `"${round.prompt}"` : round.prompt}
           </p>
 
+          {!round.revealedAt && (
+            <div className="relative mt-3">
+              <RoundTimer clock={clock} />
+            </div>
+          )}
+
           {!round.revealedAt ? (
             <div className={`relative mt-4 grid gap-2 ${round.options.length <= 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2"}`}>
               {round.options
@@ -102,7 +110,7 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
                       }`}
                     >
                       <span className="flex items-center justify-between gap-2">
-                        {o.label}
+                        <span className="min-w-0 break-words">{o.label}</span>
                         {on && <Check className="w-5 h-5" />}
                       </span>
                     </button>

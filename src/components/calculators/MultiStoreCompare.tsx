@@ -47,14 +47,14 @@ export default function MultiStoreCompare({
   const maxSavings = maxTotal - minTotal;
 
   return (
-    <div className="p-5 rounded-3xl bg-night-900/80 border border-slate-800 space-y-4">
+    <div className="space-y-4 border-t border-white/[0.07] pt-6">
       {/* Encabezado e indicador referencial */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-night-800 pb-3">
         <div className="flex items-center gap-2">
           <Store className="w-5 h-5 text-indigo-400" />
           <h3 className="text-base font-black text-white">Comparador Multitienda</h3>
         </div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 text-[11px] text-slate-300 border border-slate-700">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 text-xs text-slate-300 border border-slate-700">
           <Info className="w-3.5 h-3.5 text-slate-400" />
           <span>Valor referencial estimado en Chile</span>
         </div>
@@ -77,7 +77,7 @@ export default function MultiStoreCompare({
               onClick={() => onSelectBase(store.id)}
               className={`p-4 rounded-2xl border text-left transition-all active:scale-[0.98] flex flex-col justify-between ${
                 isSelected
-                  ? "bg-indigo-950/60 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+                  ? "bg-indigo-500/10 border-indigo-400"
                   : "bg-night-950/80 border-slate-800 hover:border-slate-700"
               }`}
             >
@@ -85,21 +85,21 @@ export default function MultiStoreCompare({
                 <div className="flex items-center justify-between gap-1">
                   <span className="font-black text-sm text-white">{store.label}</span>
                   {isSelected && (
-                    <span className="flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                    <span className="flex items-center gap-1 text-xs font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
                       <Check className="w-3 h-3" /> Activo
                     </span>
                   )}
                   {!isSelected && isCheapest && (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    <span className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                       Más bajo
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-0.5">{store.subtitle}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{store.subtitle}</p>
               </div>
 
               <div className="mt-3 pt-2 border-t border-night-800 flex items-baseline justify-between">
-                <span className="text-[11px] text-slate-400">Total canasta:</span>
+                <span className="text-xs text-slate-400">Total canasta:</span>
                 <span className="text-base font-black text-white font-mono">
                   ${store.total.toLocaleString("es-CL")} CLP
                 </span>

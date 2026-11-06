@@ -72,21 +72,21 @@ export default function CarretePage() {
     <div className="space-y-8 animate-fade-in">
       <header className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p className="eyebrow flex items-center gap-2">
-            {!isSolo && <span className="live-dot" />}
-            {isSolo ? "Modo planificador" : `${locale.terminology.partyName} en vivo · ${participants.length} ${participants.length === 1 ? "persona" : "personas"}`}
-          </p>
-          <h1 className="display text-display-lg mt-3">
+          <h1 className="display text-display-lg">
             {isSolo ? (
               <>
-                Tu noche<span className="text-gradient-ember">.</span>
+                Tu noche<span className="text-accent">.</span>
               </>
             ) : (
               <>
-                Sala <span className="font-mono tracking-[0.12em] text-gradient-ember">{codeParam}</span>
+                Sala <span className="font-mono tracking-[0.12em] text-accent">{codeParam}</span>
               </>
             )}
           </h1>
+          <p className="meta mt-3 flex items-center gap-2">
+            {!isSolo && <span className="live-dot" />}
+            {isSolo ? "Modo planificador" : `${locale.terminology.partyName} en vivo · ${participants.length} ${participants.length === 1 ? "persona" : "personas"}`}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {!isSolo && (

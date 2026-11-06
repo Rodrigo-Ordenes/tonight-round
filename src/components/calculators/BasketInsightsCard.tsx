@@ -85,8 +85,7 @@ export default function BasketInsightsCard({ insights: x, hours, items, code, on
     <section className={`surface p-5 ${over ? "!border-rose-500/50" : ""}`} aria-live="polite" aria-labelledby="alcanza-title">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div>
-          <p className="eyebrow">¿Alcanza?</p>
-          <h2 id="alcanza-title" className={`display mt-1 text-3xl ${over ? "text-rose-200" : ""}`}>
+          <h2 id="alcanza-title" className={`display text-3xl ${over ? "text-rose-200" : ""}`}>
             {headline}
           </h2>
           <p className="mt-2 text-sm text-slate-300">
@@ -96,7 +95,7 @@ export default function BasketInsightsCard({ insights: x, hours, items, code, on
 
           <div className="mt-5 flex items-end gap-6">
             <div>
-              <p className="eyebrow !text-[10px]">Cada uno pone</p>
+              <p className="eyebrow !text-xs">Cada uno pone</p>
               <p className="font-display text-5xl font-extrabold leading-none text-white tabular">{fmtCLP(x.quota)}</p>
             </div>
             {x.drinkers > 0 && (
@@ -148,7 +147,7 @@ export default function BasketInsightsCard({ insights: x, hours, items, code, on
                   <li key={s.id} className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2 text-sm">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-slate-100">{s.name}</span>
-                      <span className="block text-[11px] text-slate-400">{s.reason}</span>
+                      <span className="block text-xs text-slate-400">{s.reason}</span>
                     </span>
                     <span className="font-mono text-xs tabular text-slate-300">{fmtCLP(s.price)}</span>
                     <button type="button" onClick={() => onAdd(s.id)} aria-label={`Agregar ${s.name}`} className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-night-950">

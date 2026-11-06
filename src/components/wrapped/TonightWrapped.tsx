@@ -7,6 +7,7 @@ import { buildWrapped, drawWrapped } from "@/lib/wrapped";
 import { useLocale } from "@/lib/useLocale";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
+import CountUp from "@/components/ui/CountUp";
 
 /** Resumen de la noche con premios automáticos y tarjeta descargable para historias. */
 export default function TonightWrapped({ store }: { store: CarreteStore }) {
@@ -59,25 +60,43 @@ export default function TonightWrapped({ store }: { store: CarreteStore }) {
     { n: data.rounds, label: "rondas jugadas" },
     { n: data.distinctDrinks, label: "tragos distintos" },
     { n: data.hours > 0 ? `${data.hours.toFixed(1)} h` : "—", label: "de carrete" },
+    { n: `${data.hydrationPct}%`, label: "de hidratación del grupo", water: true },
   ];
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
       <section>
-        <p className="eyebrow">Tonight Wrapped</p>
-        <h2 className="display text-display-lg mt-2">
-          Qué noche<span className="text-gradient-ember">.</span>
+        <h2 className="display text-display-lg">
+          Qué noche<span className="text-accent">.</span>
         </h2>
+        <p className="meta mt-2">Tonight Wrapped · el resumen del grupo</p>
         <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
           {stats.map((s) => (
             <div key={s.label}>
-              <dd className={`font-display text-5xl font-extrabold tabular ${s.water ? "text-cyan-300" : "text-white"}`}>{s.n}</dd>
+              <dd className={`font-display text-5xl font-extrabold tabular ${s.water ? "text-cyan-300" : "text-white"}`}>{typeof s.n === "number" ? <CountUp value={s.n} /> : s.n}</dd>
               <dt className="mt-1 text-sm text-slate-400">{s.label}</dt>
             </div>
           ))}
         </dl>
 
-        <p className="eyebrow mt-12">Premios de la noche</p>
+        {(data.topSong || data.topDrink) && (
+          <dl className="mt-10 grid gap-6 sm:grid-cols-2">
+            {data.topDrink && (
+              <div>
+                <dt className="eyebrow">Trago de la noche</dt>
+                <dd className="mt-1 font-display text-3xl font-extrabold text-white">{data.topDrink}</dd>
+              </div>
+            )}
+            {data.topSong && (
+              <div>
+                <dt className="eyebrow">Canción más pedida</dt>
+                <dd className="mt-1 truncate font-display text-3xl font-extrabold text-white">{data.topSong}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+
+        <h3 className="mt-12 font-display text-xl font-bold text-white">Premios de la noche</h3>
         {data.awards.length === 0 ? (
           <p className="mt-3 text-sm text-slate-400">Registren tragos, agua y jueguen algunas rondas: los premios aparecen solos.</p>
         ) : (

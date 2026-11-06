@@ -67,7 +67,7 @@ export default function WhatsAppShare({
       >
         {copied ? (
           <>
-            <Check className="w-4 h-4 text-emerald-400 animate-bounce" />
+            <Check className="w-4 h-4 text-emerald-400" />
             <span className="text-emerald-400 font-medium">¡Copiado!</span>
           </>
         ) : (

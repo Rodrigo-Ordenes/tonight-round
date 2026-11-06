@@ -31,7 +31,7 @@ export default function CheersOverlay({ code, big = false }: { code: string; big
     setShow(cheers.id);
     audioEffects.playReveal();
     audioEffects.triggerHaptic([80, 60, 80]);
-    void fireConfetti({ particleCount: big ? 200 : 90, spread: 110, origin: { y: 0.6 }, colors: ["#FFBC20", "#FF5E36", "#F7F5F3"] });
+    void fireConfetti({ particleCount: big ? 200 : 90, spread: 110, origin: { y: 0.6 }, colors: ["#FFD375", "#FF8346", "#F1ECE8"] });
   }, [cheers, big, status]);
 
   // Ocultar en un efecto aparte: si el estado se re-sincroniza, no debe cancelar el cierre.
@@ -46,7 +46,7 @@ export default function CheersOverlay({ code, big = false }: { code: string; big
   return (
     <div className="pointer-events-none fixed inset-0 z-[70] flex flex-col items-center justify-center bg-night-950/60 backdrop-blur-sm animate-fade-in" role="status">
       <p className={`display text-center ${big ? "text-tv-hero" : "text-display-xl"} animate-rise-in`}>
-        <span className="text-gradient-ember">{CHEERS_WORD[country] ?? "¡Salud!"}</span> 🥂
+        <span className="text-accent">{CHEERS_WORD[country] ?? "¡Salud!"}</span> 🥂
       </p>
       {by && <p className={`mt-4 text-slate-200 ${big ? "text-tv-sm" : "text-lg"}`}>Brindis de {by}</p>}
     </div>

@@ -30,8 +30,8 @@ export default function NowPlayingMini({ code = SOLO }: { code?: string }) {
             <span key={i} className="w-[3px] h-full origin-bottom rounded-full bg-emerald-400 animate-eq-bar" style={{ animationDelay: `${i * 0.18}s` }} />
           ))}
         </span>
-        <p className="eyebrow !text-[10px] truncate">{np.reason ?? "Sonando"}</p>
-        <Link href="/musica" className="ml-auto flex items-center gap-1 text-[11px] font-semibold text-indigo-300 hover:text-indigo-200">
+        <p className="eyebrow !text-xs truncate">{np.reason ?? "Sonando"}</p>
+        <Link href="/musica" className="ml-auto flex items-center gap-1 text-xs font-semibold text-indigo-300 hover:text-indigo-200">
           <Disc3 className="w-3.5 h-3.5" /> DJ
         </Link>
       </div>

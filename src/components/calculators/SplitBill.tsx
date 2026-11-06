@@ -248,7 +248,7 @@ export default function SplitBill() {
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
             <span>Monto total gastado en compras</span>
-            <span className="text-[11px] text-slate-400 font-normal">En {locale.currency.slangName} ({locale.currency.code})</span>
+            <span className="text-xs text-slate-400 font-normal">En {locale.currency.slangName} ({locale.currency.code})</span>
           </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 font-extrabold text-base">
@@ -387,7 +387,7 @@ export default function SplitBill() {
           <div className="pt-2 border-t border-indigo-500/20 flex items-center justify-between text-xs">
             <div>
               <span className="font-bold text-slate-200 block">Fondo Auto Seguro (+$2.000 c/u)</span>
-              <span className="text-[10px] text-slate-400">
+              <span className="text-xs text-slate-400">
                 Pozo común para pagar los Uber de regreso de todos
               </span>
             </div>
@@ -416,7 +416,7 @@ export default function SplitBill() {
           <button
             type="button"
             onClick={handleSaveBankInfo}
-            className="text-[11px] flex items-center gap-1 text-slate-400 hover:text-white px-2.5 py-1 rounded-xl bg-night-800 border border-night-700 transition-colors"
+            className="text-xs flex items-center gap-1 text-slate-400 hover:text-white px-2.5 py-1 rounded-xl bg-night-800 border border-night-700 transition-colors"
           >
             {savedLocally ? (
               <>
@@ -440,7 +440,7 @@ export default function SplitBill() {
           {locale.countryCode === "MX" ? (
             <>
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Nombre del Beneficiario
                 </label>
                 <input
@@ -455,7 +455,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   CLABE Interbancaria (18 dígitos)
                 </label>
                 <input
@@ -469,7 +469,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Banco (México)
                 </label>
                 <select
@@ -487,7 +487,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Concepto de pago sugerido
                 </label>
                 <input
@@ -502,7 +502,7 @@ export default function SplitBill() {
           ) : locale.countryCode === "US" ? (
             <>
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Host / Organizer Name
                 </label>
                 <input
@@ -517,7 +517,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Venmo Handle (@)
                 </label>
                 <input
@@ -530,7 +530,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Zelle (Phone or Email)
                 </label>
                 <input
@@ -543,7 +543,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Cash App ($cashtag)
                 </label>
                 <input
@@ -558,7 +558,7 @@ export default function SplitBill() {
           ) : locale.countryCode === "JP" ? (
             <>
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   幹事 (受取人名)
                 </label>
                 <input
@@ -573,7 +573,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   PayPay ID
                 </label>
                 <input
@@ -586,7 +586,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Line Pay
                 </label>
                 <input
@@ -599,7 +599,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   銀行口座 (送金先)
                 </label>
                 <select
@@ -620,7 +620,7 @@ export default function SplitBill() {
             /* Chile (Default) */
             <>
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Nombre de quien recibe
                 </label>
                 <input
@@ -635,7 +635,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   RUT
                 </label>
                 <input
@@ -648,7 +648,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Banco
                 </label>
                 <select
@@ -665,7 +665,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Tipo de Cuenta
                 </label>
                 <select
@@ -684,7 +684,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   N° de Cuenta
                 </label>
                 <input
@@ -699,7 +699,7 @@ export default function SplitBill() {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
                   Email para comprobante
                 </label>
                 <input
@@ -738,7 +738,7 @@ export default function SplitBill() {
             <div className="text-xl font-bold text-white mt-1">
               {locale.currency.format(calculation.grandTotal)}
             </div>
-            <span className="text-[11px] text-slate-400">
+            <span className="text-xs text-slate-400">
               {calculation.totalPeople} personas en la reunión
             </span>
           </div>
@@ -748,10 +748,10 @@ export default function SplitBill() {
         {bankCompactPayload && (
           <div className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-night-900 border border-slate-700 text-xs">
             <div className="min-w-0 pr-2">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">
+              <span className="text-xs uppercase font-bold text-slate-400 block">
                 Copia rápida para app ({locale.banking.systemName}):
               </span>
-              <span className="font-mono text-slate-200 truncate block text-[11px]">
+              <span className="font-mono text-slate-200 truncate block text-xs">
                 {bankCompactPayload}
               </span>
             </div>

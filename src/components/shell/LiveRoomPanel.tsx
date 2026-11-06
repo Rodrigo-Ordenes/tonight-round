@@ -13,6 +13,8 @@ import { nightMoment } from "@/lib/nightMoment";
 import NowPlayingMini from "@/components/music/NowPlayingMini";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
 import { stockFor } from "@/lib/stock";
+import BringList from "@/components/calculators/BringList";
+import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
 import { basketInsights } from "@/lib/basket";
 
 /** Panel persistente de la sala: quién está, cómo va cada uno y acciones rápidas, al lado de cualquier sección. */
@@ -22,13 +24,19 @@ export default function LiveRoomPanel({ code }: { code: string }) {
 }
 
 function SoloPanel() {
-  const moment = nightMoment(new Date());
+  // La hora se calcula en el cliente: el servidor (UTC) y el celular (hora local) no coinciden
+  const [moment, setMoment] = useState<ReturnType<typeof nightMoment> | null>(null);
+  useEffect(() => setMoment(nightMoment(new Date())), []);
   return (
     <div className="flex h-full flex-col gap-5 p-6">
-      <div>
-        <p className="eyebrow">{moment.eyebrow}</p>
-        <h2 className="display mt-2 text-3xl">{moment.title}</h2>
-        <p className="mt-2 text-sm text-slate-400">{moment.hint}</p>
+      <div className="min-h-[7.5rem]">
+        {moment && (
+          <>
+            <h2 className="display text-3xl">{moment.title}</h2>
+            <p className="meta mt-2">{moment.eyebrow}</p>
+            <p className="mt-2 text-sm text-slate-400">{moment.hint}</p>
+          </>
+        )}
       </div>
       <div className="surface p-5">
         <Users className="w-6 h-6 text-indigo-400" />
@@ -61,7 +69,7 @@ function RoomPanel({ code }: { code: string }) {
 
   useEffect(() => {
     const url = `${window.location.origin}/carrete/${code}?modo=celular`;
-    QRCode.toDataURL(url, { width: 220, margin: 1, color: { dark: "#07060A", light: "#F7F5F3" } })
+    QRCode.toDataURL(url, { width: 220, margin: 1, color: { dark: "#0D0907", light: "#F1ECE8" } })
       .then(setQr)
       .catch(() => setQr(""));
   }, [code]);
@@ -208,24 +216,16 @@ function RoomPanel({ code }: { code: string }) {
             {rows.map(({ p, bac }) => {
               const driver = p.role === "driver";
               const pct = Math.min(100, (bac / 1.2) * 100);
-              const tone = driver
-                ? bac > 0
-                  ? "bg-rose-500"
-                  : "bg-amber-400"
-                : bac >= 0.8
-                ? "bg-rose-500"
-                : bac >= 0.3
-                ? "bg-amber-400"
-                : "bg-emerald-400";
+              const tone = TONE_CLASS[bacTone(bac, driver, hasAlcohol(p.consumptions))].bar;
               return (
                 <li key={p.id} className="rounded-2xl bg-white/[0.03] px-3 py-2.5">
                   <div className="flex items-center gap-2 text-sm">
                     {driver && <Crown className="w-3.5 h-3.5 text-amber-400" aria-label={locale.terminology.driverTitle} />}
                     <span className={`truncate font-semibold ${p.id === meId ? "text-white" : "text-slate-200"}`}>
                       {p.name}
-                      {p.id === meId && <span className="ml-1 text-[10px] text-slate-400">(tú)</span>}
+                      {p.id === meId && <span className="ml-1 text-xs text-slate-400">(tú)</span>}
                     </span>
-                    <span className="ml-auto flex items-center gap-2 font-mono text-[11px] text-slate-400 tabular">
+                    <span className="ml-auto flex items-center gap-2 font-mono text-xs text-slate-400 tabular">
                       {p.waterCount > 0 && <span className="text-cyan-300">💧{p.waterCount}</span>}
                       {bac.toFixed(2)}
                     </span>
@@ -238,10 +238,12 @@ function RoomPanel({ code }: { code: string }) {
             })}
           </ul>
         )}
-        <p className="mt-2 text-[10px] leading-relaxed text-slate-500">
+        <p className="mt-2 text-xs leading-relaxed text-slate-500">
           Estimación educativa (Widmark) en g/l. {locale.legal.bacLimitText}: si bebiste, no manejes.
         </p>
       </div>
+
+      {(store.state.bring?.items.length ?? 0) > 0 && <BringList store={store} compact />}
 
       {stock && (
         <div className="surface p-4">

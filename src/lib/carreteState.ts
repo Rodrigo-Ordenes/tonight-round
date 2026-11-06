@@ -1,4 +1,5 @@
 import type { Consumption } from "./alcohol";
+import { normalizePayLink } from "./split";
 
 export type Gender = "M" | "F";
 export type Role = "drinker" | "driver";
@@ -22,6 +23,8 @@ export interface Participant {
   waterCount: number; // derivado de `water` (se mantiene por compatibilidad de lectura)
   water?: WaterLog[];
   removedIds?: string[]; // tombstones de tragos/agua borrados (para que un merge no los resucite)
+  /** Link de pago propio (Mercado Pago, MACH, Venmo, PayPay…) para cobrar en Cuentas */
+  payLink?: string;
   /** Afecta la absorción en la estimación de Widmark (vacío = pico antes y más alto). */
   stomach?: Stomach;
   status: "party" | "transit" | "safe";
@@ -70,7 +73,17 @@ export interface GamesState {
   bombLast: string;
   rouletteCustom: Record<string, string[]>; // frases propias por categoría
   rouletteDisabled: string[];
+  /** Último sorteo de puestos/equipos (se muestra en la TV) */
+  seats?: SeatDraw | null;
   updatedAt: number;
+}
+
+export type SeatMode = "parejas" | "trios" | "equipos" | "puestos";
+
+export interface SeatDraw {
+  mode: SeatMode;
+  groups: string[][];
+  at: number;
 }
 
 export interface MusicState {
@@ -91,6 +104,8 @@ export interface SongRequest {
   text: string;
   at: number;
   played?: boolean;
+  /** Participantes que votaron este pedido (la cola se ordena por votos) */
+  votes?: string[];
 }
 
 /* ---------------- Rondas en vivo (TV = escenario, celulares = control) ---------------- */
@@ -115,6 +130,10 @@ export interface LiveRound {
   /** Palabra secreta (El Impostor): todos la ven menos quien es `answer`. */
   secret?: string;
   startedAt: number;
+  /** Participante que inició la ronda: entre los celulares, solo él maneja el reloj */
+  hostId?: string;
+  /** Tiempo para votar; al acabarse (con al menos un voto) la TV o el anfitrión revelan solos */
+  durationMs?: number;
   revealedAt?: number;
   endedAt?: number;
   votes: Record<string, LiveVote>;
@@ -166,6 +185,23 @@ export interface SplitState {
 
 export const DEFAULT_SPLIT: SplitState = { expenses: [], removed: [], mode: "justo", soberIds: [], updatedAt: 0 };
 
+/* ---------------- Lista "Yo llevo" (estilo Partiful) ---------------- */
+
+export interface BringItem {
+  id: string;
+  label: string;
+  claimedBy?: string;
+  claimedAt?: number;
+}
+
+export interface BringState {
+  items: BringItem[];
+  /** tombstones de ítems borrados */
+  removed: string[];
+}
+
+export const DEFAULT_BRING: BringState = { items: [], removed: [] };
+
 export const DEFAULT_MUSIC: MusicState = { vibeId: "top-pais", auto: true, updatedAt: 0 };
 
 export interface CarreteState {
@@ -182,6 +218,7 @@ export interface CarreteState {
   music?: MusicState;
   live?: LiveState;
   split?: SplitState;
+  bring?: BringState;
 }
 
 export const DEFAULT_BASKET: BasketState = {
@@ -250,6 +287,10 @@ export type CarreteAction =
   | { type: "CHEERS"; id: string; by: string }
   | { type: "SONG_REQUEST"; request: SongRequest }
   | { type: "SONG_PLAYED"; id: string }
+  | { type: "VOTE_SONG"; id: string; participantId: string }
+  | { type: "ADD_BRING"; item: { id: string; label: string } }
+  | { type: "CLAIM_BRING"; id: string; participantId: string }
+  | { type: "REMOVE_BRING"; id: string }
   | { type: "ADD_EXPENSE"; expense: Expense }
   | { type: "REMOVE_EXPENSE"; id: string }
   | { type: "PATCH_SPLIT"; patch: Partial<Pick<SplitState, "mode" | "soberIds">> }
@@ -277,6 +318,8 @@ export function normalizeParticipant(p: Participant): Participant {
     water: live,
     waterCount: live.length,
     removedIds: p.removedIds ?? [],
+    // Cualquiera con el código puede escribir en la sala: solo se guardan links http(s) válidos (nada de javascript:)
+    payLink: p.payLink ? normalizePayLink(p.payLink) ?? undefined : undefined,
   };
 }
 
@@ -291,6 +334,7 @@ export function normalizeCarrete(s: CarreteState): CarreteState {
     music: { ...DEFAULT_MUSIC, ...s.music },
     live: { ...DEFAULT_LIVE, ...s.live },
     split: { ...DEFAULT_SPLIT, ...s.split },
+    bring: { ...DEFAULT_BRING, ...s.bring },
   };
 }
 
@@ -403,12 +447,57 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
       if ((m.requests ?? []).some((r) => r.id === a.request.id)) return s;
       return { ...s, music: { ...m, requests: [...(m.requests ?? []), a.request].slice(-30), updatedAt: Math.max(m.updatedAt, at) } };
     }
+    case "VOTE_SONG": {
+      const m = s.music ?? DEFAULT_MUSIC;
+      return {
+        ...s,
+        music: {
+          ...m,
+          requests: (m.requests ?? []).map((r) => {
+            if (r.id !== a.id) return r;
+            const v = new Set(r.votes ?? []);
+            if (v.has(a.participantId)) v.delete(a.participantId);
+            else v.add(a.participantId);
+            return { ...r, votes: Array.from(v) };
+          }),
+          updatedAt: Math.max(m.updatedAt, at),
+        },
+      };
+    }
     case "SONG_PLAYED": {
       const m = s.music ?? DEFAULT_MUSIC;
       return {
         ...s,
         music: { ...m, requests: (m.requests ?? []).map((r) => (r.id === a.id ? { ...r, played: true } : r)), updatedAt: Math.max(m.updatedAt, at) },
       };
+    }
+    case "ADD_BRING": {
+      const b = s.bring ?? DEFAULT_BRING;
+      if (b.items.some((i) => i.id === a.item.id) || b.removed.includes(a.item.id)) return s;
+      return { ...s, bring: { ...b, items: [...b.items, { id: a.item.id, label: a.item.label }] } };
+    }
+    case "CLAIM_BRING": {
+      // Primero gana; quien lo tiene puede soltarlo (volver a tocar)
+      const b = s.bring ?? DEFAULT_BRING;
+      return {
+        ...s,
+        bring: {
+          ...b,
+          items: b.items.map((i) =>
+            i.id !== a.id
+              ? i
+              : !i.claimedBy
+              ? { ...i, claimedBy: a.participantId, claimedAt: at }
+              : i.claimedBy === a.participantId
+              ? { id: i.id, label: i.label }
+              : i
+          ),
+        },
+      };
+    }
+    case "REMOVE_BRING": {
+      const b = s.bring ?? DEFAULT_BRING;
+      return { ...s, bring: { items: b.items.filter((i) => i.id !== a.id), removed: Array.from(new Set([...b.removed, a.id])) } };
     }
     case "ADD_EXPENSE": {
       const sp = s.split ?? DEFAULT_SPLIT;
@@ -471,7 +560,11 @@ function mergeParticipant(a: Participant, b: Participant): Participant {
  * Merge de estados completos. Los tragos y vasos de agua se unen por id (con tombstones), así que
  * ningún registro se pierde; los campos escalares usan LWW por participante/sección.
  */
-export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState): CarreteState {
+/**
+ * `authority` indica qué lado es el servidor ("a" en el servidor, "b" en el cliente al hacer rebase).
+ * Hoy solo lo usa "Yo llevo": el primero en llegar al servidor gana y soltar no se deshace con copias viejas.
+ */
+export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState, authority?: "a" | "b"): CarreteState {
   const a = normalizeCarrete(aRaw);
   const b = normalizeCarrete(bRaw);
   if ((a.epoch ?? 0) !== (b.epoch ?? 0)) {
@@ -493,10 +586,34 @@ export function mergeCarrete(aRaw: CarreteState, bRaw: CarreteState): CarreteSta
     participants: Array.from(map.values()).sort((x, y) => x.joinedAt - y.joinedAt),
     basket: b.basket.updatedAt > a.basket.updatedAt ? b.basket : a.basket,
     games: b.games.updatedAt > a.games.updatedAt ? b.games : a.games,
-    music: mergeMusic(a.music, b.music),
+    music: mergeMusic(a.music, b.music, authority),
     live: mergeLive(a.live ?? DEFAULT_LIVE, b.live ?? DEFAULT_LIVE),
     split: mergeSplit(a.split ?? DEFAULT_SPLIT, b.split ?? DEFAULT_SPLIT),
+    bring: mergeBring(a.bring ?? DEFAULT_BRING, b.bring ?? DEFAULT_BRING, authority),
   };
+}
+
+/**
+ * "Yo llevo": unión por id menos tombstones. Si hay autoridad (servidor), su versión de cada ítem que conoce
+ * gana entera (así un "soltar" no lo revive otra copia y el orden de llegada decide el reclamo); sin autoridad
+ * (entre pestañas), gana el reclamo más antiguo.
+ */
+function mergeBring(a: BringState, b: BringState, authority?: "a" | "b"): BringState {
+  const removed = Array.from(new Set([...a.removed, ...b.removed]));
+  const gone = new Set(removed);
+  const byId = new Map<string, BringItem>();
+  const [first, second] = authority === "b" ? [b, a] : [a, b];
+  first.items.forEach((i) => {
+    if (!gone.has(i.id)) byId.set(i.id, i);
+  });
+  second.items.forEach((i) => {
+    if (gone.has(i.id)) return;
+    const prev = byId.get(i.id);
+    if (!prev) byId.set(i.id, i);
+    else if (!authority && i.claimedBy && (!prev.claimedBy || (i.claimedAt ?? Infinity) < (prev.claimedAt ?? Infinity))) byId.set(i.id, i);
+  });
+  const order = new Map([...a.items, ...b.items].map((i, n) => [i.id, n] as const));
+  return { items: Array.from(byId.values()).sort((x, y) => (order.get(x.id) ?? 0) - (order.get(y.id) ?? 0)), removed };
 }
 
 /** Gastos: unión por id menos tombstones; modo y abstemios por LWW. */
@@ -535,12 +652,20 @@ function mergeLive(a: LiveState, b: LiveState): LiveState {
 }
 
 /** Música: ambiente por LWW; los pedidos de canciones se unen por id (un "ya sonó" no se pierde). */
-function mergeMusic(a?: MusicState, b?: MusicState): MusicState | undefined {
+function mergeMusic(a?: MusicState, b?: MusicState, authority?: "a" | "b"): MusicState | undefined {
   if (!a || !b) return a ?? b;
   const newer = b.updatedAt > a.updatedAt ? b : a;
   const all = [...(a.requests ?? []), ...(b.requests ?? [])];
+  // Los votos de un pedido siguen al servidor si se sabe cuál es (un reloj adelantado no los congela);
+  // si no, al estado de música más reciente (se puede quitar un voto)
+  const votesFrom = authority === "a" ? a : authority === "b" ? b : newer;
+  const newerVotes = new Map((votesFrom.requests ?? []).map((r) => [r.id, r.votes]));
   const requests = uniqBy(all, (r) => r.id)
-    .map((r) => ({ ...r, played: all.some((x) => x.id === r.id && x.played) || undefined }))
+    .map((r) => ({
+      ...r,
+      played: all.some((x) => x.id === r.id && x.played) || undefined,
+      votes: newerVotes.has(r.id) ? newerVotes.get(r.id) : r.votes,
+    }))
     .sort((x, y) => x.at - y.at)
     .slice(-30);
   return { ...newer, requests };

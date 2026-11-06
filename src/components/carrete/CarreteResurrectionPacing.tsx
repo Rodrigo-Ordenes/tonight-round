@@ -83,7 +83,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
               key={p.id}
               className={`p-5 rounded-3xl border transition-all space-y-4 ${
                 lightStatus === "red"
-                  ? "bg-rose-950/40 border-rose-500/60 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                  ? "bg-rose-950/40 border-rose-500/60 shadow-[0_0_20px_rgba(253,69,118,0.2)]"
                   : lightStatus === "yellow"
                   ? "bg-amber-950/30 border-amber-500/50"
                   : "bg-night-900/90 border-slate-800"
@@ -96,14 +96,14 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
                   </div>
                   <div>
                     <h3 className="font-black text-base text-white">{p.name}</h3>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-xs text-slate-400">
                       {p.gender === "M" ? "Hombre" : "Mujer"} · {p.weightKg} kg · {p.consumptions.length} consumos
                     </p>
                   </div>
                 </div>
 
                 <span
-                  className={`text-[10px] font-black px-2.5 py-1 rounded-full border ${
+                  className={`text-xs font-black px-2.5 py-1 rounded-full border ${
                     lightStatus === "red"
                       ? "bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse"
                       : lightStatus === "yellow"
@@ -122,13 +122,13 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
               {/* Compromiso y Modo */}
               <div className="p-3 rounded-2xl bg-night-950 border border-slate-800 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                  <span className="text-xs text-slate-400 uppercase font-bold block">
                     Compromiso de mañana
                   </span>
                   <span className="text-xs font-black text-white">
                     {p.resurrectionLabel || "Almuerzo Familiar (13:00)"}
                   </span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                  <span className="text-xs text-slate-400 block mt-0.5">
                     Tolerancia: {p.resurrectionMode === "strict" ? "0.0 estricto" : "Funcional"}
                   </span>
                 </div>
@@ -209,7 +209,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
                     className="w-full min-h-[44px] p-2.5 rounded-xl bg-night-950 hover:bg-indigo-950/60 border border-slate-800 hover:border-indigo-500 text-left text-xs font-bold text-white flex items-center justify-between transition-colors"
                   >
                     <span>{c.label}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-xs text-slate-400 font-mono">
                       {c.mode === "strict" ? "0.0 estricto" : "Funcional"}
                     </span>
                   </button>

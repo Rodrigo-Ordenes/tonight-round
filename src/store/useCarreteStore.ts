@@ -18,6 +18,7 @@ import {
   type ParticipantPatch,
 } from "@/lib/carreteState";
 import type { Consumption } from "@/lib/alcohol";
+import { pollDelay } from "@/lib/pollDelay";
 
 /**
  * useCarreteStore — ÚNICA fuente de verdad de un carrete.
@@ -42,7 +43,6 @@ export const uid = () =>
     : Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
 
 const POLL_BASE_MS = 2000;
-const POLL_MAX_MS = 16000;
 const ANTI_ENTROPY_MS = 30000;
 
 export type CarreteStatus = "loading" | "ready" | "missing";
@@ -122,7 +122,7 @@ export async function carreteExists(code: string): Promise<boolean> {
     if (res.ok) {
       const s = (await res.json()) as CarreteState;
       const local = readLocal(code);
-      writeLocal(local ? mergeCarrete(local, s) : normalizeCarrete(s));
+      writeLocal(local ? mergeCarrete(local, s, "b") : normalizeCarrete(s));
       return true;
     }
   } catch {
@@ -155,7 +155,7 @@ class CarreteEngine {
   private flushing = false;
   private missing = false;
   private running = false;
-  private delay = POLL_BASE_MS;
+  private failures = 0;
   private lastAntiEntropy = 0;
   private stopTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -224,7 +224,7 @@ class CarreteEngine {
     if (stillPending.length !== pending.length) writeOutbox(this.code, stillPending);
     if (stillPending.length !== this.snap.pending) this.set({ pending: stillPending.length });
     // El merge conserva lo que este dispositivo tenga y el servidor aún no (p. ej. tras un reinicio del servidor).
-    this.commit(applyEvents(mergeCarrete(this.snap.state, server), stillPending));
+    this.commit(applyEvents(mergeCarrete(this.snap.state, server, "b"), stillPending));
   }
 
   /** Re-siembra la sala con la copia local (servidor reiniciado o instancia serverless nueva). */
@@ -282,19 +282,19 @@ class CarreteEngine {
         }
       }
       if (!this.snap.online) this.set({ online: true });
-      this.delay = POLL_BASE_MS;
+      this.failures = 0;
     } catch {
       if (this.snap.online) this.set({ online: false });
-      this.delay = Math.min(POLL_MAX_MS, this.delay * 2);
+      this.failures += 1;
     }
     if (this.running) {
-      const wait = document.hidden ? Math.max(this.delay, 8000) : this.delay;
+      const wait = pollDelay(this.snap.state.live?.round, this.failures, document.hidden);
       this.pollTimer = setTimeout(this.tick, wait);
     }
   };
 
   private onOnline = () => {
-    this.delay = POLL_BASE_MS;
+    this.failures = 0;
     void this.flush();
   };
 
@@ -338,7 +338,7 @@ class CarreteEngine {
       this.set({ status: "missing" });
       return;
     }
-    const base = server && local ? mergeCarrete(local, server) : normalizeCarrete((server ?? local) as CarreteState);
+    const base = server && local ? mergeCarrete(local, server, "b") : normalizeCarrete((server ?? local) as CarreteState);
     this.commit(applyEvents(base, readOutbox(this.code)));
     this.set({ status: "ready", meId });
     setActiveCode(this.code);

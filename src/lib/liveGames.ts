@@ -39,7 +39,7 @@ export function buildRound(
     const unused = xs.filter((x) => !ctx.usedPrompts.has(key(x)));
     return pick(unused.length ? unused : xs);
   };
-  const base = { id: rid(), game, startedAt: Date.now() };
+  const base = { id: rid(), game, startedAt: Date.now(), durationMs: game === "impostor" ? 45_000 : 30_000 };
   const peopleOptions = people.map((p) => ({ id: p.id, label: p.name }));
 
   switch (game) {
@@ -175,4 +175,31 @@ export function penaltyFor(p: Participant, roundId: string, now = Date.now()): {
   }
   if (bac >= 0.5) return { text: "Un sorbo chico… y después un vaso de agua 💧", water: false };
   return { text: "Toma un sorbo 🍻", water: false };
+}
+
+/**
+ * ¿Se revela sola la ronda? Cuando votaron todos (con 2 o más personas) o cuando se acabó el tiempo
+ * con al menos un voto. Nunca con 0 votos ni dos veces.
+ */
+export function shouldAutoReveal(round: LiveRound, participantCount: number, now: number): boolean {
+  if (round.revealedAt) return false;
+  const votes = Object.keys(round.votes).length;
+  if (votes === 0) return false;
+  if (participantCount >= 2 && votes >= participantCount) return true;
+  return !!round.durationMs && now >= round.startedAt + round.durationMs;
+}
+
+/**
+ * Quién maneja el reloj (revelado automático y tic): la TV siempre y, entre los celulares, solo quien inició
+ * la ronda. Así no hay N celulares revelando con su propia copia de los votos.
+ */
+export function isRoundDriver(round: Pick<LiveRound, "hostId">, who: { tv: boolean; meId: string | null }): boolean {
+  if (who.tv) return true;
+  return !!who.meId && round.hostId === who.meId;
+}
+
+/** Tiempo restante (ms) acotado a [0, duración]: un reloj atrasado nunca muestra más que la duración. */
+export function roundRemaining(round: Pick<LiveRound, "startedAt" | "durationMs">, now: number): number | null {
+  if (!round.durationMs) return null;
+  return Math.min(round.durationMs, Math.max(0, round.startedAt + round.durationMs - now));
 }

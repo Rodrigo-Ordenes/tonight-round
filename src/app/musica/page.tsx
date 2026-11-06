@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { ExternalLink, Link2, Sparkles, Wand2 } from "lucide-react";
+import { ExternalLink, Heart, Link2, Sparkles, Wand2 } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore } from "@/store/useCarreteStore";
 import { useLocale } from "@/lib/useLocale";
@@ -12,6 +12,7 @@ import {
   openForVibe,
   resolveNowPlaying,
   roomPulse,
+  songQueue,
   spotifyEmbedFromUrl,
   vibesFor,
   youtubeMusicSearch,
@@ -81,10 +82,10 @@ export default function MusicaPage() {
     <div className="space-y-10 animate-fade-in">
       {/* Cabecera editorial */}
       <header className="max-w-3xl">
-        <p className="eyebrow">{moment.eyebrow}</p>
-        <h1 className="display text-display-lg mt-3">
-          DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-gradient-ember">.</span>
+        <h1 className="display text-display-lg">
+          DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-accent">.</span>
         </h1>
+        <p className="meta mt-3">{moment.eyebrow}</p>
         <p className="mt-3 text-base text-slate-300">
           {isSolo
             ? "Elige el ambiente o deja que el DJ lo cambie solo según la hora."
@@ -142,8 +143,7 @@ export default function MusicaPage() {
               onClick={() => choose(vibe.id)}
               className={`surface surface-hover relative flex w-full items-center gap-4 overflow-hidden p-4 text-left`}
             >
-              <span className={`absolute inset-0 bg-gradient-to-br ${vibe.gradient} opacity-60`} aria-hidden />
-              <span className="relative font-mono text-xs text-slate-400">0{i + 1}</span>
+              <span className={`absolute inset-0 ${vibe.tint}`} aria-hidden />
               <span className="relative text-3xl">{vibe.emoji}</span>
               <span className="relative min-w-0 flex-1">
                 <span className="block font-display text-lg font-bold text-white">{vibe.name}</span>
@@ -180,14 +180,24 @@ export default function MusicaPage() {
       {/* Pedidos de la sala */}
       {(music?.requests ?? []).length > 0 && (
         <section>
-          <p className="eyebrow mb-4">Pedidos de la sala</p>
+          <h2 className="font-display text-2xl font-bold text-white">Pedidos de la sala</h2>
+          <p className="meta mb-4 mt-1">La cola se ordena por votos: tocar el corazón suma o quita el tuyo.</p>
           <ul className="grid gap-2 sm:grid-cols-2">
-            {(music?.requests ?? [])
-              .slice()
-              .reverse()
+            {[...songQueue(music), ...(music?.requests ?? []).filter((r) => r.played)]
               .map((r) => (
                 <li key={r.id} className={`surface flex items-center gap-3 p-3 ${r.played ? "opacity-50" : ""}`}>
-                  <span className="text-xl">🎵</span>
+                  <button
+                    type="button"
+                    disabled={!store.meId || r.played}
+                    onClick={() => store.meId && dispatch({ type: "VOTE_SONG", id: r.id, participantId: store.meId })}
+                    aria-pressed={!!store.meId && (r.votes ?? []).includes(store.meId)}
+                    aria-label={`Votar ${r.text}`}
+                    className={`flex h-11 min-w-[44px] shrink-0 items-center justify-center gap-1 rounded-xl text-sm font-bold ${
+                      store.meId && (r.votes ?? []).includes(store.meId) ? "bg-indigo-500/20 text-indigo-100" : "bg-white/[0.04] text-slate-300"
+                    } disabled:opacity-50`}
+                  >
+                    <Heart className="w-4 h-4" /> {r.votes?.length ?? 0}
+                  </button>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold text-white">{r.text}</span>
                     <span className="block text-xs text-slate-400">pedida por {state.participants.find((p) => p.id === r.by)?.name ?? "alguien"}</span>
@@ -219,7 +229,7 @@ export default function MusicaPage() {
             const active = !auto && music?.vibeId === vibe.id;
             return (
               <div key={vibe.id} className={`surface relative overflow-hidden ${active ? "ring-2 ring-indigo-400" : ""}`}>
-                <span className={`absolute inset-0 bg-gradient-to-br ${vibe.gradient} opacity-40`} aria-hidden />
+                <span className={`absolute inset-0 ${vibe.tint}`} aria-hidden />
                 <button type="button" onClick={() => choose(vibe.id)} className="relative block w-full p-4 text-left">
                   <span className="flex items-start justify-between">
                     <span className="text-3xl">{vibe.emoji}</span>
@@ -232,7 +242,7 @@ export default function MusicaPage() {
                   href={openForVibe(vibe)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative flex items-center gap-1 px-4 pb-3 text-[11px] font-semibold text-slate-400 hover:text-white"
+                  className="relative flex items-center gap-1 px-4 pb-3 text-xs font-semibold text-slate-400 hover:text-white"
                 >
                   Spotify <ExternalLink className="w-3 h-3" />
                 </a>

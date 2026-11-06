@@ -136,9 +136,9 @@ export default function MitosPage() {
               className="glass-panel p-5 rounded-3xl border border-night-800 hover:border-night-700 transition-all bg-night-950/70"
             >
               <div className="flex items-start justify-between gap-3 mb-2.5">
-                <h3 className="font-extrabold text-sm text-white tracking-tight leading-snug">
+                <h2 className="font-extrabold text-sm text-white tracking-tight leading-snug">
                   {myth.title}
-                </h3>
+                </h2>
                 <div className="shrink-0">
                   {getVerdictBadge(myth.verdict_type, myth.verdict)}
                 </div>
@@ -152,7 +152,7 @@ export default function MitosPage() {
               <button
                 type="button"
                 onClick={() => setExpandedId(isExpanded ? null : myth.id)}
-                className="mt-3 w-full py-2 px-3 rounded-2xl bg-night-900 hover:bg-night-850 border border-night-800 text-[11px] font-bold text-slate-400 hover:text-slate-200 flex items-center justify-between transition-colors"
+                className="mt-3 w-full py-2 px-3 rounded-2xl bg-night-900 hover:bg-night-850 border border-night-800 text-xs font-bold text-slate-400 hover:text-slate-200 flex items-center justify-between transition-colors"
               >
                 <span>{isExpanded ? "Ocultar Explicación Científica" : "Ver Explicación Científica y Fuente"}</span>
                 {isExpanded ? (
@@ -166,25 +166,25 @@ export default function MitosPage() {
               {isExpanded && (
                 <div className="mt-3.5 pt-3 border-t border-night-800 space-y-3 text-xs animate-fade-in">
                   <div>
-                    <h4 className="font-bold text-slate-300 text-[11px] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <h3 className="font-bold text-slate-300 text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5">
                       <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
                       <span>Fisiología y Mecanismo Biológico</span>
-                    </h4>
+                    </h3>
                     <p className="text-slate-400 leading-relaxed">
                       {myth.scientific_details}
                     </p>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-800/40 text-indigo-200">
-                    <span className="font-bold block text-[11px] text-indigo-300 mb-0.5">
+                    <span className="font-bold block text-xs text-indigo-300 mb-0.5">
                       💡 Consejo Práctico:
                     </span>
-                    <p className="text-[11px] leading-relaxed">
+                    <p className="text-xs leading-relaxed">
                       {myth.recommendation}
                     </p>
                   </div>
 
-                  <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                  <div className="text-xs text-slate-400 flex items-center gap-1">
                     <span className="font-semibold">Fuente:</span>
                     <span>{myth.scientific_source}</span>
                   </div>

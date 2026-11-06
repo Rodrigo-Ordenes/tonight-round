@@ -14,7 +14,7 @@ const CATS: Cat[] = [
   { id: "verdades", name: "Verdades", icon: "🗣️", phrases: CASTIGOS.verdades },
   { id: "sin_alcohol", name: "Sin alcohol", icon: "💧", phrases: CASTIGOS.sinAlcohol },
 ];
-const COLORS = ["#FF5E36", "#9C82FF", "#FFBC20", "#86E64C", "#3EE0FF", "#FF6FA8", "#FA2D4A", "#C5FBA1"];
+const COLORS = ["#FF8346", "#BFAAFF", "#FFD375", "#59D2B1", "#95D1FF", "#FF9FAE", "#FD4576", "#B3EDD9"];
 
 type Modal = null | "players" | "custom" | "bank";
 
@@ -89,7 +89,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
               setCatId(c.id);
               setResult(null);
             }}
-            className={`min-h-[48px] rounded-xl text-[11px] font-bold px-1 ${
+            className={`min-h-[48px] rounded-xl text-xs font-bold px-1 ${
               catId === c.id ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-300"
             }`}
           >
@@ -107,7 +107,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
           style={{ transform: `rotate(${rotation}deg)`, transition: "transform 4s cubic-bezier(0.17,0.67,0.12,1)" }}
         >
           {players.length === 0 ? (
-            <circle cx="100" cy="100" r="95" fill="#1e293b" />
+            <circle cx="100" cy="100" r="95" fill="#29231f" />
           ) : players.length === 1 ? (
             <circle cx="100" cy="100" r="95" fill={COLORS[0]} />
           ) : (
@@ -122,7 +122,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
                   <path
                     d={`M100,100 L${x1},${y1} A95,95 0 ${slice > 180 ? 1 : 0} 1 ${x2},${y2} Z`}
                     fill={COLORS[i % COLORS.length]}
-                    stroke="#0b1020"
+                    stroke="#0d0907"
                     strokeWidth="1.5"
                   />
                   <text
@@ -141,7 +141,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
               );
             })
           )}
-          <circle cx="100" cy="100" r="9" fill="#0b1020" stroke="#fff" strokeWidth="2" />
+          <circle cx="100" cy="100" r="9" fill="#0d0907" stroke="#fff" strokeWidth="2" />
         </svg>
         {players.length === 0 && (
           <p className="absolute inset-0 flex items-center justify-center text-center text-xs text-slate-400 px-10">

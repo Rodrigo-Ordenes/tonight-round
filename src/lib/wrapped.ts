@@ -15,6 +15,12 @@ export interface WrappedData {
   rounds: number;
   hours: number;
   distinctDrinks: number;
+  /** Pedido de canción con más votos (o el primero si nadie votó) */
+  topSong: string | null;
+  /** Trago más registrado de la noche */
+  topDrink: string | null;
+  /** Vasos de agua por trago del grupo, 0–100 (100 = un vaso por trago) */
+  hydrationPct: number;
   awards: Award[];
 }
 
@@ -86,8 +92,16 @@ export function buildWrapped(state: CarreteState): WrappedData {
   const famous = top(Array.from(spotlight.entries()), ([, n]) => n);
   if (famous && byId(famous[0])) awards.push({ emoji: "🎤", title: "El más votado", who: byId(famous[0])!.name, detail: `La sala lo eligió ${famous[1]} veces.` });
 
+  const counts = new Map<string, number>();
+  people.forEach((p) => p.consumptions.forEach((c) => counts.set(c.label, (counts.get(c.label) ?? 0) + 1)));
+  const topDrinkEntry = top(Array.from(counts.entries()), ([, n]) => n);
+  const reqs = (state.music?.requests ?? []).slice().sort((a, b) => (b.votes?.length ?? 0) - (a.votes?.length ?? 0) || a.at - b.at);
+
   return {
     code: state.code,
+    topSong: reqs[0]?.text ?? null,
+    topDrink: topDrinkEntry ? topDrinkEntry[0] : null,
+    hydrationPct: drinks ? Math.round(Math.min(1, waters / drinks) * 100) : 0,
     people: people.length,
     drinks,
     waterLiters: waters * 0.25,
@@ -111,25 +125,25 @@ export async function drawWrapped(canvas: HTMLCanvasElement, d: WrappedData, par
   const sans = getComputedStyle(document.documentElement).getPropertyValue("--font-sans").trim() || "sans-serif";
   const mono = getComputedStyle(document.documentElement).getPropertyValue("--font-mono").trim() || "monospace";
 
-  ctx.fillStyle = "#07060A";
+  ctx.fillStyle = "#0D0907";
   ctx.fillRect(0, 0, W, H);
   const g1 = ctx.createRadialGradient(150, 200, 0, 150, 200, 900);
-  g1.addColorStop(0, "rgba(255,94,54,0.55)");
-  g1.addColorStop(1, "rgba(255,94,54,0)");
+  g1.addColorStop(0, "rgba(255,131,70,0.55)");
+  g1.addColorStop(1, "rgba(255,131,70,0)");
   ctx.fillStyle = g1;
   ctx.fillRect(0, 0, W, H);
   const g2 = ctx.createRadialGradient(950, 1700, 0, 950, 1700, 1000);
-  g2.addColorStop(0, "rgba(156,130,255,0.5)");
-  g2.addColorStop(1, "rgba(156,130,255,0)");
+  g2.addColorStop(0, "rgba(191,170,255,0.5)");
+  g2.addColorStop(1, "rgba(191,170,255,0)");
   ctx.fillStyle = g2;
   ctx.fillRect(0, 0, W, H);
 
   const pad = 90;
-  ctx.fillStyle = "#BAB4C2";
+  ctx.fillStyle = "#C3BCB8";
   ctx.font = `600 34px ${mono}`;
   ctx.fillText(`TONIGHT WRAPPED · ${d.code}`, pad, 170);
 
-  ctx.fillStyle = "#F7F5F3";
+  ctx.fillStyle = "#F1ECE8";
   ctx.font = `800 132px ${display}`;
   ctx.fillText("Qué", pad, 330);
   ctx.fillText("noche.", pad, 460);
@@ -144,31 +158,36 @@ export async function drawWrapped(canvas: HTMLCanvasElement, d: WrappedData, par
   stats.forEach(([n, label], i) => {
     const x = pad + (i % 2) * 460;
     const y = 620 + Math.floor(i / 2) * 190;
-    ctx.fillStyle = i === 2 ? "#3EE0FF" : "#F7F5F3";
+    ctx.fillStyle = i === 2 ? "#95D1FF" : "#F1ECE8";
     ctx.font = `800 110px ${display}`;
     ctx.fillText(n, x, y);
-    ctx.fillStyle = "#958EA3";
+    ctx.fillStyle = "#A8A09B";
     ctx.font = `600 38px ${sans}`;
     ctx.fillText(label, x, y + 52);
   });
 
   // Premios
-  ctx.fillStyle = "#BAB4C2";
+  ctx.fillStyle = "#C3BCB8";
   ctx.font = `600 32px ${mono}`;
   ctx.fillText("PREMIOS DE LA NOCHE", pad, 1080);
   d.awards.slice(0, 5).forEach((a, i) => {
     const y = 1170 + i * 135;
     ctx.font = `64px ${sans}`;
     ctx.fillText(a.emoji, pad, y + 6);
-    ctx.fillStyle = "#F7F5F3";
+    ctx.fillStyle = "#F1ECE8";
     ctx.font = `800 52px ${display}`;
     ctx.fillText(a.who, pad + 100, y - 10, W - pad * 2 - 100);
-    ctx.fillStyle = "#958EA3";
+    ctx.fillStyle = "#A8A09B";
     ctx.font = `600 32px ${sans}`;
     ctx.fillText(a.title, pad + 100, y + 36, W - pad * 2 - 100);
   });
 
-  ctx.fillStyle = "#FF5E36";
+  if (d.topDrink || d.topSong) {
+    ctx.fillStyle = "#C3BCB8";
+    ctx.font = `600 32px ${sans}`;
+    ctx.fillText([d.topDrink ? `Trago: ${d.topDrink}` : "", d.topSong ? `Canción: ${d.topSong}` : ""].filter(Boolean).join("  ·  "), pad, H - 190, W - pad * 2);
+  }
+  ctx.fillStyle = "#FF8346";
   ctx.font = `800 40px ${display}`;
   ctx.fillText(`El ${partyName.toLowerCase()} se armó en Tonight`, pad, H - 120);
 }

@@ -1,193 +1,105 @@
-# 🌙 Tonight / Copiloto del Carrete — Sistema Operativo Social Nocturno (V9 Master Blueprint) 🌐
+# Tonight — Copiloto del Carrete (V11)
 
-Web application gratuita, ultra-rápida, mobile-first y optimizada para Smart TV sin muros de pago ni registros forzados. Transforma la clásica calculadora de insumos en una **plataforma social sincrónica para carretes, fiestas y reuniones en todo el mundo**.
+Web app gratuita y sin cuentas para armar, jugar y cerrar la noche con tu grupo. Un celular por persona, una TV para la sala y nada que instalar. Chile por defecto; México, EE.UU. y Japón vía `useLocale()`.
 
-> *"Todo lo que necesitas para organizar, gozar y cuidar la noche, en un solo lugar."*
+## Principios
 
----
+1. **Cero fricción.** Gratis, sin login ni tiendas de apps.
+2. **Chile por defecto.** Piscola 70/30, lucas, CuentaRUT, Ley Emilia y Tolerancia Cero, sin romper los otros tres países.
+3. **Reducción de daños, no castigo.** El Monstruómetro es educativo y **nunca** dice "apto para manejar". Los tonos van de turquesa a ámbar; el rojo se reserva para el conductor designado que tomó. No hay ranking por consumo y existe un modo discreto.
+4. **Sala sin pérdidas.** Cada cambio es una acción idempotente (`CarreteAction` con `eventId`) que un reductor puro aplica y un merge combina sin perder datos, también sin conexión.
+5. **Precios offline.** El catálogo sale de `src/data/prices_cl.json`.
 
-## 🧭 Invariantes y Principios de Diseño
+## Qué trae
 
-1. **Cero Fricción:** 100% gratuita, sin pantallas de login forzado, descargas obligatorias de tiendas ni muros de pago.
-2. **Identidad Chilena Intacta (Default Cultural):** Preservación total del lore chileno (Piscola 70/30 y 60/40, lucas, CuentaRUT, BancoEstado, Ley Emilia y Ley de Tolerancia Cero), desacoplado limpiamente para coexistir con México 🇲🇽, EE.UU. 🇺🇸 y Japón 🇯🇵.
-3. **Dark Mode OLED:** Paleta Obsidian (`#060911` / `#090d16`), tarjetas Midnight (`#0D1322`) y acentos neón calibrados (Violeta, Fucsia, Esmeralda, Ámbar y Rojo).
-4. **Marco Legal Estricto y Educación:** Advertencias de tolerancia cero al volante. Los cálculos biológicos de Widmark son estrictamente educativos y **nunca** emiten un "visto bueno" o veredicto de aptitud para conducir.
-5. **Scraping Batch Offline:** Los precios y canastas se consultan desde datos estáticos optimizados (`src/data/prices_cl.json`), garantizando disponibilidad y rapidez inmediata sin scraping frágil en el navegador.
+| Sección | Ruta | Lo principal |
+| --- | --- | --- |
+| Inicio | `/` | Crear sala (código de 4 letras), unirse por PIN o usar el modo solo |
+| Sala | `/carrete/[code]` | Celular: +1 trago, agua, brindis, pedir canción, link de pago. Panel con Monstruómetro, «Yo llevo» y ronda en curso |
+| Modo TV | `/carrete/tv?code=` | QR, ronda en vivo con cuenta regresiva, cola de canciones por votos, sorteo de puestos |
+| Armar | `/armar` | Canasta por perfil y presupuesto, comparador de tiendas, lista «Yo llevo» (el primero que reclama gana), exportar a WhatsApp |
+| Bar | `/bar` | Barra con lo que tienes, ideas, vaso dinámico con % ABV, recetario y diccionario de tragos |
+| Juegos | `/juegos` | Rondas en vivo (TV + celulares) con temporizador y revelado automático; La Bomba, ruleta, Yo Nunca, dedo elegido, cambio de puestos |
+| Música | `/musica` | DJ con Spotify embebido; pedidos con votos (la cola se ordena sola) |
+| Cuentas | `/dividir` | Varios pagadores, quién le debe a quién, botón «Pagar» con link (Mercado Pago, MACH, Venmo, PayPay) |
+| Cierre | Wrapped | Resumen de la noche: trago y canción más pedidos, hidratación del grupo, imagen para compartir |
+| Info | `/mitos`, `/tiempo` | Mitos con evidencia y línea de tiempo de eliminación |
 
----
+## Novedades de la V11
 
-## 🚀 Módulos y Arquitectura de Navegación
+- **Paleta «Brasa», basada en un estudio.** Carbón cálido en vez de negro azulado (menos luz azul de noche y sin arrastre OLED), coral como marca, menta para «en vivo», ámbar pisco para avisos y frambuesa solo para el conductor que tomó. Generada en OKLCH y validada con WCAG 2.2, APCA y simulación de daltonismo; detalle en [`docs/paleta-v11.md`](docs/paleta-v11.md). Fuera el tema Halloween, los degradados de texto, los halos y las etiquetas sobre títulos.
+- **Rondas que se cierran solas.** Temporizador visible (30 s, 45 s en Impostor), tic en los últimos 10 s y revelado cuando todos votaron o se acabó el tiempo.
+- **Más mecánicas de sala:** sorteo de puestos (parejas, tríos, equipos, puestos), lista «Yo llevo», votos a canciones y links de pago por persona.
+- **Monstruómetro con criterio:** tonos `bacTone`, sin "Monstruo #1", orden por llegada y modo discreto.
+- **Wrapped más rico:** trago de la noche, canción más pedida, % de hidratación y números que cuentan hacia arriba.
+- **Motion medido:** entradas de 200–280 ms con `cubic-bezier(0.23, 1, 0.32, 1)`, escalonado solo donde ayuda, nada animado sobre datos en vivo y `prefers-reduced-motion` que suaviza sin apagar.
+- **Piso móvil:** inputs de 16 px en pantallas táctiles, sin rebote ni pull-to-refresh, controles que no se seleccionan al mantener presionado y teclado de Android que redimensiona el contenido.
+- **Sincronización adaptativa:** sondeo cada 700 ms con una votación abierta, 2 s en reposo, backoff hasta 16 s ante errores y ≥ 8 s con la pestaña oculta.
+- **Pruebas:** 97 pruebas con Vitest sobre la lógica pura (reductor y merge, cuentas, juegos, canasta, tonos, sorteo, «Yo llevo», música, Wrapped, sondeo) y sobre la paleta (contraste, regla 500/600 y rampas).
 
-### 1. 🚪 Gateway de Entrada (`/`)
-- **Aislamiento de Sesión:** Cada usuario inicia en un portal limpio sin arrastrar datos residuales de sesiones previas.
-- **Creación de Carrete:** Generación instantánea de códigos alfanuméricos de 4 caracteres (ej. `PREV`, `LIT1`).
-- **Unión por PIN:** Input táctil segmentado con auto-focus secuencial y transformación a mayúsculas.
-- **Modo Solo / Planificador:** Acceso instantáneo a las calculadoras y simuladores sin necesidad de sincronizar con otros dispositivos.
-- **Selector Dinámico de País:** Selector visual para alternar en cualquier momento entre Chile 🇨🇱, México 🇲🇽, EE.UU. 🇺🇸 y Japón 🇯🇵.
+Detalle y fuentes en [`docs/estado-del-arte-v11.md`](docs/estado-del-arte-v11.md), el diseño en [`docs/superpowers/specs/2026-11-06-tonight-v11-design.md`](docs/superpowers/specs/2026-11-06-tonight-v11-design.md) y el plan en [`docs/superpowers/plans/2026-11-06-tonight-v11.md`](docs/superpowers/plans/2026-11-06-tonight-v11.md).
 
-### 2. 📺 Carrete Sincrónico (`/carrete/[code]` & `/carrete/tv`)
-- **Doble Perspectiva:**
-  - **Modo Host / TV (`/carrete/[code]` o `/carrete/tv`):** Diseñado para Smart TVs, proyectores o iPads sobre la mesa. Muestra el código de carrete en alta resolución, QR proyectable, el **Monstruómetro** colectivo y el tablero de seguridad.
-  - **Modo Celular (`/carrete/[code]?modo=celular`):** Interfaz táctil ergonómica con safe-areas (`100dvh`), targets mínimos de 48px, botón de consumo rápido ("+1 Trago"), envío de confesiones y confirmación de llegada segura.
-- **Sincronización en Red con Fallback Offline:**
-  - Endpoint de sincronización HTTP: `src/app/api/carrete/[code]/route.ts`. Recibe acciones delta idempotentes (`POST {events}`), re-siembras (`{seed}`) y anti-entropía (`PUT`), y las guarda en el almacén de `src/lib/carreteStore.ts`: **Redis vía REST** (Upstash / Vercel KV) si hay variables de entorno, o **memoria del proceso** si no. Ver la sección «Almacén persistente de salas» más abajo.
-  - Fallback resiliente en `localStorage` bajo `carrete_[CODE]` para operación continua sin conexión.
+## Internacionalización
 
-### 3. 🧪 Monstruómetro Exacto (Monsters Inc. Canisters)
-- **Visualización Tipo Contenedor de Sustos:** Cilindros con escala graduada, burbujas dinámicas y colorimetría reactiva (Verde Neón $\to$ Amarillo Ámbar $\to$ Rojo Crítico).
-- **Métricas Científicas Rigurosas:**
-  $$\text{Alcohol Puro (g)} = \text{Volumen (ml)} \times \frac{\text{ABV}}{100} \times 0.8$$
-- **Estimación Educativa de Alcoholemia (BAC en g/l):** Basada en la fórmula de Widmark ajustada por sexo biológico y peso corporal.
-- **Tanque Piloto 0.0%:** Contenedor exclusivo para el Conductor Designado, con advertencia roja inmediata en caso de registrar consumo de alcohol.
-- **Banner de Halloween:** Banner reactivo temático con interruptor de activación para ambientación nocturna.
+Terminología, moneda, leyes y métodos de pago viven en `src/config/locales/` (`cl`, `mx`, `us`, `jp`) y se leen con `useLocale()`.
 
-### 4. 🍸 Bar Visual Fusionado (`/bar`)
-- **Vaso Interactivo SVG:** Renderiza dinámicamente capas de líquido coloreadas según los licores y mezcladores seleccionados.
-- **Cálculo de Graduación Alcohólica (% ABV):** Ponderación exacta por volumen en tiempo real.
-- **Veredicto Organoléptico:** Evaluador que clasifica la combinación en *Aprobado*, *Extraño* o *Peligro*.
-- **Selector de Hielo:** Control de dilución y sugerencia de hielo en cubos.
-
-### 5. 🛒 Planificador de Canasta & Delivery (`/armar`)
-- **3 Perfiles de Carrete:** *Económico*, *Clásico* y *Premium / Mocktail*.
-- **Comparador Multitienda:** Referencia de precios offline de retail (Líder, Jumbo, Botillería de barrio).
-- **Delivery en 1 Clic:** Deep links inteligentes con búsqueda pre-cargada adaptados al país seleccionado (Rappi, PedidosYa, Uber Eats, Didi Food, Instacart).
-
-### 6. 🎮 Game Studio Digital (`/juegos`)
-- **💣 La Bomba:** Cronómetro dinámico con tensión visual y auditiva. Utiliza el algoritmo de **Fisher-Yates** para garantizar categorías no repetitivas.
-- **🎯 Ruleta de Retos:** Ruleta interactiva con posibilidad de editar participantes y desafíos en vivo.
-- **🤫 Yo Nunca:** Banco de afirmaciones con barajado aleatorio en un toque.
-- **Atajos de Teclado:** Soporte para mandos a distancia y teclados numéricos en pantalla Smart TV.
-
-### 7. 💸 Cobro y División de Gastos (`/dividir`)
-- **Soporte Fintech Multi-País:**
-  - 🇨🇱 **Chile:** BancoEstado CuentaRUT, MACH, Khipu.
-  - 🇲🇽 **México:** Clave Interbancaria SPEI (CLABE 18 dígitos).
-  - 🇺🇸 **EE.UU.:** Venmo, Zelle, Cash App.
-  - 🇯🇵 **Japón:** PayPay, LINE Pay, Warikan (割り勘).
-- **Copia a WhatsApp en 1 Clic:** Plantilla de mensaje lista para enviar con detalle exacto del cobro y datos de transferencia.
-
-### 8. 🛡️ Seguridad Proactiva y Retorno Seguro (`/seguridad`)
-- **Deep Links a Viaje Seguro:** Accesos inmediatos a Uber, Cabify, DiDi y Daikou (Japón).
-- **Tablero "Llegué a Salvo":** Los asistentes confirman con un solo toque su llegada a casa para tranquilidad del grupo.
-- **Protocolo Ley Emilia / Conductor Designado:** Recordatorio activo de las consecuencias legales y penales al conducir bajo la influencia del alcohol.
-
-### 9. 🧠 Mitos Científicos (`/mitos`)
-- Fichas interactivas basadas en farmacocinética y evidencia médica real (desmintiendo mitos populares como tomar café para bajar la borrachera o mezclar con bebidas energéticas).
-
----
-
-## 🌍 Arquitectura de Internacionalización (i18n Dinámico)
-
-Toda la terminología cultural, divisas, regulaciones de tránsito y métodos de pago están desacoplados a través de `src/config/locales/` y se consumen mediante el hook reactivo `useLocale()`:
-
-| Parámetro | 🇨🇱 Chile | 🇲🇽 México | 🇺🇸 Estados Unidos | 🇯🇵 Japón |
+| | 🇨🇱 Chile | 🇲🇽 México | 🇺🇸 EE.UU. | 🇯🇵 Japón |
 | :--- | :--- | :--- | :--- | :--- |
-| **Término Fiesta** | Carrete / Junta | Peda / Fiesta | Party / Pre-game | Nomikai (飲み会) |
-| **Moneda** | CLP (\$) / *lucas* | MXN (\$) / *varos* | USD (\$) / *bucks* | JPY (¥) / *yenes* |
-| **Tragos Típicos** | Piscola, Terremoto, Cerveza | Tequila, Michelada, Mezcal | Hard Seltzer, Craft IPA, Bourbon | Highball, Lemon Sour, Sake |
-| **Límite Legal Alcoholemia** | 0.30 g/l (Tolerancia Cero) | 0.40 g/l ("El Torito") | 0.08% BAC (DUI) | 0.00 mg/l (Tolerancia Absoluta) |
-| **Leyes de Tránsito** | Ley Emilia & Ley N° 20.580 | Reglamento de Tránsito CDMX | Implied Consent & DUI Laws | Ley de Tráfico Vial (Daikou) |
-| **Fintech de Cobro** | CuentaRUT / MACH | SPEI CLABE (18 dígitos) | Venmo / Zelle / Cash App | PayPay / LINE Pay / Warikan |
-| **Delivery Apps** | Rappi, PedidosYa, Uber Eats | Rappi, Uber Eats, Didi Food | Uber Eats, Instacart, DoorDash | Uber Eats Japan, Wolt, Demae-can |
+| Fiesta | Carrete | Peda | Party | Nomikai (飲み会) |
+| Moneda | CLP / lucas | MXN / varos | USD / bucks | JPY / yenes |
+| Límite al volante | 0,30 g/l | 0,40 g/l | 0,08 % BAC | 0,00 mg/l |
+| Pago | CuentaRUT / MACH | SPEI / Mercado Pago | Venmo / Zelle | PayPay / LINE Pay |
 
----
-
-## 📂 Estructura del Proyecto
+## Estructura
 
 ```
-Round/
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx                 # Root layout OLED, metadatos y viewport seguro
-│   │   ├── page.tsx                   # Gateway principal y selector de carrete
-│   │   ├── api/
-│   │   │   └── carrete/[code]/route.ts# Bus de sincronización en servidor (GET/POST/PUT)
-│   │   ├── carrete/
-│   │   │   ├── page.tsx               # Redirección de fallback a Gateway
-│   │   │   ├── tv/page.tsx            # Modo proyector / Smart TV
-│   │   │   └── [code]/page.tsx        # Carrete sincrónico (TV vs Modo Celular)
-│   │   ├── bar/page.tsx               # Bar Visual interactivo con vaso SVG
-│   │   ├── armar/page.tsx             # Planificador de canasta y delivery
-│   │   ├── dividir/page.tsx           # División de cuenta con fintech local
-│   │   ├── juegos/page.tsx            # Game Studio (La Bomba, Ruleta, Yo Nunca)
-│   │   ├── seguridad/page.tsx         # Retorno seguro y tablero de llegada
-│   │   ├── mitos/page.tsx             # Mitos científicos de la fiesta
-│   │   └── tiempo/page.tsx            # Calculadora de eliminación metabólica
-│   ├── components/
-│   │   ├── gateway/
-│   │   │   └── CarreteGatewayModal.tsx# Modal de acceso, creación y PIN
-│   │   ├── navigation/
-│   │   │   ├── GlobalNavbar.tsx       # Navbar con retorno confiable y selector i18n
-│   │   │   └── CountrySelector.tsx    # Selector de banderas interactivo
-│   │   ├── bar/
-│   │   │   └── VisualCocktailGlass.tsx# Vaso SVG con cálculo de ABV y veredicto
-│   │   ├── monsters/
-│   │   │   └── MonstersCanisterLeaderboard.tsx # Canisters Monsters Inc. y métricas exactas
-│   │   ├── calculators/
-│   │   │   ├── BasketOptimizer.tsx    # Canastas inteligente
-│   │   │   ├── CarreteCalculator.tsx  # Calculadora unificada de consumo
-│   │   │   ├── SplitBill.tsx          # Formulario bancario localizado
-│   │   │   └── DeliveryTextExporter.tsx# Exportador de compras a WhatsApp
-│   │   ├── games/
-│   │   │   ├── TimeBombGame.tsx       # Juego de La Bomba con Fisher-Yates
-│   │   │   ├── ConfessionsGame.tsx    # Ruleta de confesiones interactiva
-│   │   │   └── NeverHaveIEverGame.tsx # Yo Nunca aleatorio
-│   │   └── ui/
-│   │       ├── DisclaimerBanner.tsx   # Banner legal persistente por país
-│   │       └── DisclaimerModal.tsx    # Modal de marco legal y advertencia penal
-│   ├── config/
-│   │   └── locales/
-│   │       ├── schema.ts              # Esquema TypeScript estricto de localización
-│   │       ├── cl.ts                  # Configuración completa de Chile 🇨🇱
-│   │       ├── mx.ts                  # Configuración completa de México 🇲🇽
-│   │       ├── us.ts                  # Configuración completa de EE.UU. 🇺🇸
-│   │       ├── jp.ts                  # Configuración completa de Japón 🇯🇵
-│   │       └── index.ts               # Diccionario y utilidades de país
-│   ├── lib/
-│   │   ├── useLocale.ts               # Hook de i18n con persistencia en localStorage
-│   │   ├── carreteState.ts            # Tipos, reductor de acciones y merge sin pérdida
-│   │   ├── carreteStore.ts            # Almacén de salas: Redis REST (Upstash/Vercel KV) o memoria
-│   │   └── widmark.ts                 # Algoritmo metabólico de Widmark
-│   └── data/
-│       ├── cocktail_recipes.json      # Catálogo de cócteles chilenos e internacionales
-│       ├── prices_cl.json             # Catálogo offline de precios retail
-│       ├── games.json                 # Banco de preguntas y categorías
-│       └── myths.json                 # Evidencia farmacológica de mitos
-├── package.json
-└── README.md
+src/
+├── app/                 # Rutas (App Router): /, armar, bar, juegos, musica, dividir, carrete/[code], carrete/tv, mitos, tiempo
+│   ├── api/carrete/[code]/route.ts   # GET / POST {events|seed} / PUT de la sala
+│   └── template.tsx                  # Fundido corto al cambiar de sección
+├── components/
+│   ├── shell/           # AppShell (navegación, hoja móvil) y LiveRoomPanel
+│   ├── live/            # LiveGameHost, RoundTimer, RoundResults, CheersOverlay
+│   ├── games/           # GameDeck, SeatShuffle, La Bomba, ruleta, dedo elegido
+│   ├── calculators/     # Canasta, presupuesto, BringList, SplitStudio
+│   ├── bar/             # BarStudio, Recetario, Diccionario, GlassVisual
+│   ├── monsters/        # Monstruómetro
+│   └── wrapped/         # TonightWrapped
+├── lib/
+│   ├── carreteState.ts  # Tipos, acciones, reductor puro y merge con tombstones
+│   ├── carreteStore.ts  # Almacén: Redis REST o memoria
+│   ├── liveGames.ts     # Rondas, votos y revelado automático
+│   ├── split.ts · basket.ts · music.ts · wrapped.ts · shuffle.ts · bacTone.ts · pollDelay.ts
+│   └── __tests__/       # Vitest
+├── config/locales/      # cl, mx, us, jp
+└── data/                # prices_cl.json, drinks.ts, dictionary.ts, games, mitos
 ```
 
----
+## Puesta en marcha
 
-## ⚡ Instalación y Puesta en Marcha
+Requiere Node.js 18+.
 
-### Prerrequisitos
-- Node.js 18+ o superior
-- npm / pnpm / yarn
-
-### Instalación
 ```bash
-# Clonar el repositorio
-git clone https://github.com/Rodrigo-Ordenes/tonight-round.git
-cd Round
-
-# Instalar dependencias
 npm install
 ```
 
-### Ejecución en Desarrollo
 ```bash
 npm run dev
 ```
-La aplicación estará disponible de inmediato en [http://localhost:3000](http://localhost:3000).
 
-### Compilación para Producción
 ```bash
-npm run build
-npm run start
+npm test
 ```
 
-### 🗄️ Almacén persistente de salas (opcional)
+```bash
+npm run build && npm run start
+```
+
+## Cómo seguir mejorándolo
+
+El flujo recomendado (investigación con NotebookLM, brainstorming, plan, TDD por tarea, detector de diseño de impeccable, verificación en navegador y revisión final) está escrito como prompt listo para pegar en [`docs/prompt-maestro-v11.md`](docs/prompt-maestro-v11.md).
+
+## Almacén persistente de salas (opcional)
 
 Sin configuración, las salas viven en la memoria del servidor: perfecto para desarrollo o un solo proceso. En serverless (Vercel) cada instancia tiene su propia memoria, así que para producción conviene un Redis compartido con capa gratuita. El código habla con Redis por **REST usando `fetch`** (sin SDK ni dependencias nuevas) y funciona con cualquiera de estas dos opciones:
 

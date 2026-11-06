@@ -1,6 +1,9 @@
 import React from "react";
 
-/** Cabecera editorial común a todas las secciones. */
+/**
+ * Cabecera común a todas las secciones. El título habla solo; el contexto (sala, modo, hora)
+ * va debajo como línea de apoyo, nunca como etiqueta sobre el título.
+ */
 export default function PageHeader({
   eyebrow,
   title,
@@ -8,7 +11,8 @@ export default function PageHeader({
   children,
   aside,
 }: {
-  eyebrow: string;
+  /** Contexto breve (ej. "Sala 5DCS"). Se muestra bajo el título. */
+  eyebrow?: string;
   title: string;
   accent?: string;
   children?: React.ReactNode;
@@ -17,12 +21,12 @@ export default function PageHeader({
   return (
     <header className="mb-8 flex flex-wrap items-end justify-between gap-6 animate-fade-in">
       <div className="max-w-2xl">
-        <p className="eyebrow">{eyebrow}</p>
-        <h1 className="display text-display-lg mt-3">
+        <h1 className="display text-display-lg">
           {title}
-          <span className="text-gradient-ember">{accent}</span>
+          <span className="text-accent">{accent}</span>
         </h1>
-        {children && <div className="mt-3 text-base text-slate-300">{children}</div>}
+        {eyebrow && <p className="meta mt-3">{eyebrow}</p>}
+        {children && <div className="mt-2 max-w-[65ch] text-base leading-relaxed text-slate-300">{children}</div>}
       </div>
       {aside}
     </header>

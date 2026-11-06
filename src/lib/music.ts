@@ -1,5 +1,5 @@
 import type { CountryCode } from "@/config/locales";
-import type { CarreteState, MusicState } from "./carreteState";
+import type { CarreteState, MusicState, SongRequest } from "./carreteState";
 import { nightMoment, type MomentKey } from "./nightMoment";
 
 /**
@@ -17,7 +17,8 @@ export interface Vibe {
   moments: MomentKey[];
   /** Ambiente con fuerte afinidad cultural por país */
   countries?: CountryCode[];
-  gradient: string;
+  /** Un solo tono por ambiente (sin degradados) */
+  tint: string;
 }
 
 const TOP_BY_COUNTRY: Record<CountryCode, string> = {
@@ -40,7 +41,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       spotifyId: TOP_BY_COUNTRY[country],
       moments: ["previa", "peak"],
       countries: [country],
-      gradient: "from-indigo-500/40 to-purple-500/20",
+      tint: "bg-indigo-500/[0.12]",
     },
     {
       id: "reggaeton",
@@ -51,7 +52,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       spotifyId: "37i9dQZF1DWY7IeIP1cdjF",
       moments: ["peak"],
       countries: ["CL", "MX"],
-      gradient: "from-rose-500/40 to-indigo-500/20",
+      tint: "bg-rose-500/[0.12]",
     },
     {
       id: "dance",
@@ -61,7 +62,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 5,
       spotifyId: "37i9dQZF1DXaXB8fQg7xif",
       moments: ["peak"],
-      gradient: "from-purple-500/40 to-cyan-400/20",
+      tint: "bg-purple-500/[0.12]",
     },
     {
       id: "latino",
@@ -72,7 +73,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       spotifyId: "37i9dQZF1DX10zKzsJ2jva",
       moments: ["previa", "peak"],
       countries: ["CL", "MX", "US"],
-      gradient: "from-amber-400/40 to-rose-500/20",
+      tint: "bg-amber-400/[0.12]",
     },
     {
       id: "latin-mix",
@@ -83,7 +84,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       spotifyId: "37i9dQZF1DXbLMw3ry7d7k",
       moments: ["peak", "after"],
       countries: ["CL", "MX"],
-      gradient: "from-indigo-500/40 to-amber-400/20",
+      tint: "bg-indigo-500/[0.12]",
     },
     {
       id: "hits",
@@ -94,7 +95,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       spotifyId: "37i9dQZF1DXcBWIGoYBM5M",
       moments: ["previa", "peak"],
       countries: ["US", "JP"],
-      gradient: "from-emerald-400/30 to-indigo-500/20",
+      tint: "bg-emerald-400/[0.12]",
     },
     {
       id: "rap",
@@ -105,7 +106,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       spotifyId: "37i9dQZF1DX0XUsuxWHRQd",
       moments: ["previa", "peak"],
       countries: ["US"],
-      gradient: "from-slate-400/30 to-indigo-500/30",
+      tint: "bg-slate-400/[0.12]",
     },
     {
       id: "throwback",
@@ -115,7 +116,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 4,
       spotifyId: "37i9dQZF1DX7F6T2n2fegs",
       moments: ["peak", "after"],
-      gradient: "from-purple-500/40 to-rose-500/20",
+      tint: "bg-purple-500/[0.12]",
     },
     {
       id: "2000s",
@@ -125,7 +126,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 4,
       spotifyId: "37i9dQZF1DX4o1oenSJRJd",
       moments: ["peak", "after"],
-      gradient: "from-cyan-400/30 to-purple-500/30",
+      tint: "bg-cyan-400/[0.12]",
     },
     {
       id: "cantar",
@@ -135,7 +136,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 3,
       spotifyId: "37i9dQZF1DWWMOmoXKqHTD",
       moments: ["after"],
-      gradient: "from-amber-400/40 to-emerald-400/20",
+      tint: "bg-amber-400/[0.12]",
     },
     {
       id: "80s",
@@ -145,7 +146,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 3,
       spotifyId: "37i9dQZF1DX4UtSsGT1Sbe",
       moments: ["previa", "after"],
-      gradient: "from-rose-500/40 to-purple-500/20",
+      tint: "bg-rose-500/[0.12]",
     },
     {
       id: "rock",
@@ -155,7 +156,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 3,
       spotifyId: "37i9dQZF1DWXRqgorJj26U",
       moments: ["previa"],
-      gradient: "from-amber-500/40 to-slate-500/20",
+      tint: "bg-amber-500/[0.12]",
     },
     {
       id: "mood",
@@ -165,7 +166,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 3,
       spotifyId: "37i9dQZF1DX3rxVfibe1L0",
       moments: ["dia", "previa"],
-      gradient: "from-amber-300/40 to-emerald-400/20",
+      tint: "bg-amber-300/[0.12]",
     },
     {
       id: "global",
@@ -175,7 +176,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 4,
       spotifyId: "37i9dQZEVXbMDoHDwVN2tF",
       moments: ["previa", "peak"],
-      gradient: "from-cyan-400/30 to-emerald-400/20",
+      tint: "bg-cyan-400/[0.12]",
     },
     {
       id: "chill",
@@ -185,7 +186,7 @@ export function vibesFor(country: CountryCode): Vibe[] {
       energy: 1,
       spotifyId: "37i9dQZF1DX4WYpdgoIcn6",
       moments: ["dia", "after"],
-      gradient: "from-purple-500/30 to-cyan-400/20",
+      tint: "bg-purple-500/[0.12]",
     },
   ];
 }
@@ -268,4 +269,12 @@ export function resolveNowPlaying(music: MusicState | undefined, ctx: DjContext)
   }
   const pick = djSuggestions(ctx)[0];
   return { title: pick.vibe.name, embed: embedForVibe(pick.vibe), open: openForVibe(pick.vibe), vibe: pick.vibe, reason: `DJ automático · ${pick.reason}` };
+}
+
+/** Cola de pedidos pendientes: más votos primero; a igual votos, el más antiguo. */
+export function songQueue(music: MusicState | undefined): SongRequest[] {
+  return (music?.requests ?? [])
+    .filter((r) => !r.played)
+    .slice()
+    .sort((a, b) => (b.votes?.length ?? 0) - (a.votes?.length ?? 0) || a.at - b.at);
 }

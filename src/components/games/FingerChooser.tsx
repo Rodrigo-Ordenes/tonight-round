@@ -20,14 +20,14 @@ interface TouchFinger {
 }
 
 const FINGER_COLORS = [
-  "#6366f1", // indigo
-  "#ec4899", // pink
-  "#10b981", // emerald
-  "#f59e0b", // amber
-  "#06b6d4", // cyan
-  "#8b5cf6", // purple
-  "#ef4444", // red
-  "#3b82f6", // blue
+  "#ff8346", // indigo
+  "#fd4576", // pink
+  "#59d2b1", // emerald
+  "#ffd375", // amber
+  "#95d1ff", // cyan
+  "#bfaaff", // purple
+  "#fd4576", // red
+  "#95d1ff", // blue
 ];
 
 export default function FingerChooser() {
@@ -118,7 +118,7 @@ export default function FingerChooser() {
               x: (rect.left + chosen.x) / window.innerWidth,
               y: (rect.top + chosen.y) / window.innerHeight,
             },
-            colors: [chosen.color, "#ffffff", "#f59e0b"],
+            colors: [chosen.color, "#ffffff", "#ffd375"],
           });
         }
       }, 3000);
@@ -224,7 +224,7 @@ export default function FingerChooser() {
           fireConfetti({
             particleCount: 60,
             spread: 60,
-            colors: [chosen.color, "#ffffff", "#f59e0b"],
+            colors: [chosen.color, "#ffffff", "#ffd375"],
           });
         }, 3000);
       }
@@ -246,7 +246,7 @@ export default function FingerChooser() {
                 2-8 Dedos
               </span>
             </h2>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-xs text-slate-400">
               Apoyen los dedos en la pantalla. Quien sea elegido paga o cumple el reto.
             </p>
           </div>
@@ -318,11 +318,11 @@ export default function FingerChooser() {
         {/* Result Announcement */}
         {selectedFingerId !== null && (
           <div className="absolute top-4 left-4 right-4 z-30 pointer-events-none text-center">
-            <div className="inline-block py-2 px-6 rounded-2xl bg-black/80 backdrop-blur-md border border-amber-400/50 shadow-2xl animate-bounce">
+            <div className="inline-block py-2 px-6 rounded-2xl bg-black/80 backdrop-blur-md border border-amber-400/50 shadow-2xl animate-rise-in">
               <span className="text-sm sm:text-base font-black text-amber-300 block">
                 {mode === "loser" ? "💥 ¡TE TOCÓ A TI, PIERDES! 💥" : "🎉 ¡ERES EL ELEGIDO / GANADOR! 🎉"}
               </span>
-              <span className="text-[10px] text-slate-300">
+              <span className="text-xs text-slate-300">
                 Toca la pantalla para jugar de nuevo
               </span>
             </div>
@@ -349,7 +349,7 @@ export default function FingerChooser() {
                 className={`w-28 h-28 rounded-full border-4 animate-ping absolute -top-14 -left-14 opacity-75 ${
                   isSelected ? "scale-150 border-amber-400" : ""
                 }`}
-                style={{ borderColor: isSelected ? "#f59e0b" : f.color }}
+                style={{ borderColor: isSelected ? "#ffd375" : f.color }}
               />
 
               {/* Main glowing touch spot */}
@@ -358,8 +358,8 @@ export default function FingerChooser() {
                   isSelected ? "scale-125 ring-8 ring-white" : "scale-100"
                 }`}
                 style={{
-                  backgroundColor: isSelected ? "#f59e0b" : f.color,
-                  boxShadow: `0 0 35px ${isSelected ? "#f59e0b" : f.color}`,
+                  backgroundColor: isSelected ? "#ffd375" : f.color,
+                  boxShadow: `0 0 35px ${isSelected ? "#ffd375" : f.color}`,
                 }}
               >
                 {isSelected ? (

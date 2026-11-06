@@ -27,13 +27,13 @@ function MoonMark({ className = "" }: { className?: string }) {
     <svg viewBox="0 0 32 32" className={className} aria-hidden>
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#FFD2C2" />
-          <stop offset="0.5" stopColor="#FF5E36" />
-          <stop offset="1" stopColor="#9C82FF" />
+          <stop offset="0" stopColor="#FFD5C3" />
+          <stop offset="0.5" stopColor="#FF8346" />
+          <stop offset="1" stopColor="#BFAAFF" />
         </linearGradient>
       </defs>
       <path d="M20.5 3.5A12.5 12.5 0 1 0 28.5 22 10 10 0 0 1 20.5 3.5Z" fill={`url(#${gid})`} />
-      <circle cx="24.5" cy="8.5" r="1.6" fill="#86E64C" />
+      <circle cx="24.5" cy="8.5" r="1.6" fill="#59D2B1" />
     </svg>
   );
 }
@@ -85,7 +85,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="hidden lg:flex sticky top-0 h-[100dvh] flex-col items-center gap-2 border-r border-white/[0.06] bg-night-950/40 py-5 backdrop-blur-xl">
         <Link href="/" aria-label="Tonight, inicio" className="mb-4 flex flex-col items-center gap-1">
           <MoonMark className="w-9 h-9" />
-          <span className="font-display text-[11px] font-extrabold tracking-[0.2em] text-white">TONIGHT</span>
+          <span className="font-display text-xs font-extrabold tracking-[0.2em] text-white">TONIGHT</span>
         </Link>
         <nav aria-label="Navegación principal" className="flex flex-col gap-1">
           {NAV.map((item) => {
@@ -97,7 +97,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.key}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`group flex w-[72px] flex-col items-center gap-1 rounded-2xl py-2.5 text-[11px] font-semibold transition-colors ${
+                className={`group flex w-[72px] flex-col items-center gap-1 rounded-2xl py-2.5 text-xs font-semibold transition-colors ${
                   active ? "bg-white/[0.07] text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -178,7 +178,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.key}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-14 flex-col items-center justify-center gap-0.5 rounded-[22px] text-[10px] font-bold transition-colors ${
+                className={`flex h-14 flex-col items-center justify-center gap-0.5 rounded-[22px] text-xs font-bold transition-colors ${
                   active ? "bg-indigo-500 text-night-950" : "text-slate-400"
                 }`}
               >
@@ -198,7 +198,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             aria-modal="true"
             aria-label="Sala en vivo"
             onClick={(e) => e.stopPropagation()}
-            className="relative max-h-[86dvh] w-full max-w-lg overflow-y-auto rounded-t-[32px] border border-white/10 bg-night-900 pb-[env(safe-area-inset-bottom,16px)] animate-rise-in"
+            className="relative max-h-[86dvh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[20px] border border-white/10 bg-night-900 pb-[env(safe-area-inset-bottom,16px)] animate-rise-in"
           >
             <button
               type="button"

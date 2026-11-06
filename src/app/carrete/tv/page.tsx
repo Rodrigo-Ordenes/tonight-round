@@ -10,15 +10,19 @@ import { useCarreteStore, SOLO } from "@/store/useCarreteStore";
 import { useLocale } from "@/lib/useLocale";
 import { bacFor, hydrationFor } from "@/lib/alcohol";
 import { LIVE_GAME_BY_ID } from "@/lib/liveGames";
-import { resolveNowPlaying } from "@/lib/music";
+import { resolveNowPlaying, songQueue } from "@/lib/music";
 import { nightMoment } from "@/lib/nightMoment";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
 import RoundResults from "@/components/live/RoundResults";
+import { GROUP_LABEL } from "@/components/games/SeatShuffle";
 import CheersOverlay from "@/components/live/CheersOverlay";
 import { buildRound, tally } from "@/lib/liveGames";
 import { useWakeLock } from "@/lib/useWakeLock";
+import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 import { useRevealMoment } from "@/lib/useRevealMoment";
+import { useRoundClock } from "@/lib/useRoundClock";
+import RoundTimer from "@/components/live/RoundTimer";
 import { uid } from "@/store/useCarreteStore";
 
 export default function CarreteTVPage() {
@@ -93,18 +97,19 @@ function TvStage() {
 
   useEffect(() => {
     if (!valid) return;
-    QRCode.toDataURL(`${window.location.origin}/carrete/${code}?modo=celular`, { width: 520, margin: 1, color: { dark: "#07060A", light: "#F7F5F3" } })
+    QRCode.toDataURL(`${window.location.origin}/carrete/${code}?modo=celular`, { width: 520, margin: 1, color: { dark: "#0D0907", light: "#F1ECE8" } })
       .then(setQr)
       .catch(() => setQr(""));
   }, [code, valid]);
 
   useRevealMoment(round, () => {
     audioEffects.playReveal();
-    void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF5E36", "#9C82FF", "#86E64C", "#3EE0FF"] });
+    void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF8346", "#BFAAFF", "#59D2B1", "#95D1FF"] });
   });
+  const clock = useRoundClock(valid ? round : null, { participants: store.participants, dispatch: store.dispatch, sound: true });
 
   const rows = useMemo(
-    () => store.participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => b.r.totalGrams - a.r.totalGrams),
+    () => store.participants.map((p) => ({ p, r: bacFor(p, now), h: hydrationFor(p) })).sort((a, b) => a.p.joinedAt - b.p.joinedAt),
     [store.participants, now]
   );
 
@@ -133,7 +138,9 @@ function TvStage() {
   const moment = nightMoment(new Date(now));
   const voters = round ? Object.keys(round.votes) : [];
 
-  const requests = (store.state.music?.requests ?? []).filter((r) => !r.played).slice(-4);
+  const requests = songQueue(store.state.music).slice(0, 4);
+  // Un sorteo de puestos se muestra 10 minutos en la TV
+  const seats = store.games.seats && now - store.games.seats.at < 10 * 60_000 ? store.games.seats : null;
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col px-[4vw] py-[3vh]">
@@ -179,7 +186,8 @@ function TvStage() {
                 </div>
               )}
               {round.game === "impostor" && <p className="mt-6 max-w-[80vw] text-tv-sm text-slate-300">{round.prompt}</p>}
-              <div className="mt-12">
+              <div className="mt-12 space-y-6">
+                <RoundTimer clock={clock} size="tv" />
                 <p className="text-tv-sm text-slate-300">
                   Votaron <span className="font-mono font-bold text-white">{voters.length}</span> de {store.participants.length} · voten desde el celular
                 </p>
@@ -187,7 +195,7 @@ function TvStage() {
                   {store.participants.map((p) => (
                     <span
                       key={p.id}
-                      className={`rounded-full px-5 py-2 text-xl font-semibold transition-colors ${voters.includes(p.id) ? "bg-emerald-400 text-night-950" : "bg-white/[0.05] text-slate-400"}`}
+                      className={`max-w-[16rem] truncate rounded-full px-5 py-2 text-xl font-semibold transition-colors ${voters.includes(p.id) ? "bg-emerald-400 text-night-950" : "bg-white/[0.05] text-slate-400"}`}
                     >
                       {p.name}
                     </span>
@@ -210,7 +218,7 @@ function TvStage() {
           <section>
             <h1 className="display text-tv-hero">
               Escanea
-              <br />y <span className="text-gradient-ember">juega.</span>
+              <br />y <span className="text-accent">juega.</span>
             </h1>
             <p className="mt-6 max-w-3xl text-tv-sm text-slate-300">
               Apunta la cámara al código. Tu celular se vuelve tu control: votos secretos, tragos, agua y confesiones. O entra a{" "}
@@ -230,7 +238,7 @@ function TvStage() {
                     <ul className="mt-2 space-y-1">
                       {requests.map((r) => (
                         <li key={r.id} className="text-xl text-slate-200">
-                          🎵 {r.text} <span className="text-slate-500">· {store.participants.find((p) => p.id === r.by)?.name ?? "alguien"}</span>
+                          {r.text} <span className="text-slate-500">· {store.participants.find((p) => p.id === r.by)?.name ?? "alguien"}{r.votes?.length ? ` · ♥ ${r.votes.length}` : ""}</span>
                         </li>
                       ))}
                     </ul>
@@ -245,17 +253,31 @@ function TvStage() {
             </div>
           </section>
 
+          {seats && (
+            <section aria-label="Nuevos puestos" className="lg:col-span-2 animate-rise-in">
+              <p className="eyebrow !text-lg">{seats.mode === "puestos" ? "Nuevos puestos" : "Sorteo de la sala"}</p>
+              <div className="mt-4 flex flex-wrap gap-4">
+                {seats.groups.map((g, i) => (
+                  <div key={i} className="min-w-[14rem] max-w-full rounded-2xl border border-white/10 px-6 py-4 animate-rise-in" style={{ animationDelay: `${i * 80}ms` }}>
+                    <p className="text-xl text-slate-400">{GROUP_LABEL[seats.mode](i)}</p>
+                    <p className="mt-1 break-words text-tv-sm font-bold text-white [overflow-wrap:anywhere]">{g.map((id) => store.participants.find((p) => p.id === id)?.name ?? "—").join(seats.mode === "puestos" ? " → " : " · ")}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section aria-label="Monstruómetro" className="space-y-3">
             <p className="eyebrow !text-lg">Monstruómetro</p>
             {rows.length === 0 && <p className="text-tv-sm text-slate-400">Esperando a los primeros…</p>}
-            {rows.slice(0, 8).map(({ p, r, h }, i) => {
+            {rows.slice(0, 8).map(({ p, r, h }) => {
               const driver = p.role === "driver";
               const pct = Math.min(100, (r.bac / 1.2) * 100);
-              const tone = driver ? (r.totalGrams > 0 ? "bg-rose-500" : "bg-amber-400") : r.bac >= 0.8 ? "bg-rose-500" : r.bac >= 0.3 ? "bg-amber-400" : "bg-emerald-400";
+              const tone = TONE_CLASS[bacTone(r.bac, driver, r.totalGrams > 0)].bar;
               return (
                 <div key={p.id} className="rounded-3xl bg-white/[0.04] px-6 py-4">
                   <div className="flex items-center gap-4 text-tv-sm">
-                    <span className="w-10 font-mono text-slate-500">{driver ? "👑" : String(i + 1).padStart(2, "0")}</span>
+                    {driver && <span className="text-amber-300" aria-label="Conductor designado">👑</span>}
                     <span className="flex-1 truncate font-bold text-white">{p.name}</span>
                     {p.waterCount > 0 && <span className="text-cyan-200">💧{p.waterCount}</span>}
                     {h.needsWater && p.consumptions.length > 0 && <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-lg text-cyan-100">¡agua!</span>}

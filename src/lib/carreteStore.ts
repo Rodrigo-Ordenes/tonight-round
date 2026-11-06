@@ -56,7 +56,7 @@ function memoryStore(): CarreteStore {
       const cur = read(code);
       if (cur && opts?.createOnly) return null;
       const s = { ...incoming, code };
-      return write(code, cur ? mergeCarrete(cur, s) : normalizeCarrete(s));
+      return write(code, cur ? mergeCarrete(cur, s, "a") : normalizeCarrete(s));
     },
   };
 }
@@ -144,7 +144,7 @@ function redisStore(url: string, token: string, prefix: string): CarreteStore {
     let state = normalizeCarrete(JSON.parse(snap) as CarreteState);
     for (const line of log) {
       const entry = JSON.parse(line) as LogEntry;
-      state = "e" in entry ? applyEvents(state, entry.e) : mergeCarrete(state, { ...entry.m, code });
+      state = "e" in entry ? applyEvents(state, entry.e) : mergeCarrete(state, { ...entry.m, code }, "a");
     }
     if (log.length >= COMPACT_AFTER) {
       await evalScript<number>(LUA_COMPACT, code, [version, JSON.stringify(state), log.length, newVersion()]).catch(

@@ -98,12 +98,12 @@ export default function CarreteGatewayModal() {
       {/* ---------- Hero ---------- */}
       <section aria-labelledby="hero-title" className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-end">
         <div className="animate-rise-in">
-          <p className="eyebrow">{moment ? moment.eyebrow : " "}</p>
-          <h1 id="hero-title" className="display text-display-xl mt-5">
+          <h1 id="hero-title" className="display text-display-xl">
             La noche
             <br />
-            se arma <span className="text-gradient-ember">acá.</span>
+            se arma <span className="text-accent">acá.</span>
           </h1>
+          {moment && <p className="meta mt-4">{moment.eyebrow}</p>}
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
             Compras, tragos, juegos en la TV con votos desde el celular, música y la cuenta dividida. Todo el {partyTerm.toLowerCase()} en
             un solo lugar, sin descargas ni cuentas.
@@ -122,7 +122,6 @@ export default function CarreteGatewayModal() {
 
         {/* Panel de acceso */}
         <div className="surface relative overflow-hidden p-6 sm:p-7 animate-rise-in" style={{ animationDelay: "120ms" }}>
-          <div className="absolute -right-24 -top-24 h-56 w-56 rounded-full bg-indigo-500/25 blur-3xl" aria-hidden />
           <button
             type="button"
             onClick={create}
@@ -181,33 +180,28 @@ export default function CarreteGatewayModal() {
         </div>
       </section>
 
-      {/* ---------- Módulos: un recorrido, no un tablero ---------- */}
+      {/* ---------- Módulos: índice editorial de la noche, en el orden en que pasa ---------- */}
       <section aria-labelledby="mods-title">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <h2 id="mods-title" className="display text-3xl sm:text-4xl">
-            De la previa al cierre.
-          </h2>
-          <p className="hidden max-w-xs text-sm text-slate-400 sm:block">Cinco momentos de la noche, conectados entre sí y con todos los celulares.</p>
-        </div>
-        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 2xl:grid-cols-5">
+        <h2 id="mods-title" className="display text-3xl sm:text-4xl">
+          De la previa al cierre<span className="text-accent">.</span>
+        </h2>
+        <ul className="mt-6 divide-y divide-white/[0.07] border-y border-white/[0.07]">
           {MODULES.map((m, i) => (
-            <Link
-              key={m.href}
-              href={m.href}
-              className={`surface surface-hover group relative flex min-h-[220px] w-[72vw] shrink-0 snap-start flex-col overflow-hidden p-5 sm:w-auto animate-rise-in`}
-              style={{ animationDelay: `${200 + i * 70}ms` }}
-            >
-              <span className={`absolute inset-0 bg-gradient-to-b ${m.tone} to-transparent opacity-80`} aria-hidden />
-              <span className="relative flex items-center justify-between">
-                <span className="font-mono text-xs text-slate-400">{m.n}</span>
-                <ArrowUpRight className="w-4 h-4 text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white" />
-              </span>
-              <span className="relative mt-auto text-4xl">{m.emoji}</span>
-              <span className="relative mt-3 font-display text-2xl font-extrabold text-white">{m.title}</span>
-              <span className="relative mt-1 text-sm leading-snug text-slate-300">{m.desc}</span>
-            </Link>
+            <li key={m.href} className="animate-rise-in" style={{ animationDelay: `${120 + i * 50}ms` }}>
+              <Link
+                href={m.href}
+                className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-5 gap-y-1 py-5 transition-colors duration-200 ease-out sm:grid-cols-[3rem_14rem_minmax(0,1fr)_auto]"
+              >
+                <span className="text-3xl" aria-hidden>
+                  {m.emoji}
+                </span>
+                <span className="font-display text-2xl font-extrabold text-white transition-colors group-hover:text-indigo-300 sm:text-3xl">{m.title}</span>
+                <span className="col-span-2 col-start-2 row-start-2 text-sm leading-snug text-slate-400 sm:col-span-1 sm:col-start-3 sm:row-start-1">{m.desc}</span>
+                <ArrowUpRight className="col-start-3 row-start-1 w-5 h-5 text-slate-500 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white sm:col-start-4" />
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <p className="max-w-2xl text-xs leading-relaxed text-slate-500">

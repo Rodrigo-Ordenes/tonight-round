@@ -36,8 +36,8 @@ export default function RoundResults({
             return (
               <li key={r.id}>
                 <div className={`flex items-center justify-between gap-3 ${tv ? "text-tv-sm" : "text-sm"} font-semibold text-white`}>
-                  <span className="flex items-center gap-2">
-                    {r.label}
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate">{r.label}</span>
                     {correct && <span className="rounded-full bg-emerald-400 px-2 py-0.5 text-[0.7em] font-bold text-night-950">{round.game === "mito" ? "correcta" : "¡era!"}</span>}
                   </span>
                   <span className="font-mono tabular text-slate-300">{r.count}</span>
@@ -49,7 +49,7 @@ export default function RoundResults({
                   />
                 </div>
                 {round.game !== "impostor" && round.game !== "confesion" && r.voterIds.length > 0 && round.game !== "probable" && (
-                  <p className={`mt-1 ${tv ? "text-xl" : "text-[11px]"} text-slate-400`}>{r.voterIds.map(name).join(", ")}</p>
+                  <p className={`mt-1 ${tv ? "text-xl" : "text-xs"} text-slate-400`}>{r.voterIds.map(name).join(", ")}</p>
                 )}
               </li>
             );
@@ -64,7 +64,7 @@ export default function RoundResults({
               const pen = penaltyFor(p, round.id);
               return (
                 <li key={p.id} className={`flex items-baseline gap-2 ${tv ? "text-tv-sm" : "text-sm"} ${p.id === meId ? "font-bold text-white" : "text-slate-200"}`}>
-                  <span className="font-semibold">{p.name}</span>
+                  <span className="max-w-[45%] shrink-0 truncate font-semibold">{p.name}</span>
                   <span className={pen.water ? "text-cyan-200" : "text-slate-300"}>· {pen.text}</span>
                 </li>
               );

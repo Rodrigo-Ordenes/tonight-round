@@ -6,7 +6,6 @@ import { AlertTriangle, ShieldCheck, Gauge, Zap } from "lucide-react";
 interface CanisterGlassMeterProps {
   pressure: number; // 0 - 100
   isDriver?: boolean;
-  theme?: "night" | "halloween";
   drinksCount?: number;
   pureAlcoholGrams?: number;
   heightPx?: number;
@@ -15,7 +14,6 @@ interface CanisterGlassMeterProps {
 export default function CanisterGlassMeter({
   pressure,
   isDriver = false,
-  theme = "night",
   drinksCount = 0,
   pureAlcoholGrams = 0,
   heightPx = 280,
@@ -34,8 +32,8 @@ export default function CanisterGlassMeter({
   const liquidColors = useMemo(() => {
     if (isDriverBreached) {
       return {
-        fill: "#EF4444",
-        glow: "rgba(239, 68, 68, 0.6)",
+        fill: "#FD4576",
+        glow: "rgba(253, 69, 118, 0.6)",
         gradientTop: "from-rose-500",
         gradientBottom: "to-red-950",
         label: "¡RUPTURA DE CONTENCIÓN!",
@@ -44,38 +42,29 @@ export default function CanisterGlassMeter({
 
     if (isDriver) {
       return {
-        fill: "#10B981",
-        glow: "rgba(16, 185, 129, 0.4)",
+        fill: "#59D2B1",
+        glow: "rgba(89, 210, 177, 0.4)",
         gradientTop: "from-emerald-400",
         gradientBottom: "to-emerald-950",
         label: "PILOTO 0.0% SEGURO",
       };
     }
 
-    if (theme === "halloween") {
-      return {
-        fill: "#22C55E",
-        glow: "rgba(34, 197, 94, 0.65)",
-        gradientTop: "from-[#22C55E]",
-        gradientBottom: "to-purple-950",
-        label: isOverload ? "¡ECTOPLASMA CRÍTICO!" : "PÓCIMA BRUJA",
-      };
-    }
-
     if (isOverload) {
       return {
-        fill: "#EF4444",
-        glow: "rgba(239, 68, 68, 0.6)",
-        gradientTop: "from-red-500",
-        gradientBottom: "to-rose-950",
-        label: "¡SOBREPRESIÓN!",
+        // Reducción de daños: tono cálido, sin alarma roja ni lenguaje punitivo
+        fill: "#F8C655",
+        glow: "rgba(248, 198, 85, 0.45)",
+        gradientTop: "from-amber-500",
+        gradientBottom: "to-amber-950",
+        label: "Hora de bajar el ritmo",
       };
     }
 
     if (isHigh) {
       return {
-        fill: "#EC4899",
-        glow: "rgba(236, 72, 153, 0.5)",
+        fill: "#FD4576",
+        glow: "rgba(253, 69, 118, 0.5)",
         gradientTop: "from-pink-500",
         gradientBottom: "to-fuchsia-950",
         label: "ALTA ENERGÍA",
@@ -84,13 +73,13 @@ export default function CanisterGlassMeter({
 
     // Normal (0 - 50%)
     return {
-      fill: "#06B6D4",
-      glow: "rgba(6, 182, 212, 0.45)",
+      fill: "#95D1FF",
+      glow: "rgba(149, 209, 255, 0.45)",
       gradientTop: "from-cyan-400",
       gradientBottom: "to-indigo-950",
       label: "PRESIÓN NORMAL",
     };
-  }, [clampedPressure, isDriver, isDriverBreached, theme, isOverload, isHigh]);
+  }, [clampedPressure, isDriver, isDriverBreached, isOverload, isHigh]);
 
   return (
     <div className={`relative flex flex-col items-center w-28 sm:w-32 transition-all ${isOverload || isDriverBreached ? "animate-pulse" : ""}`}>
@@ -112,7 +101,7 @@ export default function CanisterGlassMeter({
 
             {/* Aguja del Manómetro */}
             <div
-              className="absolute w-0.5 h-4 bg-rose-500 origin-bottom rounded-full transition-transform duration-700 ease-out shadow-[0_0_5px_rgba(239,68,68,0.8)]"
+              className="absolute w-0.5 h-4 bg-rose-500 origin-bottom rounded-full transition-transform duration-700 ease-out shadow-[0_0_5px_rgba(253,69,118,0.8)]"
               style={{
                 transform: `rotate(${needleRotation}deg)`,
                 bottom: "50%",
@@ -144,7 +133,7 @@ export default function CanisterGlassMeter({
         <div className="absolute top-0 right-2 w-1 h-full bg-white/5 pointer-events-none z-20" />
 
         {/* Escala Graduada de Presión (1 a 10) */}
-        <div className="absolute inset-y-0 right-1 w-4 flex flex-col justify-between py-2 pointer-events-none z-20 text-[9px] font-mono text-slate-400 font-bold select-none">
+        <div className="absolute inset-y-0 right-1 w-4 flex flex-col justify-between py-2 pointer-events-none z-20 text-xs font-mono text-slate-400 font-bold select-none">
           <span>10</span>
           <span>8</span>
           <span>6</span>
@@ -192,7 +181,7 @@ export default function CanisterGlassMeter({
                 style={{ animationDuration: isOverload ? "0.8s" : "2.2s" }}
               />
               <span
-                className="absolute bottom-12 left-6 w-1 h-1 rounded-full bg-white/70 animate-bounce"
+                className="absolute bottom-12 left-6 w-1 h-1 rounded-full bg-white/70"
                 style={{ animationDuration: "1.2s" }}
               />
             </div>
@@ -202,7 +191,7 @@ export default function CanisterGlassMeter({
         {/* Blindaje Especial: Conductor Designado */}
         {isDriver && (
           <div className="absolute inset-x-1 bottom-2 z-30 p-1 rounded bg-slate-950/90 border border-emerald-400 text-center shadow-lg">
-            <div className="flex items-center justify-center gap-1 text-[10px] font-black text-emerald-400 uppercase tracking-tighter">
+            <div className="flex items-center justify-center gap-1 text-xs font-black text-emerald-400 uppercase tracking-tighter">
               <ShieldCheck className="w-3 h-3 text-emerald-400" />
               <span>PILOTO 0.0%</span>
             </div>
@@ -221,11 +210,11 @@ export default function CanisterGlassMeter({
           <span className="font-mono text-sm sm:text-base font-black text-white">
             {clampedPressure}%
           </span>
-          {isOverload && <Zap className="w-3.5 h-3.5 text-rose-400 animate-bounce" />}
+          {isOverload && <Zap className="w-3.5 h-3.5 text-amber-400" />}
         </div>
 
         <p
-          className={`text-[9px] font-black uppercase tracking-wider ${
+          className={`text-xs font-black uppercase tracking-wider ${
             isDriverBreached
               ? "text-rose-400 animate-pulse font-extrabold"
               : isOverload
@@ -241,7 +230,7 @@ export default function CanisterGlassMeter({
         </p>
 
         {pureAlcoholGrams > 0 && (
-          <p className="text-[10px] text-slate-400 font-mono">
+          <p className="text-xs text-slate-400 font-mono">
             ~{Math.round(pureAlcoholGrams)}g alc. puro
           </p>
         )}

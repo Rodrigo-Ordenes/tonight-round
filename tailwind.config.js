@@ -1,108 +1,139 @@
 /** @type {import('tailwindcss').Config} */
 
 /*
- * Tonight V10 — Sistema de color "Neón de Medianoche".
- * Las escalas nativas de Tailwind se redefinen para que todo el código existente adopte la paleta nueva:
- *   slate   → neutros tinta (levemente cálidos, legibles en OLED)
- *   night   → superficies (fondo #07060A, sin el azul marino genérico)
- *   indigo  → EMBER, el acento de marca (coral neón)
- *   emerald → LIME, "en vivo / ok / aprobado"
- *   purple  → IRIS, secundario (juegos, bar)
- *   amber   → GOLD, pisco / advertencias suaves
- *   cyan    → AQUA, agua e hidratación
- *   rose/red→ ALERTA (rojo puro, distinto del coral de marca)
+ * Tonight V11 — paleta "Brasa" (ver docs/paleta-v11.md: estudio, fuentes y validación).
+ * Generada en OKLCH y validada con WCAG 2.2 + APCA y simulación de daltonismo (Machado 2009).
+ *   - Superficies de carbón cálido (tono 55, croma 0,01): de noche, menos luz azul que un negro azulado,
+ *     y sin #000 para evitar el arrastre en pantallas OLED. La elevación se marca con luminosidad, no con sombras.
+ *   - Las escalas nativas de Tailwind se redefinen, así el código existente adopta la paleta sin tocar clases:
+ *     slate/gray → tinta · indigo/blue/orange → brasa · emerald/green/teal → menta · amber/yellow → ámbar
+ *     rose/red/pink → frambuesa · purple/violet/fuchsia → iris · cyan/sky → agua
  */
+const night = {
+  600: "#463E39",
+  700: "#362F2A",
+  800: "#29231F",
+  850: "#201A17",
+  900: "#171310",
+  950: "#0D0907",
+};
+
+// Tinta: blancos rotos cálidos (sin #FFF: menos halo con astigmatismo). 300–500 = texto secundario (APCA Lc ≥ 45–60)
 const ink = {
-  50: "#F7F5F3",
-  100: "#EDEAE6",
-  200: "#D9D5D0",
-  300: "#BAB4C2",
-  400: "#958EA3",
-  500: "#6E6780",
-  600: "#4F4960",
-  700: "#383344",
-  800: "#24202D",
-  900: "#16131C",
-  950: "#0B0A0F",
+  50: "#F1ECE8",
+  100: "#E6E0DC",
+  200: "#D6D0CB",
+  300: "#C3BCB8",
+  400: "#BCB4AF",
+  500: "#A8A09B",
+  600: "#726A65",
+  700: "#4D4642",
+  800: "#352F2B",
+  900: "#211C19",
+  950: "#130E0C",
 };
 
+// BRASA (marca y acción): coral cálido oklch(0.74 0.18 45). Regla: 500 lleva texto oscuro, 600+ texto blanco (≥ 4,5:1)
 const ember = {
-  50: "#FFF3EE",
-  100: "#FFE3D8",
-  200: "#FFC4AE",
-  300: "#FF9E80",
-  400: "#FF7D59",
-  500: "#FF5E36",
-  600: "#F0461D",
-  700: "#C73613",
-  800: "#9C2C14",
-  // 900/950 casi neutros: se usan como fondos de paneles teñidos
-  900: "#3A1D15",
-  950: "#1C1311",
+  50: "#FFF4F0",
+  100: "#FFE9E0",
+  200: "#FFD5C3",
+  300: "#FFBC9E",
+  400: "#FFA176",
+  500: "#FF8346",
+  600: "#B64A00",
+  700: "#933A00",
+  800: "#712B00",
+  900: "#4C1F08",
+  950: "#2D1205",
 };
 
+// MENTA (en vivo, listo, alcoholemia en calma): oklch(0.79 0.12 172), turquesa apagado y no verde chillón
 const lime = {
-  50: "#F3FFE9",
-  100: "#E1FFCC",
-  200: "#C5FBA1",
-  300: "#A4F273",
-  400: "#86E64C",
-  500: "#66CF2C",
-  600: "#4CA71E",
-  700: "#3A801A",
-  800: "#30651A",
-  900: "#295419",
-  950: "#112E07",
+  50: "#ECFAF5",
+  100: "#D9F5EB",
+  200: "#B3EDD9",
+  300: "#85E1C4",
+  400: "#59D2B1",
+  500: "#31C29E",
+  600: "#008469",
+  700: "#006954",
+  800: "#00503F",
+  900: "#05362B",
+  950: "#052019",
 };
 
-const iris = {
-  50: "#F4F1FF",
-  100: "#EAE5FF",
-  200: "#D6CDFF",
-  300: "#B9A8FF",
-  400: "#9C82FF",
-  500: "#835BFF",
-  600: "#7140F5",
-  700: "#5F2FD9",
-  800: "#4E28B0",
-  900: "#41258E",
-  950: "#271361",
-};
-
+// ÁMBAR PISCO (avisos suaves, "bajar el ritmo"): oklch(0.86 0.13 85)
 const gold = {
-  50: "#FFFAEB",
-  100: "#FFF1C6",
-  200: "#FFE288",
-  300: "#FFCF4A",
-  400: "#FFBC20",
-  500: "#F99B07",
-  600: "#DD7302",
-  700: "#B75006",
-  800: "#943D0C",
-  900: "#7A330D",
-  950: "#461902",
+  50: "#FFFAEE",
+  100: "#FFF4DE",
+  200: "#FFEDC7",
+  300: "#FFE2A6",
+  400: "#FFD375",
+  500: "#F8C655",
+  600: "#8E6A00",
+  700: "#725400",
+  800: "#574000",
+  900: "#3B2B03",
+  950: "#231903",
 };
 
+// FRAMBUESA (solo conductor que tomó y acciones destructivas): oklch(0.68 0.21 10)
 const alert = {
-  50: "#FFF1F2",
-  100: "#FFE0E3",
-  200: "#FFC6CC",
-  300: "#FF9BA6",
-  400: "#FF6175",
-  500: "#FA2D4A",
-  600: "#E70D35",
-  700: "#C3062C",
-  800: "#A3092C",
-  900: "#8B0C2C",
-  950: "#4E0113",
+  50: "#FFEEF0",
+  100: "#FFDDE1",
+  200: "#FFC1C9",
+  300: "#FF9FAE",
+  400: "#FF7892",
+  500: "#FD4576",
+  600: "#CB1554",
+  700: "#A31242",
+  800: "#7B1433",
+  900: "#4E1020",
+  950: "#2F0A12",
+};
+
+// IRIS (juegos, secundario)
+const iris = {
+  50: "#F6F4FF",
+  100: "#EEEAFF",
+  200: "#E0D8FF",
+  300: "#CFC1FF",
+  400: "#BFAAFF",
+  500: "#AF93FB",
+  600: "#775BB9",
+  700: "#5F4995",
+  800: "#483870",
+  900: "#30274A",
+  950: "#1C162C",
+};
+
+// AGUA (hidratación): azul cielo apagado, siempre con ícono de gota
+const aqua = {
+  50: "#F5FAFF",
+  100: "#EBF6FF",
+  200: "#D3ECFF",
+  300: "#B5DEFF",
+  400: "#95D1FF",
+  500: "#72C3FF",
+  600: "#2377AC",
+  700: "#1C5F8A",
+  800: "#184868",
+  900: "#143145",
+  950: "#0B1C29",
 };
 
 module.exports = {
   darkMode: "class",
+  // Los :hover solo aplican en dispositivos con puntero real (evita hovers pegados en el celular)
+  future: { hoverOnlyWhenSupported: true },
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    // Las clases de tono (bacTone) y de ambientes musicales viven en src/lib
+    "./src/lib/**/*.{js,ts,jsx,tsx}",
+    "./src/data/**/*.{js,ts}",
   ],
   theme: {
     extend: {
@@ -111,8 +142,10 @@ module.exports = {
         gray: ink,
         indigo: ember,
         blue: ember,
+        orange: ember,
         emerald: lime,
         green: lime,
+        teal: lime,
         purple: iris,
         violet: iris,
         fuchsia: iris,
@@ -120,28 +153,17 @@ module.exports = {
         yellow: gold,
         rose: alert,
         red: alert,
-        pink: {
-          ...alert,
-          300: "#FF9EC4",
-          400: "#FF6FA8",
-          500: "#FF3D8B",
-          600: "#E81E70",
-        },
-        night: {
-          950: "#07060A",
-          900: "#0E0C13",
-          850: "#14111A",
-          800: "#1B1723",
-          700: "#272231",
-          600: "#363043",
-        },
+        pink: alert,
+        cyan: aqua,
+        sky: aqua,
+        night,
         carrete: {
           primary: ember[500],
           secondary: iris[400],
           accent: lime[400],
           amber: gold[400],
           danger: alert[500],
-          water: "#3EE0FF",
+          water: aqua[400],
         },
       },
       fontFamily: {
@@ -155,23 +177,32 @@ module.exports = {
         "tv-md": ["clamp(1.75rem, 2.4vw, 3rem)", { lineHeight: "1.15" }],
         "tv-lg": ["clamp(2.5rem, 4vw, 5rem)", { lineHeight: "1.05" }],
         "tv-hero": ["clamp(3.5rem, 7vw, 9rem)", { lineHeight: "0.95", letterSpacing: "-0.03em" }],
-        "display-xl": ["clamp(2.75rem, 8vw, 6.5rem)", { lineHeight: "0.92", letterSpacing: "-0.04em" }],
+        "display-xl": ["clamp(2.75rem, 8vw, 6rem)", { lineHeight: "0.94", letterSpacing: "-0.035em" }],
         "display-lg": ["clamp(2rem, 5vw, 3.75rem)", { lineHeight: "0.98", letterSpacing: "-0.03em" }],
       },
+      // Elevación neutra: sin halos de color (huella de UI genérica)
       boxShadow: {
-        glow: "0 0 0 1px rgba(255, 94, 54, 0.25), 0 12px 40px -12px rgba(255, 94, 54, 0.55)",
-        "glow-accent": "0 0 0 1px rgba(134, 230, 76, 0.25), 0 12px 40px -12px rgba(134, 230, 76, 0.45)",
-        "glow-amber": "0 0 0 1px rgba(255, 188, 32, 0.25), 0 12px 40px -12px rgba(255, 188, 32, 0.45)",
-        "glow-purple": "0 0 0 1px rgba(156, 130, 255, 0.25), 0 12px 40px -12px rgba(156, 130, 255, 0.5)",
-        "glow-water": "0 0 0 1px rgba(62, 224, 255, 0.3), 0 12px 40px -12px rgba(62, 224, 255, 0.5)",
-        lift: "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 20px 50px -20px rgba(0,0,0,0.8)",
+        glow: "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        "glow-accent": "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        "glow-amber": "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        "glow-purple": "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        "glow-water": "0 10px 28px -14px rgba(0, 0, 0, 0.75)",
+        lift: "0 18px 40px -24px rgba(0, 0, 0, 0.85)",
       },
+      // Tarjetas a 16 px como máximo; las píldoras siguen siendo "full"
       borderRadius: {
-        "4xl": "2rem",
+        "3xl": "1rem",
+        "4xl": "1.25rem",
+      },
+      transitionTimingFunction: {
+        out: "cubic-bezier(0.23, 1, 0.32, 1)",
+        "in-out": "cubic-bezier(0.77, 0, 0.175, 1)",
+        drawer: "cubic-bezier(0.32, 0.72, 0, 1)",
       },
       keyframes: {
-        "fade-in": { from: { opacity: "0", transform: "translateY(6px)" }, to: { opacity: "1", transform: "none" } },
-        "rise-in": { from: { opacity: "0", transform: "translateY(18px) scale(0.98)" }, to: { opacity: "1", transform: "none" } },
+        // Solo opacidad: un transform en el envoltorio de página reposiciona los overlays fijos mientras dura
+        "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
+        "rise-in": { from: { opacity: "0", transform: "translateY(8px)" }, to: { opacity: "1", transform: "none" } },
         "liquid-wave": {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
@@ -205,8 +236,9 @@ module.exports = {
         },
       },
       animation: {
-        "fade-in": "fade-in 0.35s cubic-bezier(.2,.8,.2,1) both",
-        "rise-in": "rise-in 0.5s cubic-bezier(.2,.8,.2,1) both",
+        // Entradas: ease-out fuerte, bajo 300 ms (se ven decenas de veces por noche)
+        "fade-in": "fade-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both",
+        "rise-in": "rise-in 280ms cubic-bezier(0.23, 1, 0.32, 1) both",
         "liquid-wave": "liquid-wave 3.2s linear infinite",
         "canister-bubble": "canister-bubble 2.4s ease-in infinite",
         "bomb-pulse": "bomb-pulse 0.9s ease-in-out infinite",
