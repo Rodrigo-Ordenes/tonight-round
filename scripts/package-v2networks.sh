@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Construye Tonight y arma dist/tonight-v2networks (app.js + server/). Lo usa deploy-v2networks.sh.
+# Construye Tonight y arma dist/tonight-v2networks (app.js + server/). Lo usa release-v2networks.sh.
 # Con MAKE_ZIP=1 también genera un zip (alternativa si el hosting no tuviera git).
 set -euo pipefail
 cd "$(dirname "$0")/.."

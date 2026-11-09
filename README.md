@@ -97,7 +97,7 @@ npm run build && npm run start
 
 ## Publicar en V2 Networks (subdominio)
 
-Se publica con `git clone` y `npm run deploy:v2`. Los pasos en cPanel están en [`docs/despliegue-v2networks.md`](docs/despliegue-v2networks.md).
+`npm run release:v2` publica la versión compilada en la rama `v2-release`, y cPanel la clona sin Terminal. Los pasos están en [`docs/despliegue-v2networks.md`](docs/despliegue-v2networks.md).
 
 ## Cómo seguir mejorándolo
 

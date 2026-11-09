@@ -21,7 +21,7 @@ Optimizado con la skill **prompt-optimizer** a partir del "Master Prompt V10" (G
 | Mezcla investigación con implementación | Decisiones sin fuente | Investigación con NotebookLM primero, guardada en el repo |
 | Sin límites de alcance | Se cuelan pagos, cuentas, dependencias pesadas | Sección "No hacer" explícita |
 | No describía dónde corre la app | Propuestas que no sirven en cPanel (Vercel, serverless, Python) | Bloque "Producción" con plan, runtime y límites |
-| Paquete sin probar | "Compila" no garantiza que arranque en el hosting | Compuerta: desplegar desde un clon limpio y arrancar con Node 20 |
+| Paquete sin probar | "Compila" no garantiza que arranque en el hosting | Compuerta: arrancar en limpio el clon de la rama compilada con Node 20 |
 
 **Respuestas que ya da el proyecto** (no hace falta preguntar): stack (package.json), patrones (`src/lib/carreteState.ts` reductor puro + acciones; `useCarreteStore` motor compartido), tokens (`tailwind.config.js`, `globals.css`), pruebas (`npm test`).
 
@@ -53,8 +53,8 @@ vivo TV + celulares, juegos rápidos), Música (DJ Spotify embebido y pedidos), 
 Monstruómetro (Widmark dinámico educativo), Wrapped y Modo TV.
 
 PRODUCCIÓN: tonight.misitio.cl en V2 Networks, plan Crecimiento (cPanel + CloudLinux + Passenger, 1,5 CPU, 3 GB).
-Corre en "Setup Node.js App" con Node 20, no en Python (la app es Next.js). Se despliega por git: clon en ~/tonight-src y
-`npm run deploy:v2`, que compila ahí y publica en ~/tonight-app (nunca compilar ni instalar dentro de tonight-app). Las salas viven en archivos JSON
+Corre en "Setup Node.js App" con Node 20, no en Python (la app es Next.js). Se compila en local y `npm run release:v2` publica la rama
+v2-release; cPanel la clona desde Git Version Control, sin Terminal, compilación ni npm install en el hosting. Las salas viven en archivos JSON
 (CARRETE_DATA_DIR, por defecto ~/tonight-data), o en Redis REST si hay variables. Guía: docs/despliegue-v2networks.md.
 
 OBJETIVO DE ESTA SESIÓN: <describe aquí la mejora concreta, con el resultado que verá una persona en el carrete>.
@@ -88,7 +88,7 @@ FLUJO OBLIGATORIO
      tiny-text, skipped-heading y script-error (hidratación).
    - Navegador a 1440 px y 375 px; sala de prueba creada por la API con un nombre de 48 caracteres y emoji.
    - design:accessibility-review en lo que cambió.
-   - Si va a producción: correr scripts/deploy-v2networks.sh desde un clon limpio hacia una carpeta temporal, arrancar app.js con Node 20 y comprobar
+   - Si va a producción: clonar en limpio el resultado de release:v2, arrancar app.js con Node 20 y comprobar
      portada, TV, imagen OG, POST de sala, scripts/carrete-concurrency.mjs y que la sala siga tras reiniciar.
 7. Revisión final con requesting-code-review (modelo más capaz) y cierre con finishing-a-development-branch:
    rama propia, commits pequeños y PR con resumen, pruebas y decisiones.
@@ -108,7 +108,7 @@ NO HACER
 - No reintroducir el tema Halloween ni el ranking por consumo.
 - No hacer commit, push, merge ni subir al hosting sin que se pida.
 - No pedir ni guardar contraseñas de cPanel, tokens o datos de .env en el repositorio ni en el zip.
-- No usar funciones que dependan de Vercel (Edge, cron, ISR compartido) ni compilar dentro de la carpeta de la app.
+- No usar funciones que dependan de Vercel (Edge, cron, ISR compartido) ni compilar en el hosting.
 - No inventar precios: el catálogo sale de src/data/prices_cl.json.
 ```
 
@@ -119,8 +119,8 @@ Tonight (Next 14/TS/Tailwind/Vitest). Objetivo: <mejora>. using-superpowers → 
 NotebookLM deep research si aplica → writing-plans → executing-plans con TDD por tarea. UI con impeccable
 craft-floor + emil-design-eng + animate/choreograph + mobile-native + break-ui. Verifica: npm test, npm run build,
 impeccable detect en src y rutas en vivo, navegador 1440/375 px. Invariantes: gratis, sin login, alcohol solo
-educativo y no punitivo, toda mutación de sala como acción idempotente. Producción: V2 Networks, Node 20, git clone + npm run deploy:v2,
-probado antes desde un clon limpio. Cierra con requesting-code-review y PR; sin push ni despliegue sin pedirlo.
+educativo y no punitivo, toda mutación de sala como acción idempotente. Producción: V2 Networks, Node 20, rama v2-release
+clonada desde cPanel, probada antes en limpio. Cierra con requesting-code-review y PR; sin push ni despliegue sin pedirlo.
 ```
 
 ## 5. Por qué estos cambios
