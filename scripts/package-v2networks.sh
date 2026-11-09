@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Construye Tonight y arma dist/tonight-v2networks (app.js + server/). Lo usa deploy-v2networks.sh.
+# Con MAKE_ZIP=1 también genera un zip (alternativa si el hosting no tuviera git).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+SITE_URL="${SITE_URL:-https://tonight.misitio.cl}"
+OUT=dist/tonight-v2networks
+
+npm test
+rm -rf .next "$OUT" "$OUT.zip"
+NEXT_PUBLIC_SITE_URL="$SITE_URL" npm run build
+
+SERVER="$OUT/server"
+mkdir -p "$SERVER/.next"
+cp -R .next/standalone/. "$SERVER/"
+cp -R .next/static "$SERVER/.next/static"
+cp -R public "$SERVER/public"
+rm -f "$SERVER"/.env*
+cp deploy/v2networks/app.js "$OUT/app.js"
+# Sin dependencias a propósito: el paquete ya las trae; no hay que usar "Run NPM Install".
+printf '{"name":"tonight","private":true,"main":"app.js"}\n' > "$OUT/package.json"
+
+if [ "${MAKE_ZIP:-0}" = "1" ]; then
+  (cd "$OUT" && zip -qry "../$(basename "$OUT").zip" .)
+fi
+echo "Listo: $OUT para $SITE_URL"

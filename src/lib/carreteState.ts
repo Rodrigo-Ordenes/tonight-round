@@ -671,6 +671,9 @@ function mergeMusic(a?: MusicState, b?: MusicState, authority?: "a" | "b"): Musi
   return { ...newer, requests };
 }
 
+/** Una sala vive 48 h desde su última escritura. */
+export const ROOM_TTL_SECONDS = 48 * 60 * 60;
+
 export const CODE_RE = /^[A-Z0-9]{4}$/;
 
 export function randomCode(): string {

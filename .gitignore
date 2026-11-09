@@ -37,3 +37,4 @@ scraper/__pycache__
 *.pyc
 *.tmp.json
 scripts/palette/candidate.json
+/dist/

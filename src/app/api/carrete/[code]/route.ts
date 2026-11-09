@@ -15,6 +15,20 @@ type PostBody = { events: CarreteEvent[] } | { seed: CarreteState } | CarreteSta
 const isEvents = (b: PostBody): b is { events: CarreteEvent[] } => Array.isArray((b as { events?: unknown }).events);
 const isSeed = (b: PostBody): b is { seed: CarreteState } => typeof (b as { seed?: unknown }).seed === "object";
 
+/** Tope por petición: una sala real pesa decenas de KB; evita llenar el disco de un hosting compartido. */
+const MAX_BODY_CHARS = 1_000_000;
+const tooLarge = () => NextResponse.json({ error: "too_large" }, { status: 413 });
+
+async function readBody<T>(req: Request): Promise<T | "bad" | "large"> {
+  const text = await req.text().catch(() => "");
+  if (text.length > MAX_BODY_CHARS) return "large";
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return "bad";
+  }
+}
+
 const unavailable = (e: unknown) => {
   console.error("[carrete] almacén no disponible", e);
   return NextResponse.json({ error: "store_unavailable" }, { status: 503 });
@@ -36,12 +50,9 @@ export async function GET(_req: Request, { params }: Ctx) {
 export async function POST(req: Request, { params }: Ctx) {
   const code = params.code.toUpperCase();
   if (!CODE_RE.test(code)) return NextResponse.json({ error: "bad_code" }, { status: 400 });
-  let body: PostBody;
-  try {
-    body = (await req.json()) as PostBody;
-  } catch {
-    return NextResponse.json({ error: "bad_json" }, { status: 400 });
-  }
+  const body = await readBody<PostBody>(req);
+  if (body === "large") return tooLarge();
+  if (body === "bad") return NextResponse.json({ error: "bad_json" }, { status: 400 });
 
   const store = getCarreteStore();
   try {
@@ -66,12 +77,9 @@ export async function POST(req: Request, { params }: Ctx) {
 export async function PUT(req: Request, { params }: Ctx) {
   const code = params.code.toUpperCase();
   if (!CODE_RE.test(code)) return NextResponse.json({ error: "bad_code" }, { status: 400 });
-  let body: CarreteState;
-  try {
-    body = (await req.json()) as CarreteState;
-  } catch {
-    return NextResponse.json({ error: "bad_json" }, { status: 400 });
-  }
+  const body = await readBody<CarreteState>(req);
+  if (body === "large") return tooLarge();
+  if (body === "bad") return NextResponse.json({ error: "bad_json" }, { status: 400 });
   try {
     return NextResponse.json(await getCarreteStore().upsert(code, body));
   } catch (e) {

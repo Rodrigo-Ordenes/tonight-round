@@ -1,4 +1,5 @@
-import { applyEvents, mergeCarrete, normalizeCarrete, type CarreteEvent, type CarreteState } from "./carreteState";
+import { createFileStore } from "./carreteFileStore";
+import { ROOM_TTL_SECONDS, applyEvents, mergeCarrete, normalizeCarrete, type CarreteEvent, type CarreteState } from "./carreteState";
 
 /**
  * Almacén de salas del lado del servidor.
@@ -6,6 +7,7 @@ import { applyEvents, mergeCarrete, normalizeCarrete, type CarreteEvent, type Ca
  * - Con `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` (o `KV_REST_API_URL`/`KV_REST_API_TOKEN`, que es lo
  *   que inyecta la integración de Upstash en Vercel) usa Redis vía REST con `fetch`: sin dependencias y compartido
  *   entre todas las instancias serverless.
+ * - Con `CARRETE_DATA_DIR` usa archivos JSON en ese directorio (hosting cPanel con Passenger, ver carreteFileStore.ts).
  * - Sin esas variables cae a la memoria del proceso (desarrollo local o un solo servidor).
  *
  * Modelo en Redis: una foto compactada (`s`, con un token de versión `v`) más un log append-only de entradas
@@ -14,15 +16,13 @@ import { applyEvents, mergeCarrete, normalizeCarrete, type CarreteEvent, type Ca
  * funciones puras del cliente. Cada cierto número de entradas alguien compacta con un CAS sobre `v` (script Lua).
  */
 export interface CarreteStore {
-  readonly kind: "redis" | "memory";
+  readonly kind: "redis" | "file" | "memory";
   get(code: string): Promise<CarreteState | null>;
   /** Aplica eventos idempotentes. `null` si la sala no existe. */
   applyEvents(code: string, events: CarreteEvent[]): Promise<CarreteState | null>;
   /** Crea o mergea un estado completo. Con `createOnly`, devuelve `null` si la sala ya existía. */
   upsert(code: string, incoming: CarreteState, opts?: { createOnly?: boolean }): Promise<CarreteState | null>;
 }
-
-export const ROOM_TTL_SECONDS = 48 * 60 * 60;
 
 /* ------------------------------------------------------------------ */
 /* Memoria (fallback)                                                  */
@@ -190,6 +190,8 @@ export function getCarreteStore(): CarreteStore {
   store =
     url && token
       ? redisStore(url.replace(/\/+$/, ""), token, process.env.CARRETE_KEY_PREFIX ?? "tonight:carrete:")
+      : process.env.CARRETE_DATA_DIR
+      ? createFileStore(process.env.CARRETE_DATA_DIR)
       : memoryStore();
   return store;
 }

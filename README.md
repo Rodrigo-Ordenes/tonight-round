@@ -95,6 +95,10 @@ npm test
 npm run build && npm run start
 ```
 
+## Publicar en V2 Networks (subdominio)
+
+Se publica con `git clone` y `npm run deploy:v2`. Los pasos en cPanel están en [`docs/despliegue-v2networks.md`](docs/despliegue-v2networks.md).
+
 ## Cómo seguir mejorándolo
 
 El flujo recomendado (investigación con NotebookLM, brainstorming, plan, TDD por tarea, detector de diseño de impeccable, verificación en navegador y revisión final) está escrito como prompt listo para pegar en [`docs/prompt-maestro-v11.md`](docs/prompt-maestro-v11.md).
