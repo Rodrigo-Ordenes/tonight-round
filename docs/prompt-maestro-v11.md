@@ -107,7 +107,7 @@ NO HACER
 - No migrar a WebSockets/PartyKit ni cambiar el almacén (src/lib/carreteStore.ts) sin un documento de diseño aprobado.
 - No reintroducir el tema Halloween ni el ranking por consumo.
 - No hacer commit, push, merge ni subir al hosting sin que se pida.
-- No pedir ni guardar contraseñas de cPanel, tokens o datos de .env en el repositorio ni en el zip.
+- No pedir ni guardar contraseñas de cPanel, tokens o datos de .env en el repositorio ni en v2-release.
 - No usar funciones que dependan de Vercel (Edge, cron, ISR compartido) ni compilar en el hosting.
 - No inventar precios: el catálogo sale de src/data/prices_cl.json.
 ```
