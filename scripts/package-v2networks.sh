@@ -17,6 +17,8 @@ cp -R .next/standalone/. "$SERVER/"
 cp -R .next/static "$SERVER/.next/static"
 cp -R public "$SERVER/public"
 rm -f "$SERVER"/.env*
+# sharp solo sirve al optimizador de imágenes (apagado) y trae un binario de la máquina donde se compila
+rm -rf "$SERVER/node_modules/@img" "$SERVER/node_modules/sharp"
 cp deploy/v2networks/app.js "$OUT/app.js"
 # Sin dependencias a propósito: el paquete ya las trae; no hay que usar "Run NPM Install".
 printf '{"name":"tonight","private":true,"main":"app.js"}\n' > "$OUT/package.json"

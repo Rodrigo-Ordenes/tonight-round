@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // si no (ver src/lib/carreteStore.ts). Aun así los clientes guardan el estado completo y lo re-siembran (`seed`)
 // si la sala desaparece, y cada cierto tiempo envían un PUT de anti-entropía que el merge une sin perder nada.
 
-type Ctx = { params: { code: string } };
+type Ctx = { params: Promise<{ code: string }> };
 
 type PostBody = { events: CarreteEvent[] } | { seed: CarreteState } | CarreteState;
 
@@ -50,7 +50,7 @@ const unavailable = (e: unknown) => {
 
 // GET: polling y sincronización
 export async function GET(req: Request, { params }: Ctx) {
-  const code = params.code.toUpperCase();
+  const code = (await params).code.toUpperCase();
   try {
     const s = await getCarreteStore().get(code);
     if (!s) return (await limited("miss", req)) ?? NextResponse.json({ error: "not_found" }, { status: 404 });
@@ -62,7 +62,7 @@ export async function GET(req: Request, { params }: Ctx) {
 
 // POST: { events } aplica acciones delta idempotentes; { seed } o un estado completo crea/repara la sala.
 export async function POST(req: Request, { params }: Ctx) {
-  const code = params.code.toUpperCase();
+  const code = (await params).code.toUpperCase();
   if (!CODE_RE.test(code)) return NextResponse.json({ error: "bad_code" }, { status: 400 });
   const body = await readBody<PostBody>(req);
   if (body === "large") return tooLarge();
@@ -98,7 +98,7 @@ export async function POST(req: Request, { params }: Ctx) {
 
 // PUT: anti-entropía con el estado completo (merge sin pérdida)
 export async function PUT(req: Request, { params }: Ctx) {
-  const code = params.code.toUpperCase();
+  const code = (await params).code.toUpperCase();
   if (!CODE_RE.test(code)) return NextResponse.json({ error: "bad_code" }, { status: 400 });
   const body = await readBody<CarreteState>(req);
   if (body === "large") return tooLarge();

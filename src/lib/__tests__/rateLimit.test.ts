@@ -58,7 +58,7 @@ describe("limitador", () => {
 });
 
 describe("la API de salas", () => {
-  const ctx = (code: string) => ({ params: { code } }) as never;
+  const ctx = (code: string) => ({ params: Promise.resolve({ code }) }) as never;
   const req = (ip: string, init?: RequestInit) =>
     new Request("http://x/api", { ...init, headers: { "x-forwarded-for": ip } });
 

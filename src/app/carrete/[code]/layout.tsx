@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-export function generateMetadata({ params }: { params: { code: string } }): Metadata {
-  const code = params.code.toUpperCase();
+export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
+  const code = (await params).code.toUpperCase();
   const title = code === "SOLO" ? "Modo planificador · Tonight" : `Sala ${code} · Tonight`;
   return {
     title,
