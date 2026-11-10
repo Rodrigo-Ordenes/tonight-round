@@ -7,7 +7,7 @@ import { ROOM_TTL_SECONDS, applyEvents, mergeCarrete, normalizeCarrete, type Car
  * - Con `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` (o `KV_REST_API_URL`/`KV_REST_API_TOKEN`, que es lo
  *   que inyecta la integración de Upstash en Vercel) usa Redis vía REST con `fetch`: sin dependencias y compartido
  *   entre todas las instancias serverless.
- * - Con `CARRETE_DATA_DIR` usa archivos JSON en ese directorio (hosting cPanel con Passenger, ver carreteFileStore.ts).
+ * - Con `CARRETE_DATA_DIR` usa archivos JSON en ese directorio (hosting cPanel con LiteSpeed, ver carreteFileStore.ts).
  * - Sin esas variables cae a la memoria del proceso (desarrollo local o un solo servidor).
  *
  * Modelo en Redis: una foto compactada (`s`, con un token de versión `v`) más un log append-only de entradas

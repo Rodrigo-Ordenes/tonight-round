@@ -52,7 +52,7 @@ EE.UU. y Japón: Armar (canasta y presupuesto), Bar (barra/ideas/vaso, recetario
 vivo TV + celulares, juegos rápidos), Música (DJ Spotify embebido y pedidos), Cuentas (multi-pagador),
 Monstruómetro (Widmark dinámico educativo), Wrapped y Modo TV.
 
-PRODUCCIÓN: tonight.misitio.cl en V2 Networks, plan Crecimiento (cPanel + CloudLinux + Passenger, 1,5 CPU, 3 GB).
+PRODUCCIÓN: tonight.misitio.cl en V2 Networks, plan Crecimiento (cPanel + CloudLinux + LiteSpeed, 1,5 CPU, 3 GB).
 Corre en "Setup Node.js App" con Node 20, no en Python (la app es Next.js). Se compila en local y `npm run release:v2` publica la rama
 v2-release; cPanel la clona desde Git Version Control, sin Terminal, compilación ni npm install en el hosting. Las salas viven en archivos JSON
 (CARRETE_DATA_DIR, por defecto ~/tonight-data), o en Redis REST si hay variables. Guía: docs/despliegue-v2networks.md.

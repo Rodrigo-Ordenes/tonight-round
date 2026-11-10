@@ -14,7 +14,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const isCode = (code: string) => CODE_RE.test(code);
 
 /**
- * Salas en archivos JSON, para un servidor único con varios procesos posibles (Passenger en cPanel): sobreviven
+ * Salas en archivos JSON, para un servidor único con varios procesos posibles (LiteSpeed en cPanel): sobreviven
  * cuando la app se apaga por inactividad y todos los procesos ven lo mismo. Cada sala tiene un candado por archivo
  * (creación exclusiva) y se escribe de forma atómica (temporal + rename). El vencimiento usa la fecha del archivo.
  */

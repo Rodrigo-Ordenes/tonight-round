@@ -45,6 +45,10 @@ Pulsa **Create** y después **Restart**. **No uses «Run NPM Install»**: la ram
 - El QR de la TV debe apuntar al subdominio con `https`.
 - Las salas se guardan solas en `~/tonight-data` y vencen a las 48 h sin actividad.
 
+## Forzar HTTPS
+
+Hazlo una sola vez: **Dominios** → junto a `tonight.misitio.cl`, activa **Force HTTPS Redirect**. No se hace en la app para evitar redirecciones infinitas detrás del servidor LiteSpeed.
+
 ## Actualizar
 
 1. En el computador de desarrollo, con los cambios ya en git: `npm run release:v2`. Publica la nueva versión en `v2-release`.
@@ -63,3 +67,9 @@ Las salas no se pierden porque están en `~/tonight-data`. Si cambia el subdomin
 | Las salas dan error 503 | Permisos de escritura en `~/tonight-data`. Se puede cambiar con la variable `CARRETE_DATA_DIR`. |
 
 Opcional: con `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN` en las variables de la app, las salas usan Redis en vez de archivos.
+
+## Notas de seguridad
+
+- **CSP:** mantiene `'unsafe-inline'` en scripts y estilos porque Next inyecta scripts en línea para hidratar y la app usa atributos `style`. Con nonces, cada página tendría que renderizarse dinámicamente. Solo se permiten marcos de `open.spotify.com`.
+- **Optimizador de imágenes:** apagado con `images.unoptimized`; `/_next/image` responde 404.
+- **Caché:** las páginas estáticas salen con `s-maxage=31536000`, que solo aplica a cachés compartidas. En producción no hay señales de una delante de la app (ni `x-litespeed-cache` ni `age`), y una versión nueva reemplaza el HTML de Next, así que no hace falta ajuste. Si se activa LSCache o una CDN, hay que purgarla al actualizar.
