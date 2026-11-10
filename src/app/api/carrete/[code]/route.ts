@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { CODE_RE, type CarreteEvent, type CarreteState } from "@/lib/carreteState";
-import { StoreFullError } from "@/lib/carreteFileStore";
+import { RoomTooLargeError, StoreFullError } from "@/lib/carreteFileStore";
 import { getCarreteStore } from "@/lib/carreteStore";
 import { clientKey, getLimiter } from "@/lib/rateLimit";
 
@@ -42,6 +42,8 @@ async function limited(bucket: "create" | "miss" | "write", req: Request) {
 }
 
 const unavailable = (e: unknown) => {
+  if (e instanceof RoomTooLargeError)
+    return NextResponse.json({ error: "too_large", message: "Esta sala ya no admite más datos." }, { status: 413 });
   if (e instanceof StoreFullError)
     return NextResponse.json({ error: "full", message: "Hay demasiadas salas activas. Intenta en un rato." }, { status: 503 });
   console.error("[carrete] almacén no disponible", e);

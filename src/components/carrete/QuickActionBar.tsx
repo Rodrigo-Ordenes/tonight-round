@@ -11,7 +11,7 @@ export default function QuickActionBar({
   onWater,
 }: {
   drinkLabel: string | null;
-  /** El conductor designado no ve el atajo de trago. */
+  /** El conductor designado no ve el atajo, pero sí puede declarar que tomó. */
   showDrink: boolean;
   onDrink: () => void;
   onPick: () => void;
@@ -39,7 +39,12 @@ export default function QuickActionBar({
           </button>
         </div>
       )}
-      <button type="button" onClick={onWater} className={`btn shrink-0 border border-cyan-300/40 bg-cyan-400/15 text-cyan-50 ${showDrink ? "" : "flex-1"}`}>
+      {!showDrink && (
+        <button type="button" onClick={onPick} className="btn-ghost min-w-0 flex-1 !px-3">
+          <span className="truncate">Tomé alcohol</span>
+        </button>
+      )}
+      <button type="button" onClick={onWater} className="btn shrink-0 border border-cyan-300/40 bg-cyan-400/15 text-cyan-50">
         <Droplets className="h-4 w-4" aria-hidden /> +1 agua
       </button>
     </div>

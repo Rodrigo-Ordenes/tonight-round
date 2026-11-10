@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { DEFAULT_BODY_FACTOR } from "@/lib/alcohol";
+import { keepaliveBody } from "./keepalive";
 import {
   CODE_RE,
   applyEvent,
@@ -160,6 +161,7 @@ class CarreteEngine {
   private listeners = new Set<() => void>();
   private chan: BroadcastChannel | null = null;
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
+  private leaving = false;
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
   private flushing = false;
   private missing = false;
@@ -221,6 +223,7 @@ class CarreteEngine {
     const out = [...readOutbox(this.code), ev];
     writeOutbox(this.code, out);
     this.set({ pending: out.length });
+    if (this.leaving) return this.sendOnExit();
     if (this.flushTimer) clearTimeout(this.flushTimer);
     this.flushTimer = setTimeout(() => void this.flush(), 120);
   };
@@ -302,6 +305,23 @@ class CarreteEngine {
     }
   };
 
+  /** Al cerrar la página el temporizador de envío ya no corre: se manda con keepalive (idempotente si se repite). */
+  private sendOnExit() {
+    if (this.isSolo) return;
+    const body = keepaliveBody(readOutbox(this.code));
+    if (body) void fetch(`/api/carrete/${this.code}`, { method: "POST", body, keepalive: true }).catch(() => undefined);
+  }
+
+  private onPageHide = () => {
+    this.leaving = true;
+    this.sendOnExit();
+  };
+
+  private onPageShow = () => {
+    this.leaving = false;
+    void this.flush();
+  };
+
   private onOnline = () => {
     this.failures = 0;
     void this.flush();
@@ -357,6 +377,8 @@ class CarreteEngine {
     this.lastAntiEntropy = Date.now();
     this.pollTimer = setTimeout(this.tick, POLL_BASE_MS);
     window.addEventListener("online", this.onOnline);
+    window.addEventListener("pagehide", this.onPageHide);
+    window.addEventListener("pageshow", this.onPageShow);
   }
 
   private stop() {
@@ -364,6 +386,8 @@ class CarreteEngine {
     if (this.pollTimer) clearTimeout(this.pollTimer);
     if (this.flushTimer) clearTimeout(this.flushTimer);
     window.removeEventListener("online", this.onOnline);
+    window.removeEventListener("pagehide", this.onPageHide);
+    window.removeEventListener("pageshow", this.onPageShow);
     this.chan?.close();
     this.chan = null;
     this.snap = { ...this.snap, status: "loading" };

@@ -200,7 +200,9 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               >
                 {r.zeroAt
                   ? `${rising ? `Sigue subiendo hasta las ${fmtTime(r.peakAt!)}. ` : ""}Vuelve a 0.00 ≈ ${fmtTime(r.zeroAt)} (${fmtDuration(r.hoursToZero)})`
-                  : "En 0.00 g/l ahora"}
+                  : hasAlcohol(p.consumptions)
+                  ? "Estimación: 0.00 g/l. No sirve para decidir si manejar."
+                  : "Sin alcohol registrado"}
               </p>
 
               {h.needsWater && p.consumptions.length > 0 && (

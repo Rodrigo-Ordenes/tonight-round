@@ -68,6 +68,11 @@ Las salas no se pierden porque están en `~/tonight-data`. Si cambia el subdomin
 
 Opcional: con `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN` en las variables de la app, las salas usan Redis en vez de archivos.
 
+## Antes de difundir el enlace
+
+1. **Límites por IP:** los límites usan la entrada derecha de `X-Forwarded-For`. Falta confirmar qué envía LiteSpeed. Crea una sala desde dos redes distintas (WiFi y datos móviles) y revisa `~/tonight-data/.rate/`: deben aparecer dos archivos `create-…` con claves distintas. Si aparece `create-shared-…`, todos comparten un balde más amplio (400 salas por hora).
+2. **Actualizaciones:** publica cuando no haya salas activas. Una TV o celular abierto con la versión anterior muestra cifras inválidas hasta recargar.
+
 ## Notas de seguridad
 
 - **CSP:** mantiene `'unsafe-inline'` en scripts y estilos porque Next inyecta scripts en línea para hidratar y la app usa atributos `style`. Con nonces, cada página tendría que renderizarse dinámicamente. Solo se permiten marcos de `open.spotify.com`.

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { lastDrink } from "@/lib/lastDrink";
+import { zeroCopy } from "@/lib/zeroCopy";
 import QuickActionBar from "@/components/carrete/QuickActionBar";
 import Modal from "@/components/ui/Modal";
 import Link from "next/link";
@@ -50,7 +51,6 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const [weight, setWeight] = useState(70);
   const [isDriver, setIsDriver] = useState(false);
   const [picking, setPicking] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const panel = searchParams.get("panel") === "mas" ? "mas" : "ahora";
@@ -58,7 +58,8 @@ export default function CarreteClientController({ store }: { store: CarreteStore
     const q = new URLSearchParams(searchParams.toString());
     if (id === "mas") q.set("panel", "mas");
     else q.delete("panel");
-    router.replace(`${pathname}?${q.toString()}`, { scroll: false });
+    // Sin ir al servidor: cambiar de pestaña debe funcionar sin señal
+    window.history.replaceState(null, "", `${pathname}?${q.toString()}`);
   };
   const [stomach, setStomach] = useState<StomachState>("normal");
   const [showAll, setShowAll] = useState(false);
@@ -205,6 +206,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const rising = r.peakAt !== null && r.peakAt > Date.now() && r.peakBac > r.bac + 0.02;
 
   const last = lastDrink(me.consumptions);
+  const copy = zeroCopy({ hadDrinks: hasAlcohol(me.consumptions), zeroAt: r.zeroAt });
 
   const drink = (p: DrinkPreset) => {
     audioEffects.playBubble();
@@ -257,19 +259,23 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         {discreet ? (
           <div className="mt-5">
             {/* Modo discreto: nadie alrededor ve una cifra; solo la hora de volver a 0.00 */}
-            <p className="font-display text-5xl font-extrabold leading-none text-white tabular">{r.zeroAt ? fmtTime(r.zeroAt) : "0.00"}</p>
-            <p className="meta mt-2">{r.zeroAt ? "Hora estimada de volver a 0.00" : "Sin alcohol estimado"}</p>
+            <p className="font-display text-5xl font-extrabold leading-none text-white tabular">{r.zeroAt ? fmtTime(r.zeroAt) : copy.headline}</p>
+            {r.zeroAt && <p className="meta mt-2">Hora estimada de volver a 0.00</p>}
+            {copy.caveat && <p className="meta mt-2">{copy.caveat}</p>}
           </div>
         ) : (
           <div className="mt-5">
             {r.zeroAt ? (
               <>
-                <p className="eyebrow">Vuelves a 0.00</p>
+                <p className="eyebrow">{copy.headline}</p>
                 <p className="mt-1 font-display text-4xl font-extrabold leading-none text-white tabular">cerca de las {fmtTime(r.zeroAt)}</p>
-                <p className="meta mt-2">en {fmtDuration(r.hoursToZero)}. Estimación: no sirve para decidir si manejar.</p>
+                <p className="meta mt-2">en {fmtDuration(r.hoursToZero)}. {copy.caveat}</p>
               </>
             ) : (
-              <p className="font-display text-4xl font-extrabold leading-none text-emerald-200">Estás en 0.00</p>
+              <>
+                <p className={`font-display text-4xl font-extrabold leading-none ${hasAlcohol(me.consumptions) ? "text-white" : "text-emerald-200"}`}>{copy.headline}</p>
+                {copy.caveat && <p className="meta mt-2">{copy.caveat}</p>}
+              </>
             )}
             {!driver && r.zeroAt && (
               <p className="mt-3 text-sm text-slate-300">

@@ -11,9 +11,11 @@ const LOCK_TIMEOUT_MS = 8_000;
 const SWEEP_EVERY_MS = 60 * 60 * 1000;
 
 export class StoreFullError extends Error {}
+export class RoomTooLargeError extends Error {}
 
 const MAX_ROOMS = 2000;
 const MAX_BYTES = 200 * 1024 * 1024;
+const MAX_ROOM_BYTES = 512 * 1024;
 const USAGE_CACHE_MS = 30_000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -24,9 +26,10 @@ const isCode = (code: string) => CODE_RE.test(code);
  * cuando la app se apaga por inactividad y todos los procesos ven lo mismo. Cada sala tiene un candado por archivo
  * (creación exclusiva) y se escribe de forma atómica (temporal + rename). El vencimiento usa la fecha del archivo.
  */
-export function createFileStore(dir: string, opts: { maxRooms?: number; maxBytes?: number } = {}): CarreteStore {
+export function createFileStore(dir: string, opts: { maxRooms?: number; maxBytes?: number; maxRoomBytes?: number } = {}): CarreteStore {
   const maxRooms = opts.maxRooms ?? MAX_ROOMS;
   const maxBytes = opts.maxBytes ?? MAX_BYTES;
+  const maxRoomBytes = opts.maxRoomBytes ?? MAX_ROOM_BYTES;
   let usage: { at: number; rooms: number; bytes: number } | null = null;
   let lastSweep = 0;
   const file = (code: string) => join(dir, `${code}.json`);
@@ -78,7 +81,9 @@ export function createFileStore(dir: string, opts: { maxRooms?: number; maxBytes
 
   async function write(code: string, state: CarreteState) {
     const tmp = join(dir, `${code}.${randomUUID()}.tmp`);
-    await writeFile(tmp, JSON.stringify(state));
+    const json = JSON.stringify(state);
+    if (Buffer.byteLength(json) > maxRoomBytes) throw new RoomTooLargeError("sala demasiado grande");
+    await writeFile(tmp, json);
     await rename(tmp, file(code));
     void sweep();
     return state;

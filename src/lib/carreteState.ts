@@ -310,6 +310,10 @@ const uniqBy = <T>(xs: T[], key: (x: T) => string): T[] => {
 export const LIMITS = { name: 30, text: 280, label: 60, amount: 100_000_000, participants: 60 } as const;
 
 /** Corta por puntos de código para no partir un emoji por la mitad. */
+/** Tragos o vasos de agua por persona y marcas de borrado que se conservan: muy por encima de una noche real. */
+const MAX_LOG = 200;
+const MAX_TOMBSTONES = 500;
+
 const clip = (value: unknown, max: number) => Array.from(String(value ?? "")).slice(0, max).join("");
 const clipAmount = (n: unknown) => Math.min(LIMITS.amount, Math.max(0, Number(n) || 0));
 
@@ -331,10 +335,13 @@ export function normalizeParticipant(raw: Participant): Participant {
     ...p,
     name: clip(p.name, LIMITS.name),
     bodyFactor,
-    consumptions: (p.consumptions ?? []).filter((c) => !removed.has(c.id)),
-    water: live,
-    waterCount: live.length,
-    removedIds: p.removedIds ?? [],
+    consumptions: (p.consumptions ?? [])
+      .filter((c) => !removed.has(c.id))
+      .slice(-MAX_LOG)
+      .map((c) => ({ ...c, label: clip(c.label, LIMITS.label) })),
+    water: live.slice(-MAX_LOG),
+    waterCount: Math.min(live.length, MAX_LOG),
+    removedIds: (p.removedIds ?? []).slice(-MAX_TOMBSTONES),
     // Cualquiera con el código puede escribir en la sala: solo se guardan links http(s) válidos (nada de javascript:)
     payLink: p.payLink ? normalizePayLink(p.payLink) ?? undefined : undefined,
   };
@@ -346,17 +353,24 @@ export function normalizeCarrete(s: CarreteState): CarreteState {
   const live = { ...DEFAULT_LIVE, ...s.live };
   const split = { ...DEFAULT_SPLIT, ...s.split };
   const bring = { ...DEFAULT_BRING, ...s.bring };
+  // Solo se conservan las claves conocidas: lo demás no ocupa disco
   return {
-    ...s,
+    code: s.code,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
     epoch: s.epoch ?? 0,
     seen: s.seen ?? [],
     participants: (s.participants ?? []).slice(0, LIMITS.participants).map(normalizeParticipant),
-    basket: { ...DEFAULT_BASKET, ...s.basket },
+    basket: { ...DEFAULT_BASKET, ...s.basket, items: (s.basket?.items ?? DEFAULT_BASKET.items).slice(-200) },
     games: { ...DEFAULT_GAMES, ...s.games },
     music: { ...music, requests: (music.requests ?? []).slice(-30).map(clipSong) },
     live: { ...live, confessions: (live.confessions ?? []).slice(-40).map(clipConfession) },
-    split: { ...split, expenses: (split.expenses ?? []).slice(-200).map(clipExpense) },
-    bring: { ...bring, items: (bring.items ?? []).slice(-60).map((i) => ({ ...i, label: clip(i.label, LIMITS.label) })) },
+    split: { ...split, expenses: (split.expenses ?? []).slice(-200).map(clipExpense), removed: (split.removed ?? []).slice(-MAX_TOMBSTONES) },
+    bring: {
+      ...bring,
+      items: (bring.items ?? []).slice(-60).map((i) => ({ ...i, label: clip(i.label, LIMITS.label) })),
+      removed: (bring.removed ?? []).slice(-MAX_TOMBSTONES),
+    },
   };
 }
 

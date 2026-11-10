@@ -30,10 +30,16 @@ export default function Modal({
     const dialog = ref.current;
     if (!dialog) return;
     if (!dialog.open) dialog.showModal();
+    // Sin interacción previa, el navegador no deja cancelar Escape: un aviso obligatorio se vuelve a abrir
+    const guard = new MutationObserver(() => {
+      if (!dialog.open && dialog.isConnected) dialog.showModal();
+    });
+    if (!dismissible) guard.observe(dialog, { attributes: true, attributeFilter: ["open"] });
     return () => {
+      guard.disconnect();
       if (dialog.open) dialog.close();
     };
-  }, []);
+  }, [dismissible]);
 
   return (
     <dialog

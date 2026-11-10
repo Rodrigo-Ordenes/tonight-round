@@ -9,6 +9,7 @@ const RULES: Record<Bucket, { max: number; windowMs: number }> = {
   miss: { max: 60, windowMs: 60 * 1000 },
   write: { max: 1200, windowMs: 60 * 1000 },
 };
+const SHARED_FACTOR = 20;
 const SWEEP_EVERY_MS = 10 * 60 * 1000;
 const KEEP_MS = 2 * 60 * 60 * 1000;
 
@@ -18,7 +19,9 @@ const KEEP_MS = 2 * 60 * 60 * 1000;
  */
 export function clientKey(headers: Headers): string {
   const ip = headers.get("x-forwarded-for")?.split(",").pop()?.trim();
-  return ip ? createHash("sha256").update(ip).digest("hex").slice(0, 24) : "shared";
+  // Una dirección local o interna es el propio proxy: no identifica a nadie
+  if (!ip || /^(::1$|::ffff:127\.|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip)) return "shared";
+  return createHash("sha256").update(ip).digest("hex").slice(0, 24);
 }
 
 export interface Limiter {
@@ -59,7 +62,9 @@ export function createLimiter(dir: string | null): Limiter {
 
   return {
     async hit(bucket, key, now = Date.now()) {
-      const { max, windowMs } = RULES[bucket];
+      const { max: base, windowMs } = RULES[bucket];
+      // El balde común puede ser el sitio entero si el servidor no informa la IP: no debe bloquear a todos
+      const max = key === "shared" ? base * SHARED_FACTOR : base;
       const window = Math.floor(now / windowMs);
       void sweep(now);
       const used = await count(`${bucket}-${key}-${window}`);
