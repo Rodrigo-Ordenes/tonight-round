@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Modal from "@/components/ui/Modal";
 import { Dices, Users, PenLine, ListChecks, X } from "lucide-react";
 import content from "@/data/games_content.json";
 import type { CarreteStore } from "@/store/useCarreteStore";
@@ -180,7 +181,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
       </div>
 
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <Modal label="Editar ruleta" onClose={() => setModal(null)} className="flex items-end sm:items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <div className="w-full max-w-md max-h-[80dvh] overflow-y-auto rounded-3xl bg-night-900 border border-indigo-500/30 p-5 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-white">
@@ -227,7 +228,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
                 </label>
               ))}
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { lastDrink } from "@/lib/lastDrink";
+import QuickActionBar from "@/components/carrete/QuickActionBar";
+import Modal from "@/components/ui/Modal";
 import Link from "next/link";
 import { ChevronDown, Crown, Droplets, Eye, EyeOff, Heart, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
@@ -45,6 +49,17 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const [gender, setGender] = useState<"M" | "F">("M");
   const [weight, setWeight] = useState(70);
   const [isDriver, setIsDriver] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const panel = searchParams.get("panel") === "mas" ? "mas" : "ahora";
+  const setPanelUrl = (id: "ahora" | "mas") => {
+    const q = new URLSearchParams(searchParams.toString());
+    if (id === "mas") q.set("panel", "mas");
+    else q.delete("panel");
+    router.replace(`${pathname}?${q.toString()}`, { scroll: false });
+  };
   const [stomach, setStomach] = useState<StomachState>("normal");
   const [showAll, setShowAll] = useState(false);
   const [pulse, setPulse] = useState(false);
@@ -53,7 +68,6 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const [roundDrink, setRoundDrink] = useState(DRINK_PRESETS[0].key);
   const [song, setSong] = useState("");
   const [songSent, setSongSent] = useState(false);
-  const [waterToast, setWaterToast] = useState(false);
   const warnedAt = useRef(0);
   const [discreet, setDiscreet] = useState(false);
   useEffect(() => {
@@ -94,9 +108,6 @@ export default function CarreteClientController({ store }: { store: CarreteStore
     if (warnedAt.current === sinceWater) return;
     warnedAt.current = sinceWater;
     audioEffects.triggerHaptic([120, 80, 120]);
-    setWaterToast(true);
-    const t = setTimeout(() => setWaterToast(false), 6000);
-    return () => clearTimeout(t);
   }, [sinceWater]);
 
   const join = (e: React.FormEvent) => {
@@ -121,7 +132,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             <p className="text-xs font-semibold text-slate-400">¿Ya te agregaron? Elige tu nombre</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {participants.map((p) => (
-                <button key={p.id} type="button" onClick={() => setMeId(p.id)} className="chip">
+                <button key={p.id} type="button" onClick={() => setMeId(p.id)} className="chip max-w-full truncate">
                   {p.name}
                 </button>
               ))}
@@ -193,6 +204,8 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const presets = showAll ? DRINK_PRESETS : DRINK_PRESETS.slice(0, 8);
   const rising = r.peakAt !== null && r.peakAt > Date.now() && r.peakBac > r.bac + 0.02;
 
+  const last = lastDrink(me.consumptions);
+
   const drink = (p: DrinkPreset) => {
     audioEffects.playBubble();
     if (driver) audioEffects.playBuzz();
@@ -223,12 +236,12 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             <p className="meta mt-1">{driver ? `${locale.terminology.driverTitle} · 0.0 toda la noche` : "Este celular es tu control"}</p>
           </div>
           {participants.length > 1 && (
-            <label className="relative">
+            <label className="relative min-w-0 max-w-[45%] shrink-0">
               <span className="sr-only">Cambiar de persona</span>
               <select
                 value={me.id}
                 onChange={(e) => setMeId(e.target.value)}
-                className="min-h-[38px] appearance-none rounded-xl border border-white/10 bg-white/[0.04] pl-3 pr-8 text-xs font-semibold text-slate-200 outline-none"
+                className="min-h-[44px] w-full appearance-none truncate rounded-xl border border-white/10 bg-white/[0.04] pl-3 pr-8 text-xs font-semibold text-slate-200 outline-none"
               >
                 {participants.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -248,33 +261,32 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             <p className="meta mt-2">{r.zeroAt ? "Hora estimada de volver a 0.00" : "Sin alcohol estimado"}</p>
           </div>
         ) : (
-          <div className="mt-5 flex items-end gap-6">
-            <div>
-              <p className="eyebrow">Ahora (g/l)</p>
-              <p className={`font-display text-6xl font-extrabold leading-none tabular ${TONE_CLASS[bacTone(r.bac, driver, hasAlcohol(me.consumptions))].text}`}>
-                {r.bac.toFixed(2)}
+          <div className="mt-5">
+            {r.zeroAt ? (
+              <>
+                <p className="eyebrow">Vuelves a 0.00</p>
+                <p className="mt-1 font-display text-4xl font-extrabold leading-none text-white tabular">cerca de las {fmtTime(r.zeroAt)}</p>
+                <p className="meta mt-2">en {fmtDuration(r.hoursToZero)}. Estimación: no sirve para decidir si manejar.</p>
+              </>
+            ) : (
+              <p className="font-display text-4xl font-extrabold leading-none text-emerald-200">Estás en 0.00</p>
+            )}
+            {!driver && r.zeroAt && (
+              <p className="mt-3 text-sm text-slate-300">
+                Ahora{" "}
+                <span className={`font-mono font-semibold tabular ${TONE_CLASS[bacTone(r.bac, driver, hasAlcohol(me.consumptions))].text}`}>
+                  {r.bac.toFixed(2)} g/l
+                </span>
+                {rising && <> · sube hasta {r.peakBac.toFixed(2)} a las {fmtTime(r.peakAt!)}</>}
               </p>
-            </div>
-            <div className="pb-1 text-sm text-slate-300">
-              {r.zeroAt ? (
-                <>
-                  {rising && <p>Sube hasta {r.peakBac.toFixed(2)} a las {fmtTime(r.peakAt!)}</p>}
-                  <p>
-                    Vuelves a 0.00 ≈ <span className="font-semibold text-white">{fmtTime(r.zeroAt)}</span>
-                  </p>
-                  <p className="text-xs text-slate-400">en {fmtDuration(r.hoursToZero)}</p>
-                </>
-              ) : (
-                <p className="text-cyan-200">Estás en 0.00</p>
-              )}
-            </div>
+            )}
           </div>
         )}
         <button
           type="button"
           onClick={() => toggleDiscreet()}
           aria-pressed={discreet}
-          className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white"
+          className="mt-3 flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white"
         >
           {discreet ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
           {discreet ? "Mostrar cifras" : "Modo discreto"}
@@ -288,7 +300,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
               role="radio"
               aria-checked={(me.stomach ?? "normal") === s}
               onClick={() => updateParticipant(me.id, { stomach: s })}
-              className={`min-h-[36px] rounded-lg text-xs font-bold ${(me.stomach ?? "normal") === s ? "bg-white text-night-950" : "text-slate-400"}`}
+              className={`min-h-[44px] rounded-lg text-xs font-bold ${(me.stomach ?? "normal") === s ? "bg-white text-night-950" : "text-slate-400"}`}
             >
               {STOMACH_ICON[s]} {ABSORPTION[s].label}
             </button>
@@ -302,6 +314,23 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         )}
       </section>
 
+      <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/[0.03] p-1" role="tablist" aria-label="Secciones de tu celular">
+        {([["ahora", "Ahora"], ["mas", "Más"]] as const).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={panel === id}
+            onClick={() => setPanelUrl(id)}
+            className={`min-h-[44px] rounded-lg text-sm font-bold ${panel === id ? "bg-white text-night-950" : "text-slate-300"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {panel === "ahora" && (
+      <>
       {/* Agua y deshacer */}
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <button
@@ -402,38 +431,11 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         </section>
       )}
 
-      {/* Tragos */}
-      <section className="surface p-4">
-        <div className="flex items-center justify-between">
-          <p className="eyebrow">+1 trago</p>
-          <Link href="/bar" className="flex items-center gap-1 text-xs font-semibold text-indigo-300">
-            <GlassWater className="w-3.5 h-3.5" /> Desde el bar
-          </Link>
-        </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {presets.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              onClick={() => drink(p)}
-              className={`min-h-[58px] rounded-2xl border p-3 text-left transition-all active:scale-[0.97] ${
-                driver ? "border-rose-500/30 bg-rose-500/[0.06]" : "border-white/[0.07] bg-white/[0.03] hover:border-white/20"
-              }`}
-            >
-              <span className="block truncate text-sm font-bold text-white">
-                {p.emoji} {p.label}
-              </span>
-              <span className="font-mono text-xs text-slate-400">
-                {p.ml} ml · {Math.round(p.abv * 1000) / 10}%
-              </span>
-            </button>
-          ))}
-        </div>
-        <button type="button" onClick={() => setShowAll(!showAll)} className="mt-3 w-full text-center text-xs font-semibold text-slate-400 hover:text-white">
-          {showAll ? "Ver menos" : `Ver ${DRINK_PRESETS.length - 8} tragos más`}
-        </button>
-      </section>
+      </>
+      )}
 
+      {panel === "mas" && (
+        <>
       {/* Link de pago para Cuentas */}
       <PayLinkField
         value={me.payLink ?? ""}
@@ -499,16 +501,58 @@ export default function CarreteClientController({ store }: { store: CarreteStore
 
       {!store.state.live?.round && <LiveRoundCard store={store} />}
 
-      {waterToast && (
-        <div role="status" className="fixed inset-x-4 top-[calc(env(safe-area-inset-top,0px)+68px)] z-50 mx-auto max-w-md rounded-2xl border border-cyan-300/50 bg-night-900/95 p-4 text-sm font-semibold text-cyan-50 shadow-glow-water backdrop-blur-xl animate-rise-in">
-          💧 Llevas {sinceWater} tragos sin agua. Un vaso y sigues en la pista.
-          <button type="button" onClick={() => { water(); setWaterToast(false); }} className="btn mt-3 w-full !min-h-[42px] bg-cyan-400 text-night-950">
-            +1 vaso de agua
-          </button>
-        </div>
+
+        </>
       )}
 
-      <p className="text-center text-xs text-slate-500">
+      {picking && (
+        <Modal label="Elegir trago" onClose={() => setPicking(false)} className="flex items-end justify-center bg-night-950/80 sm:items-center sm:p-4">
+          <section className="surface max-h-[86dvh] w-full max-w-md overflow-y-auto !rounded-b-none p-4 sm:!rounded-b-2xl">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-lg font-bold text-white">Elegir trago</h2>
+              <Link href="/bar" className="flex min-h-[44px] items-center gap-1 text-xs font-semibold text-indigo-300">
+                <GlassWater className="w-3.5 h-3.5" /> Desde el bar
+              </Link>
+            </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {presets.map((p) => (
+            <button
+              key={p.key}
+              type="button"
+              onClick={() => {
+                drink(p);
+                setPicking(false);
+              }}
+              className={`min-h-[58px] rounded-2xl border p-3 text-left transition-all active:scale-[0.97] ${
+                driver ? "border-rose-500/30 bg-rose-500/[0.06]" : "border-white/[0.07] bg-white/[0.03] hover:border-white/20"
+              }`}
+            >
+              <span className="block truncate text-sm font-bold text-white">
+                {p.emoji} {p.label}
+              </span>
+              <span className="font-mono text-xs text-slate-400">
+                {p.ml} ml · {Math.round(p.abv * 1000) / 10}%
+              </span>
+            </button>
+          ))}
+        </div>
+        <button type="button" onClick={() => setShowAll(!showAll)} className="mt-3 w-full text-center text-xs font-semibold text-slate-400 hover:text-white">
+          {showAll ? "Ver menos" : `Ver ${DRINK_PRESETS.length - 8} tragos más`}
+        </button>
+            <button type="button" onClick={() => setPicking(false)} className="btn-ghost mt-3 w-full">Cerrar</button>
+          </section>
+        </Modal>
+      )}
+
+      <QuickActionBar
+        drinkLabel={last ? last.label : null}
+        showDrink={!driver}
+        onDrink={() => last && addConsumption(me.id, { label: last.label, ml: last.ml, abv: last.abv })}
+        onPick={() => setPicking(true)}
+        onWater={water}
+      />
+
+      <p className="pb-20 text-center text-xs text-slate-500">
         Estimación educativa, no medición. {locale.legal.bacLimitText}: si bebiste, no manejes.
       </p>
     </div>

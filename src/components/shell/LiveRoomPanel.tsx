@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import DriverStatus from "@/components/monsters/DriverStatus";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
@@ -227,12 +228,16 @@ function RoomPanel({ code }: { code: string }) {
                     </span>
                     <span className="ml-auto flex items-center gap-2 font-mono text-xs text-slate-400 tabular">
                       {p.waterCount > 0 && <span className="text-cyan-300">💧{p.waterCount}</span>}
-                      {bac.toFixed(2)}
+                      {!driver && bac.toFixed(2)}
                     </span>
                   </div>
+                  {driver ? (
+                    <DriverStatus breach={hasAlcohol(p.consumptions)} className="mt-1 text-xs" />
+                  ) : (
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
                     <div className={`h-full rounded-full ${tone} transition-[width] duration-700`} style={{ width: `${Math.max(pct, driver ? 100 : 2)}%`, opacity: driver && bac === 0 ? 0.35 : 1 }} />
                   </div>
+                  )}
                 </li>
               );
             })}

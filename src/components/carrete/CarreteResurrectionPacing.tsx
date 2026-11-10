@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Modal from "@/components/ui/Modal";
 import { Clock, AlertTriangle, ShieldCheck, Zap, User, Plus } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { bacFor, BETA, fmtDuration, fmtTime } from "@/lib/alcohol";
@@ -184,7 +185,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
 
       {/* Modal para configurar compromiso */}
       {editingParticipantId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">
+        <Modal label="Configurar hora y compromiso" onClose={() => setEditingParticipantId(null)} className="flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">
           <div className="w-full max-w-sm rounded-3xl bg-night-900 border border-indigo-500/30 p-5 space-y-4">
             <h3 className="text-base font-black text-white">
               Configurar Hora y Compromiso
@@ -227,7 +228,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

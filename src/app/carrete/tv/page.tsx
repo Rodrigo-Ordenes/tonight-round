@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import DriverStatus from "@/components/monsters/DriverStatus";
 import QRCode from "qrcode";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -282,11 +283,15 @@ function TvStage() {
                     <span className="flex-1 truncate font-bold text-white">{p.name}</span>
                     {p.waterCount > 0 && <span className="text-cyan-200">💧{p.waterCount}</span>}
                     {h.needsWater && p.consumptions.length > 0 && <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-lg text-cyan-100">¡agua!</span>}
-                    <span className="font-mono tabular text-slate-200">{r.bac.toFixed(2)}</span>
+                    {!driver && <span className="font-mono tabular text-slate-200">{r.bac.toFixed(2)}</span>}
                   </div>
+                  {driver ? (
+                    <DriverStatus breach={r.totalGrams > 0} className="mt-2 text-tv-sm" />
+                  ) : (
                   <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/[0.06]">
-                    <div className={`h-full rounded-full ${tone} transition-[width] duration-1000`} style={{ width: `${driver ? 100 : Math.max(2, pct)}%`, opacity: driver && r.totalGrams === 0 ? 0.4 : 1 }} />
+                    <div className={`h-full rounded-full ${tone} transition-[width] duration-1000`} style={{ width: `${Math.max(2, pct)}%`, opacity: driver && r.totalGrams === 0 ? 0.4 : 1 }} />
                   </div>
+                  )}
                 </div>
               );
             })}

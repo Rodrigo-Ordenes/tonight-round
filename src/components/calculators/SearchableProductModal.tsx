@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Modal from "@/components/ui/Modal";
 import { Search, Plus, X, Sparkles, ShoppingBag, Check } from "lucide-react";
 import { CATALOG, type CatalogItem } from "@/lib/basket";
 import type { BasketItem } from "@/lib/carreteState";
@@ -74,7 +75,7 @@ export default function SearchableProductModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">
+    <Modal label="Buscar producto" onClose={onClose} className="flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-lg max-h-[85dvh] flex flex-col rounded-3xl bg-night-900 border border-indigo-500/30 shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-night-800 flex items-center justify-between">
@@ -267,6 +268,6 @@ export default function SearchableProductModal({
           </>
         )}
       </div>
-    </div>
+    </Modal>
   );
 }

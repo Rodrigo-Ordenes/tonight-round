@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useDeferredDelete } from "@/lib/useDeferredDelete";
+import UndoToast from "@/components/ui/UndoToast";
 import { Check, Plus, X } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { DEFAULT_BRING } from "@/lib/carreteState";
@@ -23,7 +25,9 @@ export default function BringList({ store, compact = false }: { store: CarreteSt
     dispatch({ type: "ADD_BRING", item });
   };
 
-  const items = compact ? bring.items.slice(0, 6) : bring.items;
+  const undoItem = useDeferredDelete((id) => dispatch({ type: "REMOVE_BRING", id }));
+  const visible = bring.items.filter((i) => !undoItem.hidden.has(i.id));
+  const items = compact ? visible.slice(0, 6) : visible;
   const pending = bring.items.filter((i) => !i.claimedBy).length;
 
   return (
@@ -62,7 +66,7 @@ export default function BringList({ store, compact = false }: { store: CarreteSt
                       audioEffects.playSuccessChime();
                       dispatch({ type: "CLAIM_BRING", id: i.id, participantId: meId });
                     }}
-                    className="chip !min-h-[32px] disabled:opacity-40"
+                    className="chip disabled:opacity-40"
                   >
                     Yo lo llevo
                   </button>
@@ -70,9 +74,9 @@ export default function BringList({ store, compact = false }: { store: CarreteSt
                 {!compact && (
                   <button
                     type="button"
-                    onClick={() => dispatch({ type: "REMOVE_BRING", id: i.id })}
+                    onClick={() => undoItem.remove(i.id)}
                     aria-label={`Quitar ${i.label}`}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:text-white"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:text-white"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -83,12 +87,14 @@ export default function BringList({ store, compact = false }: { store: CarreteSt
         </ul>
       )}
 
+      {undoItem.last && <UndoToast text="Ítem quitado de la lista" onUndo={undoItem.undo} />}
+
       {!compact && (
         <>
           {missing.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {missing.map((l) => (
-                <button key={l} type="button" onClick={() => add(l)} className="chip !min-h-[32px]">
+                <button key={l} type="button" onClick={() => add(l)} className="chip">
                   <Plus className="w-3.5 h-3.5" /> {l}
                 </button>
               ))}

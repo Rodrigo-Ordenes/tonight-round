@@ -110,7 +110,7 @@ export default function CarretePage() {
                   audioEffects.playTick();
                   setView(id);
                 }}
-                className={`flex min-h-[40px] items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold transition-colors ${view === id ? "bg-white text-night-950" : "text-slate-300"}`}
+                className={`flex min-h-[44px] items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold transition-colors ${view === id ? "bg-white text-night-950" : "text-slate-300"}`}
               >
                 <Icon className="w-3.5 h-3.5" /> {label}
               </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useId, useState } from "react";
+import Modal from "@/components/ui/Modal";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Disc3, GlassWater, Gamepad2, Radio, Receipt, ShoppingBasket, Volume2, VolumeX, X } from "lucide-react";
@@ -81,6 +82,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative z-10 min-h-[100dvh] lg:grid lg:grid-cols-[92px_minmax(0,1fr)] xl:grid-cols-[92px_minmax(0,1fr)_360px]">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[90] focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:font-bold focus:text-night-950">
+        Saltar al contenido
+      </a>
       {/* ---------- Rail de escritorio ---------- */}
       <aside className="hidden lg:flex sticky top-0 h-[100dvh] flex-col items-center gap-2 border-r border-white/[0.06] bg-night-950/40 py-5 backdrop-blur-xl">
         <Link href="/" aria-label="Tonight, inicio" className="mb-4 flex flex-col items-center gap-1">
@@ -126,9 +130,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex h-14 items-center gap-2 px-4">
             <Link href="/" className="flex items-center gap-2" aria-label="Tonight, inicio">
               <MoonMark className="w-7 h-7" />
-              <span className="font-display text-sm font-extrabold tracking-[0.18em] text-white">TONIGHT</span>
+              <span className="hidden font-display text-sm font-extrabold tracking-[0.18em] text-white min-[360px]:inline">TONIGHT</span>
             </Link>
-            <div className="ml-auto flex items-center gap-1">
+            <div className="ml-auto flex min-w-0 items-center gap-1">
               {hasRoom && (
                 <button
                   type="button"
@@ -147,6 +151,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         <main
+          id="main"
           className={`mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10 ${
             isGateway ? "pt-6 lg:pt-10" : "pt-5 lg:pt-8"
           } pb-[calc(110px+env(safe-area-inset-bottom,0px))] lg:pb-16`}
@@ -192,12 +197,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* ---------- Hoja de sala en móvil / tablet ---------- */}
       {sheetOpen && (
-        <div className="xl:hidden fixed inset-0 z-50 flex items-end justify-center bg-night-950/70 backdrop-blur-sm" onClick={() => setSheetOpen(false)}>
+        <Modal label="Sala en vivo" onClose={() => setSheetOpen(false)} className="xl:hidden flex items-end justify-center bg-night-950/70 backdrop-blur-sm">
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Sala en vivo"
-            onClick={(e) => e.stopPropagation()}
             className="relative max-h-[86dvh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[20px] border border-white/10 bg-night-900 pb-[env(safe-area-inset-bottom,16px)] animate-rise-in"
           >
             <button
@@ -210,7 +211,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <LiveRoomPanel code={code} />
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

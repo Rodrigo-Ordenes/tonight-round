@@ -137,7 +137,7 @@ export default function CarreteGatewayModal() {
 
           <div className="relative mt-6">
             <p className="eyebrow">¿Te invitaron? Ingresa el código</p>
-            <div className="mt-3 flex items-center gap-2" onPaste={onPaste}>
+            <div className="mt-3 grid grid-cols-6 gap-1.5 sm:grid-cols-[repeat(6,minmax(0,1fr))_3.5rem]" onPaste={onPaste}>
               {chars.map((c, i) => (
                 <input
                   key={i}
@@ -160,7 +160,7 @@ export default function CarreteGatewayModal() {
                 onClick={() => void join()}
                 disabled={busy !== null}
                 aria-label="Entrar a la sala"
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-night-950 transition-transform active:scale-95 disabled:opacity-60"
+                className="col-span-6 flex h-12 w-full items-center sm:col-span-1 sm:h-14 justify-center rounded-2xl bg-white text-night-950 transition-transform active:scale-95 disabled:opacity-60"
               >
                 {busy === "join" ? <Loader2 className="w-6 h-6 animate-spin" /> : <ArrowRight className="w-6 h-6" />}
               </button>
