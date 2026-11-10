@@ -2,7 +2,7 @@ import { mkdtempSync, readdirSync, rmSync, utimesSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createFileStore } from "@/lib/carreteFileStore";
+import { StoreFullError, createFileStore } from "@/lib/carreteFileStore";
 import { emptyCarrete } from "@/lib/carreteState";
 import { ev, person } from "./fixtures";
 
@@ -57,5 +57,22 @@ describe("almacén de salas en disco", () => {
     const old = new Date(Date.now() - 60_000);
     utimesSync(join(dir, "ABCD.lock"), old, old);
     expect(await s.applyEvents("ABCD", [add("x")])).not.toBeNull();
+  });
+});
+
+describe("capacidad del disco", () => {
+  it("rechaza una sala nueva con el máximo de salas, pero actualiza las existentes", async () => {
+    const s = createFileStore(dir, { maxRooms: 2 });
+    await s.upsert("AAAA", emptyCarrete("AAAA"));
+    await s.upsert("BBBB", emptyCarrete("BBBB"));
+    await expect(createFileStore(dir, { maxRooms: 2 }).upsert("CCCC", emptyCarrete("CCCC"))).rejects.toBeInstanceOf(StoreFullError);
+    await expect(s.upsert("AAAA", emptyCarrete("AAAA"))).resolves.not.toBeNull();
+  });
+
+  it("rechaza una sala nueva si se supera el tamaño total", async () => {
+    const s = createFileStore(dir, { maxBytes: 10 });
+    await s.upsert("AAAA", emptyCarrete("AAAA")).catch(() => null);
+    writeFileSync(join(dir, "BBBB.json"), "x".repeat(20));
+    await expect(createFileStore(dir, { maxBytes: 10 }).upsert("CCCC", emptyCarrete("CCCC"))).rejects.toBeInstanceOf(StoreFullError);
   });
 });

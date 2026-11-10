@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { DEFAULT_BODY_FACTOR } from "@/lib/alcohol";
 import {
   CODE_RE,
   applyEvent,
@@ -94,6 +95,8 @@ export function setActiveCode(code: string | null) {
   window.dispatchEvent(new Event("tonight-active-change"));
 }
 
+export class CreateRoomError extends Error {}
+
 /** Crea un carrete nuevo en el servidor (regenera el código si hay colisión 409). */
 export async function createCarrete(): Promise<string> {
   for (let i = 0; i < 6; i++) {
@@ -102,8 +105,14 @@ export async function createCarrete(): Promise<string> {
     try {
       const res = await fetch(`/api/carrete/${code}`, { method: "POST", body: JSON.stringify(s) });
       if (res.status === 409) continue;
+      // Límite o disco lleno: la sala no existiría para nadie más, así que se avisa en vez de seguir solo en local
+      if (res.status === 429 || res.status === 503) {
+        const body = (await res.json().catch(() => ({}))) as { message?: string };
+        throw new CreateRoomError(body.message ?? "No se pudo crear la sala. Intenta en un rato.");
+      }
       if (!res.ok) throw new Error("server");
-    } catch {
+    } catch (e) {
+      if (e instanceof CreateRoomError) throw e;
       // sin servidor: igual funciona local
     }
     writeLocal(s);
@@ -395,8 +404,7 @@ export function useCarreteStore(codeRaw: string) {
       const id = uid();
       const now = Date.now();
       const full: Participant = {
-        gender: "M",
-        weightKg: 75,
+        bodyFactor: DEFAULT_BODY_FACTOR,
         role: "drinker",
         status: "party",
         commune: "",

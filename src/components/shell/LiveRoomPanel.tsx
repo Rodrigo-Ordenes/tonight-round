@@ -42,7 +42,7 @@ function SoloPanel() {
         <Users className="w-6 h-6 text-indigo-400" />
         <p className="mt-3 font-display text-lg font-bold text-white">Estás en modo solo</p>
         <p className="mt-1 text-sm text-slate-400">
-          Crea una sala y tus amigos se unen con un código de 4 letras: tragos, juegos y cuentas en vivo en todos los celulares y la TV.
+          Crea una sala y tus amigos se unen con un código corto: tragos, juegos y cuentas en vivo en todos los celulares y la TV.
         </p>
         <Link href="/" className="btn-primary mt-4 w-full">
           Crear sala

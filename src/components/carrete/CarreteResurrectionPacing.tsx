@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Clock, AlertTriangle, ShieldCheck, Zap, User, Plus } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
-import { bacFor, BETA, widmarkR, fmtDuration, fmtTime } from "@/lib/alcohol";
+import { bacFor, BETA, fmtDuration, fmtTime } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
 
 interface CarreteResurrectionPacingProps {
@@ -97,7 +97,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
                   <div>
                     <h3 className="font-black text-base text-white">{p.name}</h3>
                     <p className="text-xs text-slate-400">
-                      {p.gender === "M" ? "Hombre" : "Mujer"} · {p.weightKg} kg · {p.consumptions.length} consumos
+                      {p.consumptions.length} consumos
                     </p>
                   </div>
                 </div>

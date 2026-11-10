@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, ArrowRight, ArrowUpRight, Loader2, Play } from "lucide-react";
-import { SOLO, carreteExists, createCarrete, getActiveCode, setActiveCode } from "@/store/useCarreteStore";
+import { CreateRoomError, SOLO, carreteExists, createCarrete, getActiveCode, setActiveCode } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 import { nightMoment, type NightMoment } from "@/lib/nightMoment";
@@ -21,7 +21,7 @@ const MODULES = [
 export default function CarreteGatewayModal() {
   const router = useRouter();
   const { locale } = useLocale();
-  const [chars, setChars] = useState<string[]>(["", "", "", ""]);
+  const [chars, setChars] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
   const [resume, setResume] = useState<string | null>(null);
@@ -43,8 +43,8 @@ export default function CarreteGatewayModal() {
     try {
       const code = await createCarrete();
       router.push(`/carrete/${code}`);
-    } catch {
-      setError(`No se pudo crear el ${partyTerm.toLowerCase()}. Intenta de nuevo.`);
+    } catch (e) {
+      setError(e instanceof CreateRoomError ? e.message : `No se pudo crear el ${partyTerm.toLowerCase()}. Intenta de nuevo.`);
       setBusy(null);
     }
   };
@@ -59,7 +59,7 @@ export default function CarreteGatewayModal() {
     const c = v.replace(/[^a-zA-Z0-9]/g, "").slice(-1).toUpperCase();
     setChars((prev) => prev.map((x, idx) => (idx === i ? c : x)));
     setError(null);
-    if (c && i < 3) refs.current[i + 1]?.focus();
+    if (c && i < chars.length - 1) refs.current[i + 1]?.focus();
   };
 
   const onKey = (i: number, e: React.KeyboardEvent) => {
@@ -68,17 +68,17 @@ export default function CarreteGatewayModal() {
   };
 
   const onPaste = (e: React.ClipboardEvent) => {
-    const t = e.clipboardData.getData("text").replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 4);
+    const t = e.clipboardData.getData("text").replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
     if (!t) return;
     e.preventDefault();
-    setChars([0, 1, 2, 3].map((i) => t[i] ?? ""));
-    refs.current[Math.min(t.length, 3)]?.focus();
+    setChars([0, 1, 2, 3, 4, 5].map((i) => t[i] ?? ""));
+    refs.current[Math.min(t.length, 5)]?.focus();
   };
 
   const join = async () => {
     const code = chars.join("");
-    if (code.length < 4) {
-      setError("Ingresa los 4 caracteres del código.");
+    if (code.length !== 4 && code.length !== 6) {
+      setError("Ingresa el código completo: 6 caracteres (4 en salas antiguas).");
       return;
     }
     setBusy("join");
@@ -130,7 +130,7 @@ export default function CarreteGatewayModal() {
           >
             <span>
               <span className="block font-display text-2xl font-extrabold leading-none">Crear sala</span>
-              <span className="mt-1 block text-sm font-semibold text-night-950/70">Código de 4 letras + QR para la TV</span>
+              <span className="mt-1 block text-sm font-semibold text-night-950/70">Código corto + QR para la TV</span>
             </span>
             {busy === "create" ? <Loader2 className="w-7 h-7 animate-spin" /> : <ArrowRight className="w-7 h-7 transition-transform group-hover:translate-x-1" />}
           </button>
@@ -152,7 +152,7 @@ export default function CarreteGatewayModal() {
                   autoComplete="off"
                   maxLength={2}
                   aria-label={`Carácter ${i + 1} del código`}
-                  className="h-16 w-full min-w-0 rounded-2xl border border-white/10 bg-night-950/70 text-center font-mono text-2xl font-bold uppercase text-white outline-none transition-colors focus:border-indigo-400"
+                  className="h-14 w-full min-w-0 rounded-xl border border-white/10 bg-night-950/70 text-center font-mono text-xl font-bold uppercase text-white outline-none transition-colors focus:border-indigo-400"
                 />
               ))}
               <button
@@ -160,7 +160,7 @@ export default function CarreteGatewayModal() {
                 onClick={() => void join()}
                 disabled={busy !== null}
                 aria-label="Entrar a la sala"
-                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-night-950 transition-transform active:scale-95 disabled:opacity-60"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-night-950 transition-transform active:scale-95 disabled:opacity-60"
               >
                 {busy === "join" ? <Loader2 className="w-6 h-6 animate-spin" /> : <ArrowRight className="w-6 h-6" />}
               </button>

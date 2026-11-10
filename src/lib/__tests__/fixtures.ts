@@ -8,8 +8,7 @@ export function person(id: string, over: Partial<Participant> = {}): Participant
   return {
     id,
     name: id,
-    gender: "M",
-    weightKg: 75,
+    bodyFactor: 52,
     role: "drinker",
     consumptions: [],
     waterCount: 0,

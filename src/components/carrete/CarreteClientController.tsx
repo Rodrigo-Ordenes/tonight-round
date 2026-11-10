@@ -8,7 +8,7 @@ import { uid } from "@/store/useCarreteStore";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
 import { CHEERS_WORD } from "@/components/live/CheersOverlay";
-import { ABSORPTION, DRINK_PRESETS, bacFor, fmtDuration, fmtTime, hydrationFor, type DrinkPreset, type StomachState } from "@/lib/alcohol";
+import { ABSORPTION, DRINK_PRESETS, bacFor, bodyFactorFrom, fmtDuration, fmtTime, hydrationFor, type DrinkPreset, type StomachState } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
@@ -16,6 +16,25 @@ import { normalizePayLink } from "@/lib/split";
 import { songQueue } from "@/lib/music";
 
 const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "🥨", full: "🍝" };
+
+const BODY_KEY = "tonight_body";
+
+/** Peso y sexo solo en este celular: a la sala viaja únicamente el factor corporal. */
+function loadBody(): { gender: "M" | "F"; weightKg: number } | null {
+  try {
+    return JSON.parse(localStorage.getItem(BODY_KEY) ?? "null");
+  } catch {
+    return null;
+  }
+}
+
+function saveBody(body: { gender: "M" | "F"; weightKg: number }) {
+  try {
+    localStorage.setItem(BODY_KEY, JSON.stringify(body));
+  } catch {
+    /* almacenamiento bloqueado: se vuelve a preguntar la próxima vez */
+  }
+}
 
 /** El celular como control personal: identidad, tragos, agua, votos y confesiones. */
 export default function CarreteClientController({ store }: { store: CarreteStore }) {
@@ -55,6 +74,13 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   };
 
   const me = participants.find((p) => p.id === meId) ?? null;
+  useEffect(() => {
+    const body = loadBody();
+    if (!body) return;
+    setGender(body.gender === "F" ? "F" : "M");
+    if (Number.isFinite(body.weightKg)) setWeight(body.weightKg);
+  }, []);
+
   // El celular que es control no se apaga en plena noche.
   useWakeLock(!!me);
 
@@ -77,7 +103,8 @@ export default function CarreteClientController({ store }: { store: CarreteStore
     e.preventDefault();
     if (!name.trim()) return;
     audioEffects.playSuccessChime();
-    addParticipant({ name: name.trim(), role: isDriver ? "driver" : "drinker", gender, weightKg: weight, stomach }, true);
+    addParticipant({ name: name.trim(), role: isDriver ? "driver" : "drinker", bodyFactor: bodyFactorFrom(gender, weight), stomach }, true);
+    saveBody({ gender, weightKg: weight });
     setName("");
   };
 
@@ -86,7 +113,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
       <div className="mx-auto max-w-md space-y-5">
         <div>
           <h2 className="display text-3xl">¿Cómo te llamas?</h2>
-          <p className="mt-2 text-sm text-slate-400">Con tu peso y sexo estimamos tu alcoholemia (solo como referencia educativa). Nada sale de esta sala.</p>
+          <p className="mt-2 text-sm text-slate-400">Con tu peso y sexo estimamos tu alcoholemia, solo como referencia. Esos dos datos quedan en este celular. Tu nombre y lo que registras se comparten con la sala y se borran a las 48 h sin actividad.</p>
         </div>
 
         {participants.length > 0 && (
@@ -107,6 +134,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             type="text"
             required
             value={name}
+            maxLength={30}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre o apodo"
             aria-label="Nombre o apodo"
@@ -433,6 +461,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         >
           <input
             value={song}
+            maxLength={280}
             onChange={(e) => setSong(e.target.value)}
             placeholder="Artista o canción"
             aria-label="Pedir una canción"

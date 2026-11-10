@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Maximize2, Minimize2 } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
+import { CODE_RE } from "@/lib/carreteState";
 import { useCarreteStore, SOLO } from "@/store/useCarreteStore";
 import { useLocale } from "@/lib/useLocale";
 import { bacFor, hydrationFor } from "@/lib/alcohol";
@@ -45,7 +46,7 @@ function TvStage() {
   const [now, setNow] = useState(() => Date.now());
   const [origin, setOrigin] = useState("");
 
-  const valid = code !== SOLO && code.length === 4;
+  const valid = code !== SOLO && CODE_RE.test(code);
   const round = store.state.live?.round ?? null;
   useWakeLock(valid);
 

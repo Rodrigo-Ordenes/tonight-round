@@ -104,6 +104,7 @@ export default function BringList({ store, compact = false }: { store: CarreteSt
           >
             <input
               value={text}
+              maxLength={60}
               onChange={(e) => setText(e.target.value)}
               placeholder="Otra cosa (ej. carbón)"
               aria-label="Agregar algo a la lista"

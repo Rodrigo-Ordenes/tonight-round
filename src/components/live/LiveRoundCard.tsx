@@ -149,6 +149,7 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
           <div className="mt-3 flex gap-2">
             <input
               value={confession}
+              maxLength={280}
               onChange={(e) => setConfession(e.target.value.slice(0, 140))}
               onKeyDown={(e) => e.key === "Enter" && sendConfession()}
               placeholder="Una vez me quedé dormido en…"

@@ -16,6 +16,7 @@ import {
   hydrationFor,
   type DrinkPreset,
   type StomachState,
+  bodyFactorFrom,
 } from "@/lib/alcohol";
 import type { Participant } from "@/lib/carreteState";
 import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
@@ -74,7 +75,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
   const create = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    addParticipant({ name: name.trim(), gender, weightKg: weight, role: isDriver ? "driver" : "drinker" });
+    addParticipant({ name: name.trim(), bodyFactor: bodyFactorFrom(gender, weight), role: isDriver ? "driver" : "drinker" });
     setName("");
     setIsDriver(false);
     setShowAdd(false);
@@ -146,9 +147,6 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               <header className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="truncate font-display text-lg font-bold text-white">{p.name}</h3>
-                  <p className="text-xs text-slate-400">
-                    {p.gender === "M" ? "Hombre" : "Mujer"} · {p.weightKg} kg
-                  </p>
                 </div>
                 {p.role === "driver" ? (
                   <span className="flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-1 text-xs font-bold uppercase text-amber-200">
@@ -369,6 +367,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               autoFocus
               required
               value={name}
+              maxLength={30}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nombre o apodo"
               className="min-h-[48px] w-full rounded-xl border border-white/10 bg-night-950 px-4 text-sm text-white outline-none focus:border-indigo-400"

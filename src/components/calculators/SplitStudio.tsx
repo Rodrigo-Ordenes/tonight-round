@@ -142,6 +142,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
           >
             <input
               value={newName}
+              maxLength={30}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Agregar persona"
               aria-label="Nombre de la persona"
@@ -187,6 +188,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
               En qué
               <input
                 value={desc}
+                maxLength={60}
                 onChange={(e) => setDesc(e.target.value)}
                 placeholder="Botillería, pizzas, hielo…"
                 className="mt-1 min-h-[46px] w-full rounded-xl border border-white/10 bg-night-950 px-3 text-sm text-white outline-none focus:border-indigo-400"
