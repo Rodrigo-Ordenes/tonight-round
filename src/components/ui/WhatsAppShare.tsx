@@ -35,7 +35,7 @@ export default function WhatsAppShare({
   };
 
   const baseStyle =
-    "min-h-[48px] px-5 py-3 rounded-2xl font-bold flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] select-none text-sm";
+    "min-h-[48px] px-5 py-3 rounded-2xl font-bold flex items-center justify-center gap-2.5 transition active:scale-[0.98] select-none text-sm";
 
   const variantStyles = {
     primary:

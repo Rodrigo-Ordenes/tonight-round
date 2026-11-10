@@ -173,7 +173,7 @@ module.exports = {
       },
       fontSize: {
         // Escala 10-foot UI para Smart TV (legible a 3 m)
-        "tv-sm": ["clamp(1.25rem, 1.6vw, 2rem)", { lineHeight: "1.25" }],
+        "tv-sm": ["clamp(1.5rem, 1.6vw, 2rem)", { lineHeight: "1.25" }],
         "tv-md": ["clamp(1.75rem, 2.4vw, 3rem)", { lineHeight: "1.15" }],
         "tv-lg": ["clamp(2.5rem, 4vw, 5rem)", { lineHeight: "1.05" }],
         "tv-hero": ["clamp(3.5rem, 7vw, 9rem)", { lineHeight: "0.95", letterSpacing: "-0.03em" }],

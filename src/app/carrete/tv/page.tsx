@@ -129,7 +129,7 @@ function TvStage() {
       <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-6 p-10 text-center">
         <p className="display text-tv-lg">La TV necesita una sala</p>
         <p className="max-w-2xl text-tv-sm text-slate-300">Crea o entra a un {locale.terminology.partyName.toLowerCase()} desde el celular o el computador y vuelve a abrir el Modo TV.</p>
-        <Link href="/" className="btn-primary !min-h-[64px] !px-8 text-xl">
+        <Link href="/" className="btn-primary !min-h-[64px] !px-8 text-2xl">
           Ir al inicio
         </Link>
       </div>
@@ -151,7 +151,7 @@ function TvStage() {
       <header className="flex items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <span className="font-display text-tv-sm font-extrabold tracking-[0.2em] text-white">TONIGHT</span>
-          <span className="eyebrow !text-base">{moment.eyebrow}</span>
+          <span className="eyebrow !text-2xl">{moment.eyebrow}</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2">
@@ -170,7 +170,7 @@ function TvStage() {
       {round ? (
         /* ---------------- Ronda en vivo ---------------- */
         <main className="flex flex-1 flex-col justify-center py-[4vh]" aria-live="polite">
-          <p className="eyebrow !text-xl">
+          <p className="eyebrow !text-2xl">
             {LIVE_GAME_BY_ID.get(round.game)?.emoji} {LIVE_GAME_BY_ID.get(round.game)?.name}
           </p>
           {!round.revealedAt ? (
@@ -197,7 +197,7 @@ function TvStage() {
                   {store.participants.map((p) => (
                     <span
                       key={p.id}
-                      className={`max-w-[16rem] truncate rounded-full px-5 py-2 text-xl font-semibold transition-colors ${voters.includes(p.id) ? "bg-emerald-400 text-night-950" : "bg-white/[0.05] text-slate-400"}`}
+                      className={`max-w-[16rem] truncate rounded-full px-5 py-2 text-2xl font-semibold transition-colors ${voters.includes(p.id) ? "bg-emerald-400 text-night-950" : "bg-white/[0.05] text-slate-400"}`}
                     >
                       {p.name}
                     </span>
@@ -236,32 +236,32 @@ function TvStage() {
               <div className="space-y-3">
                 {requests.length > 0 && (
                   <div className="mb-6">
-                    <p className="eyebrow !text-base">Pedidos de la sala</p>
+                    <p className="eyebrow !text-2xl">Pedidos de la sala</p>
                     <ul className="mt-2 space-y-1">
                       {requests.map((r) => (
-                        <li key={r.id} className="text-xl text-slate-200">
+                        <li key={r.id} className="text-2xl text-slate-200">
                           {r.text} <span className="text-slate-500">· {store.participants.find((p) => p.id === r.by)?.name ?? "alguien"}{r.votes?.length ? ` · ♥ ${r.votes.length}` : ""}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
-                <p className="eyebrow !text-base">Sonando</p>
+                <p className="eyebrow !text-2xl">Sonando</p>
                 <p className="font-display text-tv-md font-bold text-white">
                   {music.vibe?.emoji} {music.title}
                 </p>
-                <p className="text-xl text-slate-400">{music.reason}</p>
+                <p className="text-2xl text-slate-400">{music.reason}</p>
               </div>
             </div>
           </section>
 
           {seats && (
             <section aria-label="Nuevos puestos" className="lg:col-span-2 animate-rise-in">
-              <p className="eyebrow !text-lg">{seats.mode === "puestos" ? "Nuevos puestos" : "Sorteo de la sala"}</p>
+              <p className="eyebrow !text-2xl">{seats.mode === "puestos" ? "Nuevos puestos" : "Sorteo de la sala"}</p>
               <div className="mt-4 flex flex-wrap gap-4">
                 {seats.groups.map((g, i) => (
                   <div key={i} className="min-w-[14rem] max-w-full rounded-2xl border border-white/10 px-6 py-4 animate-rise-in" style={{ animationDelay: `${i * 80}ms` }}>
-                    <p className="text-xl text-slate-400">{GROUP_LABEL[seats.mode](i)}</p>
+                    <p className="text-2xl text-slate-400">{GROUP_LABEL[seats.mode](i)}</p>
                     <p className="mt-1 break-words text-tv-sm font-bold text-white [overflow-wrap:anywhere]">{g.map((id) => store.participants.find((p) => p.id === id)?.name ?? "—").join(seats.mode === "puestos" ? " → " : " · ")}</p>
                   </div>
                 ))}
@@ -270,7 +270,7 @@ function TvStage() {
           )}
 
           <section aria-label="Monstruómetro" className="space-y-3">
-            <p className="eyebrow !text-lg">Monstruómetro</p>
+            <p className="eyebrow !text-2xl">Monstruómetro</p>
             {rows.length === 0 && <p className="text-tv-sm text-slate-400">Esperando a los primeros…</p>}
             {rows.slice(0, 8).map(({ p, r, h }) => {
               const driver = p.role === "driver";
@@ -279,29 +279,29 @@ function TvStage() {
               return (
                 <div key={p.id} className="rounded-3xl bg-white/[0.04] px-6 py-4">
                   <div className="flex items-center gap-4 text-tv-sm">
-                    {driver && <span className="text-amber-300" aria-label="Conductor designado">👑</span>}
+                    {driver && <span className="text-amber-300" aria-label="Conductor designado">🚗</span>}
                     <span className="flex-1 truncate font-bold text-white">{p.name}</span>
                     {p.waterCount > 0 && <span className="text-cyan-200">💧{p.waterCount}</span>}
-                    {h.needsWater && p.consumptions.length > 0 && <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-lg text-cyan-100">¡agua!</span>}
+                    {h.needsWater && p.consumptions.length > 0 && <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-2xl text-cyan-100">¡agua!</span>}
                     {!driver && <span className="font-mono tabular text-slate-200">{r.bac.toFixed(2)}</span>}
                   </div>
                   {driver ? (
                     <DriverStatus breach={r.totalGrams > 0} className="mt-2 text-tv-sm" />
                   ) : (
                   <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/[0.06]">
-                    <div className={`h-full rounded-full ${tone} transition-[width] duration-1000`} style={{ width: `${Math.max(2, pct)}%`, opacity: driver && r.totalGrams === 0 ? 0.4 : 1 }} />
+                    <div className={`h-full rounded-full ${tone} origin-left transition-transform duration-300 ease-out`} style={{ transform: `scaleX(${(Math.max(2, pct)) / 100})`, opacity: driver && r.totalGrams === 0 ? 0.4 : 1 }} />
                   </div>
                   )}
                 </div>
               );
             })}
-            <p className="pt-2 text-lg text-slate-500">
+            <p className="pt-2 text-2xl text-slate-500">
               Estimación educativa. {locale.legal.bacLimitText}: si bebiste, no manejes.
             </p>
           </section>
         </main>
       )}
-      <footer className="pt-4 text-center font-mono text-sm text-slate-600">
+      <footer className="pt-4 text-center font-mono text-2xl text-slate-600">
         Teclado / control: Espacio revela o sigue · N siguiente ronda · Esc termina · S ¡Salud! · F pantalla completa
       </footer>
     </div>

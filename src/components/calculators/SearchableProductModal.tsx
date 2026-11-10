@@ -165,7 +165,7 @@ export default function SearchableProductModal({
               </button>
               <button
                 type="submit"
-                className="w-1/2 min-h-[48px] rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm shadow-md"
+                className="w-1/2 min-h-[48px] rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-md"
               >
                 Guardar a la Canasta
               </button>
@@ -194,7 +194,7 @@ export default function SearchableProductModal({
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedCat(cat.id)}
-                    className={`min-h-[40px] px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                    className={`min-h-[40px] px-3 rounded-xl text-xs font-bold whitespace-nowrap transition ${
                       selectedCat === cat.id
                         ? "bg-indigo-600 text-white"
                         : "bg-night-950 text-slate-400 hover:text-white border border-night-800"
@@ -226,7 +226,7 @@ export default function SearchableProductModal({
                 filteredItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-night-950 border border-night-800 hover:border-slate-700 transition-all"
+                    className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-night-950 border border-night-800 hover:border-slate-700 transition"
                   >
                     <div className="min-w-0">
                       <h4 className="font-bold text-sm text-white truncate">{item.name}</h4>
@@ -243,7 +243,7 @@ export default function SearchableProductModal({
                         onAddCatalogItem(item, 1);
                         onClose();
                       }}
-                      className="min-h-[44px] px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shrink-0 flex items-center gap-1 active:scale-95 transition-transform"
+                      className="min-h-[44px] px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shrink-0 flex items-center gap-1 active:scale-95 transition-transform"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Agregar</span>

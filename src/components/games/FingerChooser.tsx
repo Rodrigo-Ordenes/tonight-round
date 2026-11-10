@@ -257,7 +257,7 @@ export default function FingerChooser() {
           <button
             type="button"
             onClick={() => setMode("loser")}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition ${
               mode === "loser"
                 ? "bg-red-500/20 text-red-300 border border-red-500/40"
                 : "text-slate-400 hover:text-white"
@@ -268,7 +268,7 @@ export default function FingerChooser() {
           <button
             type="button"
             onClick={() => setMode("winner")}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition ${
               mode === "winner"
                 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
                 : "text-slate-400 hover:text-white"

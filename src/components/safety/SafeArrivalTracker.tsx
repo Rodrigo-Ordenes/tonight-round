@@ -76,7 +76,7 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
           return (
             <div
               key={p.id}
-              className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between ${
+              className={`p-3.5 rounded-2xl border transition flex flex-col justify-between ${
                 p.status === "safe"
                   ? "bg-emerald-950/40 border-emerald-500/50 shadow-sm"
                   : p.status === "transit"

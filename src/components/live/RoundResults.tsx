@@ -44,8 +44,8 @@ export default function RoundResults({
                 </div>
                 <div className={`mt-1.5 overflow-hidden rounded-full bg-white/[0.06] ${tv ? "h-5" : "h-2.5"}`}>
                   <div
-                    className={`h-full rounded-full transition-[width] duration-1000 ease-out ${correct ? "bg-emerald-400" : "bg-indigo-500"}`}
-                    style={{ width: `${(r.count / max) * 100}%` }}
+                    className={`h-full rounded-full origin-left transition-transform duration-300 ease-out ${correct ? "bg-emerald-400" : "bg-indigo-500"}`}
+                    style={{ transform: `scaleX(${((r.count / max) * 100) / 100})` }}
                   />
                 </div>
                 {round.game !== "impostor" && round.game !== "confesion" && r.voterIds.length > 0 && round.game !== "probable" && (

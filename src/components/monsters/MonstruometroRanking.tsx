@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import DriverStatus from "@/components/monsters/DriverStatus";
 import Modal from "@/components/ui/Modal";
-import { Car, Crown, Droplets, Plus, RefreshCw, RotateCcw, ShieldAlert, Trash2, UserPlus, X } from "lucide-react";
+import { Car, Droplets, Plus, RefreshCw, RotateCcw, ShieldAlert, Trash2, UserPlus, X } from "lucide-react";
 import CanisterGlassMeter from "./CanisterGlassMeter";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
@@ -153,7 +153,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
                 </div>
                 {p.role === "driver" ? (
                   <span className="flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-1 text-xs font-bold uppercase text-amber-200">
-                    <Crown className="w-3 h-3" /> {breach ? "¡Bebió!" : "Piloto 0.0"}
+                    <Car className="w-3 h-3" /> {breach ? "¡Bebió!" : "Piloto 0.0"}
                   </span>
                 ) : null}
               </header>

@@ -68,7 +68,7 @@ export default function PiscolometerSlider() {
         name: "Piscola Caballo (50/50)",
         tag: "Peligro: Vas al suelo",
         color: "text-red-400",
-        border: "border-red-500/50 shadow-[0_0_25px_rgba(253,69,118,0.35)]",
+        border: "border-red-500/50",
         bg: "bg-red-950/30",
         badge: "bg-red-500/20 text-red-300 border-red-500/40 animate-pulse",
         desc: "Alerta Roja: Mitad pisco y mitad bebida. A este ritmo el carrete termina antes de las 01:00 AM con lagunas mentales.",
@@ -80,9 +80,9 @@ export default function PiscolometerSlider() {
         name: "Pisco Pintado con Coca-Cola (>60%)",
         tag: "Demolición Inminente",
         color: "text-red-500",
-        border: "border-red-600 bg-red-950/50 shadow-[0_0_35px_rgba(253,69,118,0.5)] animate-pulse",
+        border: "border-red-600 bg-red-950/50 animate-pulse",
         bg: "bg-red-950/40",
-        badge: "bg-red-600 text-white border-red-500 font-black",
+        badge: "bg-red-600 text-white border-red-500 font-bold",
         desc: "Esto no es una piscola, es un vaso de pisco con colorante. ¿Quién te hizo tanto daño?",
         icon: <ShieldAlert className="w-5 h-5 text-white" />,
         alertLevel: "extreme",
@@ -174,13 +174,13 @@ export default function PiscolometerSlider() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-night-900 to-indigo-950/80 p-5 rounded-3xl border border-indigo-500/20 shadow-glow">
+      <div className="bg-night-900 p-5 rounded-3xl border border-indigo-500/20">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-400">
             <Flame className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
               <span>El Piscolómetro</span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                 Calibrador 70/30
@@ -205,7 +205,7 @@ export default function PiscolometerSlider() {
 
             {/* Pisco Bottom Layer */}
             <div
-              className="w-full bg-amber-400/80 transition-all duration-300 flex items-center justify-center text-xs font-black text-slate-950 shadow-inner"
+              className="w-full bg-amber-400/80 transition duration-300 flex items-center justify-center text-xs font-bold text-slate-950 shadow-inner"
               style={{ height: `${piscoPercentage}%` }}
             >
               <span>{piscoPercentage}% Pisco</span>
@@ -213,7 +213,7 @@ export default function PiscolometerSlider() {
 
             {/* Coca-Cola Top Layer */}
             <div
-              className="w-full bg-[#381608] transition-all duration-300 flex items-center justify-center text-xs font-black text-amber-200 shadow-inner"
+              className="w-full bg-[#381608] transition duration-300 flex items-center justify-center text-xs font-bold text-amber-200 shadow-inner"
               style={{ height: `${100 - piscoPercentage}%` }}
             >
               <span>{100 - piscoPercentage}% Cola</span>
@@ -221,7 +221,7 @@ export default function PiscolometerSlider() {
           </div>
 
           <div className="mt-4 text-center">
-            <span className="text-2xl font-black text-white block">
+            <span className="text-2xl font-bold text-white block">
               {100 - piscoPercentage} / {piscoPercentage}
             </span>
             <span className="text-xs text-slate-400">
@@ -234,7 +234,7 @@ export default function PiscolometerSlider() {
         <div className="md:col-span-7 glass-panel p-6 rounded-3xl bg-night-950/80 border border-white/10 flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-black uppercase tracking-wider text-slate-300">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
                 Ajustar Proporción del Vaso:
               </label>
               <span className="text-xs font-bold text-amber-400">
@@ -265,9 +265,9 @@ export default function PiscolometerSlider() {
                   key={p.val}
                   type="button"
                   onClick={() => handleSliderChange(p.val)}
-                  className={`py-2 px-1 rounded-xl text-xs font-black transition-all ${
+                  className={`py-2 px-1 rounded-xl text-xs font-bold transition ${
                     piscoPercentage === p.val
-                      ? "bg-indigo-600 text-white shadow-glow"
+                      ? "bg-indigo-600 text-white"
                       : "bg-night-900 border border-night-800 text-slate-400 hover:text-white"
                   }`}
                 >
@@ -277,10 +277,10 @@ export default function PiscolometerSlider() {
             </div>
 
             {/* Ratio Interpretation Card */}
-            <div className={`p-4 rounded-2xl border transition-all ${ratioDetails.border} ${ratioDetails.bg}`}>
+            <div className={`p-4 rounded-2xl border transition ${ratioDetails.border} ${ratioDetails.bg}`}>
               <div className="flex items-center gap-2 mb-1">
                 {ratioDetails.icon}
-                <h4 className="text-sm font-black text-white">{ratioDetails.name}</h4>
+                <h4 className="text-sm font-bold text-white">{ratioDetails.name}</h4>
               </div>
               <span className={`text-xs font-bold block mb-1.5 ${ratioDetails.color}`}>
                 {ratioDetails.tag}
@@ -292,14 +292,14 @@ export default function PiscolometerSlider() {
       </div>
 
       {/* NEW SECTION: ¿CUÁNTAS SALEN DE CADA UNA? */}
-      <div className="glass-panel p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-night-950 via-night-900 to-indigo-950/40 border border-amber-500/30 shadow-[0_0_25px_rgba(255,211,117,0.15)] space-y-4">
+      <div className="glass-panel p-5 sm:p-6 rounded-3xl bg-night-900 border border-amber-500/30 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-night-800 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white">
+              <h3 className="text-base font-bold text-white">
                 ¿Cuántas piscolas salen de cada una? (Rendimiento Real)
               </h3>
               <p className="text-xs text-slate-400">
@@ -313,9 +313,9 @@ export default function PiscolometerSlider() {
             <button
               type="button"
               onClick={() => setGlassType("standard")}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+              className={`px-2.5 py-1 rounded-xl font-bold transition ${
                 glassType === "standard"
-                  ? "bg-carrete-primary text-white shadow-glow"
+                  ? "bg-carrete-primary text-night-950"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -324,9 +324,9 @@ export default function PiscolometerSlider() {
             <button
               type="button"
               onClick={() => setGlassType("large")}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+              className={`px-2.5 py-1 rounded-xl font-bold transition ${
                 glassType === "large"
-                  ? "bg-carrete-primary text-white shadow-glow"
+                  ? "bg-carrete-primary text-night-950"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -335,9 +335,9 @@ export default function PiscolometerSlider() {
             <button
               type="button"
               onClick={() => setGlassType("plastic")}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+              className={`px-2.5 py-1 rounded-xl font-bold transition ${
                 glassType === "plastic"
-                  ? "bg-carrete-primary text-white shadow-glow"
+                  ? "bg-carrete-primary text-night-950"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -358,7 +358,7 @@ export default function PiscolometerSlider() {
                 <span className="text-xs text-slate-400">~{yieldStats.piscoCcPerGlass}cc c/vaso</span>
               </div>
               <div className="mt-1">
-                <span className="text-3xl font-black text-amber-400 block">
+                <span className="text-3xl font-bold text-amber-400 block">
                   ~{yieldStats.piscolasPerPiscoBottle} piscolas
                 </span>
                 <span className="text-xs text-slate-300">
@@ -381,7 +381,7 @@ export default function PiscolometerSlider() {
                 <span className="text-xs text-slate-400">~{yieldStats.colaCcPerGlass}cc c/vaso</span>
               </div>
               <div className="mt-1">
-                <span className="text-3xl font-black text-indigo-400 block">
+                <span className="text-3xl font-bold text-indigo-400 block">
                   ~{yieldStats.piscolasPerCola3L} piscolas
                 </span>
                 <span className="text-xs text-slate-300">
@@ -404,7 +404,7 @@ export default function PiscolometerSlider() {
                 <span className="text-xs text-emerald-400 font-bold">Autonomía</span>
               </div>
               <div className="mt-1">
-                <span className="text-3xl font-black text-emerald-400 block">
+                <span className="text-3xl font-bold text-emerald-400 block">
                   ~{yieldStats.totalPiscolas} piscolas en total
                 </span>
                 <span className="text-xs text-slate-200 font-medium">
@@ -420,10 +420,10 @@ export default function PiscolometerSlider() {
       </div>
 
       {/* Logistics Calculator: How many Cokes to buy? */}
-      <div className="glass-panel p-5 rounded-3xl bg-night-950/80 border border-indigo-500/20 shadow-glow">
+      <div className="glass-panel p-5 rounded-3xl bg-night-950/80 border border-indigo-500/20">
         <div className="flex items-center gap-2 mb-3">
           <Calculator className="w-5 h-5 text-indigo-400" />
-          <h3 className="text-sm font-black text-white">
+          <h3 className="text-sm font-bold text-white">
             Calculadora de Logística: Configura tu compra de Pisco
           </h3>
         </div>
@@ -473,7 +473,7 @@ export default function PiscolometerSlider() {
             <span className="text-xs uppercase font-bold text-indigo-300">
               Bebida cola necesaria recomendada:
             </span>
-            <span className="text-xl font-black text-white">
+            <span className="text-xl font-bold text-white">
               ~{yieldStats.totalColaLitrosNeeded} Litros
             </span>
             <span className="text-xs text-slate-400">

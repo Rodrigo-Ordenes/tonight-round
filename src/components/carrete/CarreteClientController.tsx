@@ -6,7 +6,7 @@ import { lastDrink } from "@/lib/lastDrink";
 import QuickActionBar from "@/components/carrete/QuickActionBar";
 import Modal from "@/components/ui/Modal";
 import Link from "next/link";
-import { ChevronDown, Crown, Droplets, Eye, EyeOff, Heart, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
+import { ChevronDown, Car, Droplets, Eye, EyeOff, Heart, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import { useWakeLock } from "@/lib/useWakeLock";
@@ -187,7 +187,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           </div>
           <label className="flex min-h-[52px] cursor-pointer items-center gap-3 rounded-xl border border-amber-400/20 bg-amber-400/[0.05] p-3 text-sm font-semibold text-amber-100">
             <input type="checkbox" checked={isDriver} onChange={(e) => setIsDriver(e.target.checked)} className="w-5 h-5 accent-amber-400" />
-            👑 Hoy soy {locale.terminology.driverTitle.toLowerCase()} (0.0)
+            🚗 Hoy soy {locale.terminology.driverTitle.toLowerCase()} (0.0)
           </label>
           <button type="submit" className="btn-primary w-full !min-h-[54px] text-base">
             Entrar a la sala
@@ -395,7 +395,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
                   className={`chip ${on ? "chip-on" : ""} disabled:opacity-50`}
                   title={driver ? "Maneja: no se le sirve alcohol" : undefined}
                 >
-                  {driver && <Crown className="w-3 h-3" />} <span className="max-w-[10rem] truncate">{p.name}</span>
+                  {driver && <Car className="w-3 h-3" />} <span className="max-w-[10rem] truncate">{p.name}</span>
                 </button>
               );
             })}
@@ -523,7 +523,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
                 drink(p);
                 setPicking(false);
               }}
-              className={`min-h-[58px] rounded-2xl border p-3 text-left transition-all active:scale-[0.97] ${
+              className={`min-h-[58px] rounded-2xl border p-3 text-left transition active:scale-[0.97] ${
                 driver ? "border-rose-500/30 bg-rose-500/[0.06]" : "border-white/[0.07] bg-white/[0.03] hover:border-white/20"
               }`}
             >

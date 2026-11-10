@@ -50,7 +50,7 @@ export function buildWrapped(state: CarreteState): WrappedData {
   const awards: Award[] = [];
   const drivers = people.filter((p) => p.role === "driver" && p.consumptions.length === 0);
   if (drivers.length)
-    awards.push({ emoji: "👑", title: "Héroe al volante", who: drivers.map((d) => d.name).join(" y "), detail: "0.0 toda la noche. Gracias por llevarlos." });
+    awards.push({ emoji: "🚗", title: "Héroe al volante", who: drivers.map((d) => d.name).join(" y "), detail: "0.0 toda la noche. Gracias por llevarlos." });
 
   const waterKing = top(people, (p) => p.waterCount);
   if (waterKing) awards.push({ emoji: "💧", title: "Maestro del agua", who: waterKing.name, detail: `${waterKing.waterCount} vasos de agua.` });

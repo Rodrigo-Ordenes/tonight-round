@@ -274,7 +274,7 @@ export default function CarreteBasketView() {
           <button
             type="button"
             onClick={() => handleApplyBudget()}
-            className="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 text-xs font-bold flex items-center gap-1.5 transition-all"
+            className="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 text-xs font-bold flex items-center gap-1.5 transition"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Recalcular canasta</span>
@@ -344,7 +344,7 @@ export default function CarreteBasketView() {
               key={prof.id}
               type="button"
               onClick={() => handleRegenerate(prof.id as BasketProfile)}
-              className={`p-3.5 rounded-2xl border text-left transition-all active:scale-[0.98] ${
+              className={`p-3.5 rounded-2xl border text-left transition active:scale-[0.98] ${
                 basket.profile === prof.id
                   ? "bg-indigo-950/70 border-indigo-500 shadow-md"
                   : "bg-night-900/60 border-slate-800 hover:border-slate-700 text-slate-300"
@@ -411,7 +411,7 @@ export default function CarreteBasketView() {
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-night-950 border border-night-800 hover:border-slate-700 transition-all"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-night-950 border border-night-800 hover:border-slate-700 transition"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">

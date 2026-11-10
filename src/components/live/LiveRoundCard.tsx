@@ -105,7 +105,7 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
                       type="button"
                       onClick={() => vote(o.id)}
                       aria-pressed={on}
-                      className={`min-h-[56px] rounded-2xl border px-4 text-left text-base font-bold transition-all active:scale-[0.98] ${
+                      className={`min-h-[56px] rounded-2xl border px-4 text-left text-base font-bold transition active:scale-[0.98] ${
                         on ? "border-indigo-300 bg-indigo-500 text-night-950" : "border-white/10 bg-white/[0.04] text-white hover:border-white/25"
                       }`}
                     >

@@ -239,9 +239,9 @@ export default function EliminationTimeline() {
               <button
                 type="button"
                 onClick={() => setGender("male")}
-                className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all ${
+                className={`py-2 px-2.5 rounded-xl text-xs font-bold transition ${
                   gender === "male"
-                    ? "bg-carrete-primary text-white shadow-glow"
+                    ? "bg-carrete-primary text-night-950"
                     : "bg-night-900 text-slate-400 hover:text-white"
                 }`}
               >
@@ -250,9 +250,9 @@ export default function EliminationTimeline() {
               <button
                 type="button"
                 onClick={() => setGender("female")}
-                className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all ${
+                className={`py-2 px-2.5 rounded-xl text-xs font-bold transition ${
                   gender === "female"
-                    ? "bg-carrete-secondary text-white shadow-glow"
+                    ? "bg-carrete-secondary text-white"
                     : "bg-night-900 text-slate-400 hover:text-white"
                 }`}
               >
@@ -269,9 +269,9 @@ export default function EliminationTimeline() {
               <button
                 type="button"
                 onClick={() => setAteFood(true)}
-                className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all ${
+                className={`py-2 px-2.5 rounded-xl text-xs font-bold transition ${
                   ateFood
-                    ? "bg-emerald-600 text-white shadow-glow-accent"
+                    ? "bg-emerald-600 text-white"
                     : "bg-night-900 text-slate-400 hover:text-white"
                 }`}
               >
@@ -280,9 +280,9 @@ export default function EliminationTimeline() {
               <button
                 type="button"
                 onClick={() => setAteFood(false)}
-                className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all ${
+                className={`py-2 px-2.5 rounded-xl text-xs font-bold transition ${
                   !ateFood
-                    ? "bg-amber-600 text-white shadow-glow-amber"
+                    ? "bg-amber-600 text-white"
                     : "bg-night-900 text-slate-400 hover:text-white"
                 }`}
               >

@@ -217,7 +217,7 @@ export default function BarStudio({
                     audioEffects.playPop();
                     togglePantry(i.id);
                   }}
-                  className={`flex min-h-[52px] items-center gap-2.5 rounded-2xl border px-3 text-left text-sm transition-all active:scale-[0.98] ${
+                  className={`flex min-h-[52px] items-center gap-2.5 rounded-2xl border px-3 text-left text-sm transition active:scale-[0.98] ${
                     on ? "border-emerald-400/60 bg-emerald-400/10 text-white" : "border-white/[0.07] bg-white/[0.02] text-slate-300 hover:border-white/20"
                   }`}
                 >

@@ -75,7 +75,7 @@ export default function GlassVisual({ lines, glass, missingIds, className = "" }
       <g clipPath={`url(#clip-${uid})`}>
         {layers.map(({ l, y: ly, h, color }) => (
           <g key={`${l.id}-${ly}`}>
-            <rect x="0" y={ly} width="160" height={h + 0.5} fill={color} className="transition-all duration-700 ease-out" />
+            <rect x="0" y={ly} width="160" height={h + 0.5} fill={color} className="transition duration-700 ease-out" />
             {missingIds?.has(l.id) && <rect x="0" y={ly} width="160" height={h + 0.5} fill={`url(#missing-${uid})`} />}
           </g>
         ))}

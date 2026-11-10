@@ -82,7 +82,7 @@ export default function CanisterGlassMeter({
   }, [clampedPressure, isDriver, isDriverBreached, isOverload, isHigh]);
 
   return (
-    <div className={`relative flex flex-col items-center w-28 sm:w-32 transition-all ${isOverload || isDriverBreached ? "animate-pulse" : ""}`}>
+    <div className={`relative flex flex-col items-center w-28 sm:w-32 transition ${isOverload || isDriverBreached ? "animate-pulse" : ""}`}>
       {/* 1. Cúpula Metálica Superior & Manómetro Industrial */}
       <div className="relative z-20 flex flex-col items-center">
         {/* Manómetro Analógico */}
@@ -151,7 +151,7 @@ export default function CanisterGlassMeter({
 
         {/* 3. Nivel de Líquido Animado */}
         <div
-          className={`relative w-full bg-gradient-to-t ${liquidColors.gradientBottom} ${liquidColors.gradientTop} transition-all duration-700 ease-out flex flex-col justify-start`}
+          className={`relative w-full bg-gradient-to-t ${liquidColors.gradientBottom} ${liquidColors.gradientTop} transition duration-700 ease-out flex flex-col justify-start`}
           style={{
             height: `${clampedPressure}%`,
             boxShadow: `0 0 25px ${liquidColors.glow}`,

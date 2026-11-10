@@ -5,7 +5,7 @@ import DriverStatus from "@/components/monsters/DriverStatus";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
-import { Check, Copy, Crown, Droplets, LogOut, Plus, Tv, Users, WifiOff } from "lucide-react";
+import { Check, Copy, Car, Droplets, LogOut, Plus, Tv, Users, WifiOff } from "lucide-react";
 import { SOLO, setActiveCode, useCarreteStore } from "@/store/useCarreteStore";
 import { DRINK_PRESETS, bacFor } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
@@ -221,7 +221,7 @@ function RoomPanel({ code }: { code: string }) {
               return (
                 <li key={p.id} className="rounded-2xl bg-white/[0.03] px-3 py-2.5">
                   <div className="flex items-center gap-2 text-sm">
-                    {driver && <Crown className="w-3.5 h-3.5 text-amber-400" aria-label={locale.terminology.driverTitle} />}
+                    {driver && <Car className="w-3.5 h-3.5 text-amber-400" aria-label={locale.terminology.driverTitle} />}
                     <span className={`truncate font-semibold ${p.id === meId ? "text-white" : "text-slate-200"}`}>
                       {p.name}
                       {p.id === meId && <span className="ml-1 text-xs text-slate-400">(tú)</span>}
@@ -235,7 +235,7 @@ function RoomPanel({ code }: { code: string }) {
                     <DriverStatus breach={hasAlcohol(p.consumptions)} className="mt-1 text-xs" />
                   ) : (
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-                    <div className={`h-full rounded-full ${tone} transition-[width] duration-700`} style={{ width: `${Math.max(pct, driver ? 100 : 2)}%`, opacity: driver && bac === 0 ? 0.35 : 1 }} />
+                    <div className={`h-full rounded-full ${tone} origin-left transition-transform duration-300 ease-out`} style={{ transform: `scaleX(${(Math.max(pct, driver ? 100 : 2)) / 100})`, opacity: driver && bac === 0 ? 0.35 : 1 }} />
                   </div>
                   )}
                 </li>
@@ -258,8 +258,8 @@ function RoomPanel({ code }: { code: string }) {
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.06]">
             <div
-              className={`h-full rounded-full ${stock.left < 0.25 ? "bg-rose-500" : stock.left < 0.5 ? "bg-amber-400" : "bg-emerald-400"} transition-[width] duration-700`}
-              style={{ width: `${Math.max(2, stock.left * 100)}%` }}
+              className={`h-full rounded-full ${stock.left < 0.25 ? "bg-rose-500" : stock.left < 0.5 ? "bg-amber-400" : "bg-emerald-400"} origin-left transition-transform duration-300 ease-out`}
+              style={{ transform: `scaleX(${(Math.max(2, stock.left * 100)) / 100})` }}
             />
           </div>
           <p className="mt-2 text-xs text-slate-300">

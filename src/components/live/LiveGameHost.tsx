@@ -140,7 +140,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
                   </span>
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.06]">
-                  <div className="h-full rounded-full bg-emerald-400 transition-[width] duration-500" style={{ width: `${(voters.length / Math.max(1, participants.length)) * 100}%` }} />
+                  <div className="h-full rounded-full bg-emerald-400 origin-left transition-transform duration-300 ease-out" style={{ transform: `scaleX(${((voters.length / Math.max(1, participants.length)) * 100) / 100})` }} />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {participants.map((p) => (

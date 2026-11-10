@@ -16,7 +16,7 @@ interface DisclaimerModalProps {
 const LEGAL_AGE: Record<string, number> = { CL: 18, MX: 18, US: 21, JP: 20 };
 
 const RULES = [
-  { emoji: "👑", title: "Si tomas, no manejas", text: "La única cifra segura al volante es 0.00. Siempre hay alguien de conductor o un transporte." },
+  { emoji: "🚗", title: "Si tomas, no manejas", text: "La única cifra segura al volante es 0.00. Siempre hay alguien de conductor o un transporte." },
   { emoji: "🧪", title: "Las cifras son estimaciones", text: "La alcoholemia que ves es educativa (fórmula de Widmark), no una medición. No sirve para decidir si manejar." },
   { emoji: "💧", title: "Agua entre trago y trago", text: "La app te lo recuerda. Comer y alternar con agua hace que la noche dure más y la caña sea menor." },
 ];

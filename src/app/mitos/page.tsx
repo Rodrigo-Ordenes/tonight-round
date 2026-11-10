@@ -1,5 +1,6 @@
 "use client";
 
+import PageHeader from "@/components/ui/PageHeader";
 import React, { useState, useMemo } from "react";
 import { 
   HelpCircle, 
@@ -73,19 +74,9 @@ export default function MitosPage() {
   return (
     <div className="space-y-6">
       {/* Intro Header */}
-      <div className="bg-gradient-to-r from-night-900 to-night-850 p-5 rounded-3xl border border-slate-700/60 shadow-glow">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2.5 rounded-2xl bg-slate-800 text-slate-300">
-            <HelpCircle className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-white">Mitos y Verdades</h1>
-            <p className="text-xs text-slate-400">
-              Desmitificando {locale.slang?.party ? `el ${locale.slang.party}` : "la fiesta"} y {locale.slang?.hangover ? `la ${locale.slang.hangover}` : "la resaca"} con evidencia médica y científica ({locale.countryName})
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader title="Mitos y verdades">
+        Desmitificando {locale.slang?.party ? `el ${locale.slang.party}` : "la fiesta"} y {locale.slang?.hangover ? `la ${locale.slang.hangover}` : "la resaca"} con evidencia médica y científica ({locale.countryName})
+      </PageHeader>
 
       {/* Search and Filters */}
       <div className="glass-panel p-4 rounded-3xl space-y-3">
@@ -113,9 +104,9 @@ export default function MitosPage() {
               key={f.id}
               type="button"
               onClick={() => setFilterType(f.id)}
-              className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all text-center ${
+              className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition text-center ${
                 filterType === f.id
-                  ? "bg-indigo-600 text-white shadow-glow"
+                  ? "bg-indigo-600 text-white"
                   : "bg-night-850 text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -133,7 +124,7 @@ export default function MitosPage() {
           return (
             <div
               key={myth.id}
-              className="glass-panel p-5 rounded-3xl border border-night-800 hover:border-night-700 transition-all bg-night-950/70"
+              className="glass-panel p-5 rounded-3xl border border-night-800 hover:border-night-700 transition bg-night-950/70"
             >
               <div className="flex items-start justify-between gap-3 mb-2.5">
                 <h2 className="font-extrabold text-sm text-white tracking-tight leading-snug">

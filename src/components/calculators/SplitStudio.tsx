@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDeferredDelete } from "@/lib/useDeferredDelete";
 import UndoToast from "@/components/ui/UndoToast";
-import { ArrowRight, Check, ClipboardCopy, Crown, Plus, Trash2, UserPlus } from "lucide-react";
+import { ArrowRight, Check, ClipboardCopy, Car, Plus, Trash2, UserPlus } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import type { ExpenseCategory, SplitMode } from "@/lib/carreteState";
@@ -90,7 +90,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
     `Modo: ${MODES.find((m) => m.id === result.effectiveMode)?.label}`,
     "",
     ...result.transfers.map((t) => `• ${name(t.from)} → ${name(t.to)}: *${formatCurrency(t.amount)}*${payLink(t.to) ? ` · pagar: ${payLink(t.to)}` : ""}`),
-    drivers.length ? `\n👑 ${drivers.map((d) => d.name).join(" y ")} no paga alcohol: fue ${locale.terminology.driverTitle.toLowerCase()}. ¡Gracias!` : "",
+    drivers.length ? `\n🚗 ${drivers.map((d) => d.name).join(" y ")} no paga alcohol: fue ${locale.terminology.driverTitle.toLowerCase()}. ¡Gracias!` : "",
     meIsCreditor && bankText ? `\n${bankText}` : "",
   ]
     .filter((x) => x !== "")
@@ -127,7 +127,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
                     className={`chip ${sober ? "border-amber-400/50 bg-amber-400/10 text-amber-100" : ""}`}
                     title={p.role === "driver" ? "Conductor designado: no paga alcohol" : "Tocar para marcar si no toma alcohol"}
                   >
-                    {p.role === "driver" && <Crown className="w-3.5 h-3.5" />}
+                    {p.role === "driver" && <Car className="w-3.5 h-3.5" />}
                     <span className="max-w-[10rem] truncate">{p.name}</span>
                     <span className="text-xs font-normal text-slate-400">{sober ? "sin alcohol" : "toma"}</span>
                   </button>

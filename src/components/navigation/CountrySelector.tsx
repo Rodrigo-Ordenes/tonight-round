@@ -48,7 +48,7 @@ export default function CountrySelector({ variant = "compact", placement = "down
                 key={c.code}
                 type="button"
                 onClick={() => select(c.code)}
-                className={`min-h-[48px] p-2.5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-0.5 ${
+                className={`min-h-[48px] p-2.5 rounded-2xl border text-center transition flex flex-col items-center justify-center gap-0.5 ${
                   active
                     ? "bg-indigo-600/30 border-indigo-400 text-white shadow-glow"
                     : "bg-night-900/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-night-850"
@@ -80,7 +80,7 @@ export default function CountrySelector({ variant = "compact", placement = "down
         }}
         aria-label="Seleccionar país"
         aria-expanded={open}
-        className="min-h-[44px] px-2.5 py-1 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-white/25 text-white text-xs font-bold flex items-center gap-1.5 transition-all"
+        className="min-h-[44px] px-2.5 py-1 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-white/25 text-white text-xs font-bold flex items-center gap-1.5 transition"
       >
         <span className="text-base">{locale.flag}</span>
         <span className="hidden sm:inline font-mono">{country}</span>

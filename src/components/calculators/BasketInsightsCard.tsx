@@ -27,7 +27,7 @@ function Meter({ label, have, need, unit, tone = "bg-emerald-400" }: { label: st
         </span>
       </div>
       <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[0.06]">
-        <div className={`h-full rounded-full ${ok ? tone : "bg-amber-400"} transition-[width] duration-500`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full ${ok ? tone : "bg-amber-400"} origin-left transition-transform duration-300 ease-out`} style={{ transform: `scaleX(${(pct) / 100})` }} />
       </div>
     </div>
   );
