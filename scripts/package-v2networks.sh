@@ -16,6 +16,8 @@ mkdir -p "$SERVER/.next"
 cp -R .next/standalone/. "$SERVER/"
 cp -R .next/static "$SERVER/.next/static"
 cp -R public "$SERVER/public"
+# Qué versión corre en el hosting: https://<sitio>/version.txt (commit y fecha de compilación)
+printf '%s\n%s\n' "$(git rev-parse --short HEAD)" "$(date -u +%Y-%m-%dT%H:%MZ)" > "$SERVER/public/version.txt"
 rm -f "$SERVER"/.env*
 # sharp solo sirve al optimizador de imágenes (apagado) y trae un binario de la máquina donde se compila
 rm -rf "$SERVER/node_modules/@img" "$SERVER/node_modules/sharp"
