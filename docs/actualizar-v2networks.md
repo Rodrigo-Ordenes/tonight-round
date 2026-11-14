@@ -18,7 +18,11 @@ commit», primero haz commit.
 
 1. **Archivos → Git Version Control → Manage** (repositorio `tonight`) → pestaña **Pull or Deploy** →
    **Update from Remote**. La rama activa debe seguir siendo `v2-release`.
-2. **Software → Setup Node.js App** → en la app `tonight.misitio.cl` → **Restart**.
+2. **Software → Setup Node.js App** → en la app `tonight.misitio.cl` → **Restart**. Desde esta versión la app se
+   reinicia sola hasta 30 s después de traer una versión nueva, así que este paso es un respaldo.
+
+Si la página sale sin estilos o con la versión anterior, el proceso viejo sigue vivo: **Stop App**, espera 15 s y
+**Start App**. Si aún persiste, en el Administrador de archivos crea o guarda `tonight-app/tmp/restart.txt`.
 
 No uses «Run NPM Install»: la rama ya trae sus dependencias.
 
