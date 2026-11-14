@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/musica/layout,_N_T_/musica/page,_N_T_/musica"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/1bb9f258d96752db0f59478c59991a3fdd8f6f2583c8d7361644cd885e19a490/$/musica",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/musica/page"
+    },
+    "isFallback": false
   }
 }

@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/carrete/layout,_N_T_/carrete/page,_N_T_/carrete"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/496764327536b45a3c1a02c6f4553bbfa531ffa79e7ed7c0add0117b30aedc3b/$/carrete",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/carrete/page"
+    },
+    "isFallback": false
   }
 }

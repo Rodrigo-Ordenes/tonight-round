@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/armar/layout,_N_T_/armar/page,_N_T_/armar"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/2cefa2bc983797afa97f5fabc36a9ce5fcc343b045865e9215edb9088f9383a3/$/armar",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/armar/page"
+    },
+    "isFallback": false
   }
 }

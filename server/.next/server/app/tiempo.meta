@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/tiempo/layout,_N_T_/tiempo/page,_N_T_/tiempo"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/d0122fb10b284399bf592a5cebd2a21df0efee0123a1387e7a15dfb823ffb81a/$/tiempo",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/tiempo/page"
+    },
+    "isFallback": false
   }
 }

@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/dividir/layout,_N_T_/dividir/page,_N_T_/dividir"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/79975103d21e13d8ea8cc6cdaf0e27bee9a4b5b60c8b1dd1c459eb06282eaf01/$/dividir",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/dividir/page"
+    },
+    "isFallback": false
   }
 }

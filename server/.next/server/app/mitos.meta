@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/mitos/layout,_N_T_/mitos/page,_N_T_/mitos"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/a53e11a1914533726a8130490293ed9a5ef11c6965a49e07d180b320f900167b/$/mitos",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/mitos/page"
+    },
+    "isFallback": false
   }
 }

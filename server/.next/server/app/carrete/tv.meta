@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/carrete/layout,_N_T_/carrete/tv/layout,_N_T_/carrete/tv/page,_N_T_/carrete/tv"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/f8d406f9cc06f99782c0fdb7ec79872f6594219c4e9c908c8a25cdbdf9ae6452/$/carrete/tv",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/carrete/tv/page"
+    },
+    "isFallback": false
   }
 }

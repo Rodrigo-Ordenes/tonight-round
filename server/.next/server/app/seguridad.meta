@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/seguridad/layout,_N_T_/seguridad/page,_N_T_/seguridad"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/f19fed8f11c005d84345037655068c3820d3d73caf3d10cfde4ce6be303877f4/$/seguridad",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/seguridad/page"
+    },
+    "isFallback": false
   }
 }

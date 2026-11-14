@@ -1,6 +1,6 @@
 /*
- * Archivo de inicio para "Setup Node.js App" (cPanel + Passenger) de V2 Networks.
- * Passenger intercepta el listen, así que el puerto lo pone él.
+ * Archivo de inicio para "Setup Node.js App" (cPanel + LiteSpeed) de V2 Networks.
+ * El cargador del hosting intercepta el listen, así que el puerto lo pone él.
  */
 const os = require("os");
 const path = require("path");

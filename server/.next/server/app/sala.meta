@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/sala/layout,_N_T_/sala/page,_N_T_/sala"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/b92eb66f5e2281a5c96ec3a3ab1bb7623c24cef67a08667e7b609941d84a0f2f/$/sala",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/sala/page"
+    },
+    "isFallback": false
   }
 }

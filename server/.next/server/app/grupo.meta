@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/grupo/layout,_N_T_/grupo/page,_N_T_/grupo"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/df30e4e789bcc8a4fe4b54484e75d1c9f01da35cdd94343e19663cfe78240d14/$/grupo",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/grupo/page"
+    },
+    "isFallback": false
   }
 }

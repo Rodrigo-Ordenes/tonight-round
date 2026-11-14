@@ -1,5 +1,15 @@
 {
   "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/ronda/layout,_N_T_/ronda/page,_N_T_/ronda"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/1abb0f8705a5cef0ce377a7fb96560d7f2b1d71c8ac7b283ffb5ab2758c004d7/$/ronda",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/ronda/page"
+    },
+    "isFallback": false
   }
 }
