@@ -4,13 +4,14 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { apcaLc, wcagRatio } from "@/lib/contrast";
 import { hexToRgb } from "@/lib/contrast";
+import { TONE_CLASS } from "@/lib/bacTone";
 
-// La fuente de verdad de la paleta es tailwind.config.js (docs/paleta-v11.md explica cada decisión)
+// La fuente de verdad de la paleta es tailwind.config.js (docs/paleta-v12.md explica cada decisión)
 const require = createRequire(import.meta.url);
 const c = require("../../../tailwind.config.js").theme.extend.colors as Record<string, Record<string, string>>;
 const WHITE = "#FFFFFF";
 
-describe("paleta Brasa: contraste de texto (WCAG 2.2 AA y APCA)", () => {
+describe("paleta Neón: contraste de texto (WCAG 2.2 AA y APCA)", () => {
   it.each([
     ["texto principal", c.slate[50], c.night[950], 90],
     ["texto principal en tarjeta elevada", c.slate[50], c.night[800], 85],
@@ -64,5 +65,46 @@ describe("higiene visual del código", () => {
     const tvSm = require("../../../tailwind.config.js").theme.extend.fontSize["tv-sm"][0] as string;
     expect(tvSm).toContain("1.5rem");
     expect(readFileSync(join(src, "app/carrete/tv/page.tsx"), "utf8")).not.toMatch(/\btext-(sm|base|lg|xl)\b/);
+  });
+});
+
+// V12 «Neón»: el pedido fue sacar el naranjo y dejar el azul y el morado neón como dominantes. Tono OKLCH desde el hex, para que un cambio futuro no lo traiga de vuelta.
+function oklchHue(hex: string): number {
+  const lin = hexToRgb(hex).map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  const [r, g, b] = lin;
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360;
+}
+
+describe("paleta Neón: azul y morado de bar, sin naranjo", () => {
+  it("la marca es azul neón, no coral ni naranjo", () => {
+    for (const step of [300, 400, 500, 600]) {
+      const h = oklchHue(c.indigo[step]);
+      expect(h).toBeGreaterThan(235);
+      expect(h).toBeLessThan(275);
+    }
+  });
+  it("el segundo dominante es morado neón", () => {
+    for (const step of [400, 500, 600]) {
+      const h = oklchHue(c.purple[step]);
+      expect(h).toBeGreaterThan(295);
+      expect(h).toBeLessThan(330);
+    }
+  });
+  it("el morado neón como texto (300, el centro del tubo) se lee sobre la tarjeta", () => {
+    expect(wcagRatio(c.purple[300], c.night[900])).toBeGreaterThanOrEqual(4.5);
+    expect(apcaLc(c.purple[300], c.night[900])).toBeGreaterThanOrEqual(55);
+  });
+  it("el aviso es ámbar amarillo: no baja al naranjo", () => {
+    for (const step of [300, 400, 500]) expect(oklchHue(c.amber[step])).toBeGreaterThanOrEqual(78);
+  });
+  it("la alcoholemia alta no usa naranjo ni rojo (el rojo es solo del conductor que tomó)", () => {
+    const high = Object.values(TONE_CLASS.high).join(" ");
+    expect(high).not.toMatch(/\b(?:bg|text|border)-(orange|red|rose|amber)-/);
+    expect(TONE_CLASS.high.bar).not.toBe(TONE_CLASS.warm.bar);
   });
 });

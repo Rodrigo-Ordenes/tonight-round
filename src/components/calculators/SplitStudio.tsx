@@ -11,6 +11,7 @@ import { DEFAULT_SPLIT } from "@/lib/carreteState";
 import { ROUND_UNIT, computeSplit, normalizePayLink } from "@/lib/split";
 import { useLocale } from "@/lib/useLocale";
 import { audioEffects } from "@/lib/audioEffects";
+import { addMine } from "@/lib/myPeople";
 
 const MODES: { id: SplitMode; label: string; desc: string }[] = [
   { id: "justo", label: "Justo", desc: "Lo común entre todos; el alcohol solo entre quienes toman." },
@@ -140,7 +141,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
             onSubmit={(e) => {
               e.preventDefault();
               if (!newName.trim()) return;
-              store.addParticipant({ name: newName.trim() });
+              addMine(store.code, store.addParticipant({ name: newName.trim() }));
               setNewName("");
             }}
           >
@@ -152,8 +153,8 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
               aria-label="Nombre de la persona"
               className="min-h-[44px] min-w-0 flex-1 rounded-2xl border border-white/10 bg-night-950/60 px-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-400 sm:max-w-xs"
             />
-            <button type="submit" className="btn-ghost !min-h-[44px]">
-              <UserPlus className="w-4 h-4" />
+            <button type="submit" className="btn-ghost !min-h-[44px]" aria-label="Agregar persona">
+              <UserPlus className="w-4 h-4" aria-hidden />
             </button>
           </form>
           <p className="mt-2 text-xs text-slate-500">Toca un nombre para marcar a quien no toma alcohol. El conductor designado ya viene marcado.</p>

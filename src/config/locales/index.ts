@@ -11,6 +11,9 @@ export const COUNTRIES: { code: CountryCode; name: string; flag: string; slang: 
   { code: "JP", name: "Japón", flag: "🇯🇵", slang: "飲み会 / 円" },
 ];
 
+/** Países que se muestran. México, EE.UU. y Japón quedan ocultos: su configuración sigue lista para volver a activarlos. */
+export const VISIBLE_COUNTRIES: CountryCode[] = ["CL"];
+
 export const LOCALES: Record<CountryCode, LocaleConfig> = {
   CL: clLocale,
   MX: mxLocale,

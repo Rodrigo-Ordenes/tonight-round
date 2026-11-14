@@ -91,6 +91,16 @@ npm run dev
 npm test
 ```
 
+Pruebas E2E con Playwright sobre el build de producción (crear sala, invitar, unirse, votar y revelar; cabeceras de seguridad; intro). La primera vez instala el navegador:
+
+```bash
+npx playwright install chromium
+```
+
+```bash
+npm run test:e2e
+```
+
 ```bash
 npm run build && npm run start
 ```

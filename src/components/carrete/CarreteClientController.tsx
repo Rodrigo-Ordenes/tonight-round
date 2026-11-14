@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import SignalField from "@/components/ui/SignalField";
+import { roomEvents } from "@/lib/roomEvents";
+import SlidingIndicator, { useActiveRect } from "@/components/ui/SlidingIndicator";
 import { usePathname, useSearchParams } from "next/navigation";
 import { lastDrink } from "@/lib/lastDrink";
 import { zeroCopy } from "@/lib/zeroCopy";
@@ -19,6 +22,10 @@ import { useLocale } from "@/lib/useLocale";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
 import { normalizePayLink } from "@/lib/split";
 import { songQueue } from "@/lib/music";
+import UndoToast from "@/components/ui/UndoToast";
+import { acceptTap } from "@/lib/tapGuard";
+import { addMine, readMine, selectablePeople } from "@/lib/myPeople";
+import { useTiltDepth } from "@/lib/useTiltDepth";
 
 const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "🥨", full: "🍝" };
 
@@ -47,6 +54,23 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const { participants, meId, setMeId, addParticipant, addConsumption, removeLastConsumption, addWater, updateParticipant, dispatch } = store;
 
   const [name, setName] = useState("");
+  const lastTap = useRef<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  // «+1» de neón que sube desde la barra al sumar (la confirmación se siente, no solo se lee)
+  const [pops, setPops] = useState<{ id: number; water: boolean }[]>([]);
+  const popId = useRef(0);
+  const pop = (water: boolean) => {
+    const id = ++popId.current;
+    setPops((ps) => [...ps.slice(-3), { id, water }]);
+    setTimeout(() => setPops((ps) => ps.filter((x) => x.id !== id)), 950);
+  };
+  const [mine, setMine] = useState<string[]>([]);
+  useEffect(() => setMine(readMine(store.code)), [store.code]);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(t);
+  }, [toast]);
   const [gender, setGender] = useState<"M" | "F">("M");
   const [weight, setWeight] = useState(70);
   const [isDriver, setIsDriver] = useState(false);
@@ -54,6 +78,8 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const panel = searchParams.get("panel") === "mas" ? "mas" : "ahora";
+  const panelTabs = useRef<HTMLDivElement>(null);
+  const panelTabsRect = useActiveRect(panelTabs, '[aria-selected="true"]', panel);
   const setPanelUrl = (id: "ahora" | "mas") => {
     const q = new URLSearchParams(searchParams.toString());
     if (id === "mas") q.set("panel", "mas");
@@ -64,6 +90,9 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const [stomach, setStomach] = useState<StomachState>("normal");
   const [showAll, setShowAll] = useState(false);
   const [pulse, setPulse] = useState(false);
+  // Señales que dispara la red de la tarjeta al sumar un trago o agua (retroalimentación sin tocar las cifras)
+  const [burst, setBurst] = useState(0);
+  const meCard = useRef<HTMLElement>(null);
   const [roundOpen, setRoundOpen] = useState(false);
   const [roundFor, setRoundFor] = useState<string[]>([]);
   const [roundDrink, setRoundDrink] = useState(DRINK_PRESETS[0].key);
@@ -89,6 +118,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   };
 
   const me = participants.find((p) => p.id === meId) ?? null;
+  useTiltDepth(meCard, Boolean(me));
   useEffect(() => {
     const body = loadBody();
     if (!body) return;
@@ -115,10 +145,16 @@ export default function CarreteClientController({ store }: { store: CarreteStore
     e.preventDefault();
     if (!name.trim()) return;
     audioEffects.playSuccessChime();
-    addParticipant({ name: name.trim(), role: isDriver ? "driver" : "drinker", bodyFactor: bodyFactorFrom(gender, weight), stomach }, true);
+    const id = addParticipant({ name: name.trim(), role: isDriver ? "driver" : "drinker", bodyFactor: bodyFactorFrom(gender, weight), stomach }, true);
+    addMine(store.code, id);
+    setMine(readMine(store.code));
     saveBody({ gender, weightKg: weight });
     setName("");
   };
+
+  // Hooks antes de cualquier return temprano. Red viva de la sala detrás de tu tarjeta: una señal por cada trago, voto o canción de cualquiera
+  const people = useMemo(() => participants.filter((p) => !p.deleted).map((p) => ({ id: p.id, name: p.name })), [participants]);
+  const events = useMemo(() => roomEvents(store.state, 0).slice(-120), [store.state]);
 
   if (!me) {
     return (
@@ -208,15 +244,26 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const last = lastDrink(me.consumptions);
   const copy = zeroCopy({ hadDrinks: hasAlcohol(me.consumptions), zeroAt: r.zeroAt });
 
-  const drink = (p: DrinkPreset) => {
+  const logDrink = (d: { label: string; ml: number; abv: number }) => {
+    const now = Date.now();
+    if (!acceptTap(lastTap.current, now)) return;
+    lastTap.current = now;
     audioEffects.playBubble();
     if (driver) audioEffects.playBuzz();
-    addConsumption(me.id, { label: p.label, ml: p.ml, abv: p.abv });
+    addConsumption(me.id, { label: d.label, ml: d.ml, abv: d.abv });
+    setBurst((b) => b + 6);
+    setToast(`${d.label} sumada`);
+    pop(false);
   };
+
+  const drink = (p: DrinkPreset) => logDrink(p);
+  const switchable = selectablePeople(participants, me.id, mine);
 
   const water = () => {
     audioEffects.playWaterDrop();
     addWater(me.id);
+    setBurst((b) => b + 6);
+    pop(true);
     setPulse(true);
     setTimeout(() => setPulse(false), 2400);
   };
@@ -226,18 +273,21 @@ export default function CarreteClientController({ store }: { store: CarreteStore
       {store.state.live?.round && <LiveRoundCard store={store} />}
 
       {/* Yo */}
-      <section className={`surface p-5 ${breach ? "!border-rose-500 ring-2 ring-rose-500/50" : ""}`}>
+      <section ref={meCard} className={`surface relative isolate overflow-hidden p-5 ${breach ? "!border-rose-500 ring-2 ring-rose-500/50" : "shadow-neon-uv"}`}>
+        <div aria-hidden data-tilt-depth="-1" className="pointer-events-none absolute inset-0 -z-10">
+          <SignalField people={people} events={events} labels={false} seed={5} burst={burst} className="parallax-mid inset-0 h-full w-full opacity-70" />
+        </div>
         {breach && (
           <p className="-mx-5 -mt-5 mb-4 flex items-center justify-center gap-1.5 rounded-t-3xl bg-rose-600 py-2 text-center text-xs font-bold uppercase text-white">
             <ShieldAlert className="w-3.5 h-3.5" /> Tomaste alcohol: hoy no manejas
           </p>
         )}
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="display truncate text-3xl">{me.name}</h2>
+          <div data-tilt-depth="0.8" className="min-w-0">
+            <h2 className="display neon-blue text-3xl [overflow-wrap:anywhere]">{me.name}</h2>
             <p className="meta mt-1">{driver ? `${locale.terminology.driverTitle} · 0.0 toda la noche` : "Este celular es tu control"}</p>
           </div>
-          {participants.length > 1 && (
+          {switchable.length > 1 && (
             <label className="relative min-w-0 max-w-[45%] shrink-0">
               <span className="sr-only">Cambiar de persona</span>
               <select
@@ -245,7 +295,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
                 onChange={(e) => setMeId(e.target.value)}
                 className="min-h-[44px] w-full appearance-none truncate rounded-xl border border-white/10 bg-white/[0.04] pl-3 pr-8 text-xs font-semibold text-slate-200 outline-none"
               >
-                {participants.map((p) => (
+                {switchable.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
                   </option>
@@ -320,7 +370,8 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         )}
       </section>
 
-      <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/[0.03] p-1" role="tablist" aria-label="Secciones de tu celular">
+      <div ref={panelTabs} className="relative grid grid-cols-2 gap-1 rounded-xl bg-white/[0.03] p-1" role="tablist" aria-label="Secciones de tu celular">
+        <SlidingIndicator rect={panelTabsRect} className="rounded-lg bg-indigo-500 shadow-neon" />
         {([["ahora", "Ahora"], ["mas", "Más"]] as const).map(([id, label]) => (
           <button
             key={id}
@@ -328,7 +379,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             role="tab"
             aria-selected={panel === id}
             onClick={() => setPanelUrl(id)}
-            className={`min-h-[44px] rounded-lg text-sm font-bold ${panel === id ? "bg-white text-night-950" : "text-slate-300"}`}
+            className={`relative min-h-[44px] rounded-lg text-sm font-bold transition-colors duration-300 ${panel === id ? "text-night-950" : "text-slate-300"}`}
           >
             {label}
           </button>
@@ -342,7 +393,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         <button
           type="button"
           onClick={water}
-          className={`btn !min-h-[60px] border border-cyan-300/40 bg-cyan-400/15 text-base text-cyan-50 ${pulse ? "animate-shield-pulse" : ""}`}
+          className={`btn !min-h-[60px] border border-cyan-300/40 bg-cyan-400/15 text-base text-cyan-50 shadow-[0_0_26px_-8px_rgba(140,227,190,0.6)] ${pulse ? "animate-shield-pulse" : ""}`}
         >
           <Droplets className="w-5 h-5" /> +1 vaso de agua · {me.waterCount}
         </button>
@@ -367,7 +418,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           onClick={() => {
             dispatch({ type: "CHEERS", id: uid(), by: me.id });
           }}
-          className="btn !min-h-[52px] border border-amber-400/40 bg-amber-400/10 text-amber-100"
+          className="btn !min-h-[52px] border border-purple-400/50 bg-purple-500/15 text-purple-100 shadow-neon-uv"
         >
           🥂 {CHEERS_WORD[country] ?? "¡Salud!"}
         </button>
@@ -378,7 +429,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             setRoundOpen(!roundOpen);
           }}
           aria-expanded={roundOpen}
-          className="btn-ghost !min-h-[52px]"
+          className="btn !min-h-[52px] border border-indigo-400/40 bg-indigo-500/10 text-indigo-100"
         >
           <Users className="w-4 h-4" /> Invito la ronda
         </button>
@@ -553,10 +604,34 @@ export default function CarreteClientController({ store }: { store: CarreteStore
       <QuickActionBar
         drinkLabel={last ? last.label : null}
         showDrink={!driver}
-        onDrink={() => last && addConsumption(me.id, { label: last.label, ml: last.ml, abv: last.abv })}
+        onDrink={() => last && logDrink(last)}
         onPick={() => setPicking(true)}
         onWater={water}
       />
+
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-[calc(176px+env(safe-area-inset-bottom,0px))] z-50 flex justify-center">
+        {pops.map((p) => (
+          <span
+            key={p.id}
+            className={`absolute animate-float-up font-display text-4xl font-extrabold ${
+              p.water ? "text-emerald-300 [text-shadow:0_0_14px_rgba(140,227,190,0.6)]" : "text-purple-300 [text-shadow:0_0_14px_rgba(185,62,243,0.75)]"
+            }`}
+          >
+            +1
+          </span>
+        ))}
+      </div>
+
+      {toast && (
+        <UndoToast
+          text={toast}
+          className="bottom-[calc(156px+env(safe-area-inset-bottom,0px))]"
+          onUndo={() => {
+            removeLastConsumption(me.id);
+            setToast(null);
+          }}
+        />
+      )}
 
       <p className="pb-20 text-center text-xs text-slate-500">
         Estimación educativa, no medición. {locale.legal.bacLimitText}: si bebiste, no manejes.

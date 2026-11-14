@@ -5,7 +5,7 @@ import Modal from "@/components/ui/Modal";
 import { usePathname } from "next/navigation";
 import { ChevronDown, PhoneCall } from "lucide-react";
 import { useLocale } from "@/lib/useLocale";
-import { COUNTRIES } from "@/config/locales";
+import { COUNTRIES, VISIBLE_COUNTRIES } from "@/config/locales";
 
 interface DisclaimerModalProps {
   forceOpen?: boolean;
@@ -52,8 +52,8 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
             {compact ? "Antes de entrar" : "Antes de empezar"}<span className="text-accent">.</span>
           </h2>
 
-          <div className="mt-5 flex flex-wrap gap-1.5" role="radiogroup" aria-label="País">
-            {COUNTRIES.map((c) => (
+          <div className={`mt-5 flex flex-wrap gap-1.5 ${VISIBLE_COUNTRIES.length < 2 ? "hidden" : ""}`} role="radiogroup" aria-label="País">
+            {COUNTRIES.filter((c) => VISIBLE_COUNTRIES.includes(c.code)).map((c) => (
               <button
                 key={c.code}
                 type="button"

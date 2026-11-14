@@ -1,6 +1,6 @@
 import type { Confession, LiveGame, LiveRound, Participant } from "./carreteState";
 import { bacFor } from "./alcohol";
-import { CASTIGOS, IMPOSTOR_WORDS, PREFIERES, PROBABLE, VERDAD_O_MITO, YO_NUNCA } from "@/data/party_prompts";
+import { BOMBA_CATEGORIAS, CASTIGOS, DUELOS, IMPOSTOR_WORDS, MIMICA, PREFIERES, PROBABLE, VERDAD_O_MITO, YO_NUNCA } from "@/data/party_prompts";
 
 export interface LiveGameDef {
   id: LiveGame;
@@ -17,7 +17,18 @@ export const LIVE_GAMES: LiveGameDef[] = [
   { id: "impostor", name: "El Impostor", emoji: "🕵️", blurb: "Todos ven la palabra secreta menos uno. Descríbanla y descubran quién miente.", minPlayers: 3 },
   { id: "confesion", name: "Confesiones anónimas", emoji: "🤫", blurb: "Mandan confesiones desde el celular y adivinan de quién es cada una.", minPlayers: 3 },
   { id: "mito", name: "¿Verdad o mito?", emoji: "🧠", blurb: "Trivia del carrete: los que fallan, cumplen. Se aprende algo.", minPlayers: 2 },
+  { id: "duelo", name: "Duelo", emoji: "🥊", blurb: "Dos al centro con un desafío. La sala vota quién ganó y el otro cumple.", minPlayers: 3 },
+  { id: "mimica", name: "Mímica", emoji: "🎭", blurb: "Solo quien actúa ve la palabra en su celular. Si no la sacan a tiempo, cumple.", minPlayers: 3 },
+  { id: "verdadreto", name: "Verdad o reto", emoji: "🎯", blurb: "La TV elige a alguien y su desafío. Si se arruga, cumple: hay alternativas.", minPlayers: 2 },
+  { id: "categorias", name: "Cultura chupística", emoji: "🔥", blurb: "Una categoría y por turnos hacia la derecha. Quien se queda pegado, cumple.", minPlayers: 3 },
 ];
+
+/** Quienes están al centro de la ronda no se juzgan a sí mismos: no votan y la ronda no espera su voto. */
+export function judgedIds(round: Pick<LiveRound, "game" | "answer" | "options">): string[] {
+  if ((round.game === "mimica" || round.game === "verdadreto") && round.answer) return [round.answer];
+  if (round.game === "duelo") return round.options.map((o) => o.id);
+  return [];
+}
 
 export const LIVE_GAME_BY_ID = new Map(LIVE_GAMES.map((g) => [g.id, g]));
 
@@ -39,7 +50,8 @@ export function buildRound(
     const unused = xs.filter((x) => !ctx.usedPrompts.has(key(x)));
     return pick(unused.length ? unused : xs);
   };
-  const base = { id: rid(), game, startedAt: Date.now(), durationMs: game === "impostor" ? 45_000 : 30_000 };
+  const seconds: Partial<Record<LiveGame, number>> = { impostor: 45, mimica: 60, duelo: 45, verdadreto: 45, categorias: 45 };
+  const base = { id: rid(), game, startedAt: Date.now(), durationMs: (seconds[game] ?? 30) * 1000 };
   const peopleOptions = people.map((p) => ({ id: p.id, label: p.name }));
 
   switch (game) {
@@ -73,6 +85,50 @@ export function buildRound(
         answer: impostor.id,
         secret: pick(cat.words),
       };
+    }
+    case "duelo": {
+      const a = pick(people);
+      const b = pick(people.filter((p) => p.id !== a.id));
+      return {
+        ...base,
+        prompt: `${a.name} vs ${b.name}: ${fresh(DUELOS, (x) => x)}`,
+        options: [
+          { id: a.id, label: a.name },
+          { id: b.id, label: b.name },
+        ],
+      };
+    }
+    case "mimica": {
+      const cat = pick(MIMICA);
+      const actor = pick(people);
+      return {
+        ...base,
+        prompt: `${actor.name} actúa (${cat.cat}). ¡Adivinen antes de que se acabe el tiempo!`,
+        options: [
+          { id: "si", label: "✅ La sacamos" },
+          { id: "no", label: "❌ No la sacamos" },
+        ],
+        answer: actor.id,
+        secret: pick(cat.words),
+      };
+    }
+    case "verdadreto": {
+      const who = pick(people);
+      const truth = Math.random() < 0.5;
+      const text = truth ? fresh(CASTIGOS.verdades, (x) => x) : fresh(CASTIGOS.retos, (x) => x);
+      return {
+        ...base,
+        prompt: `${who.name}, ${truth ? "verdad" : "reto"}: ${text}`,
+        options: [
+          { id: "si", label: "✅ Cumplió" },
+          { id: "no", label: "🙈 Se arrugó" },
+        ],
+        answer: who.id,
+      };
+    }
+    case "categorias": {
+      const starter = pick(people);
+      return { ...base, prompt: `${fresh(BOMBA_CATEGORIAS, (x) => x)}. Parte ${starter.name} y sigue hacia la derecha.`, options: peopleOptions };
     }
     case "confesion": {
       const available = ctx.confessions.filter((c) => !c.used && people.some((p) => p.id === c.authorId));
@@ -148,6 +204,37 @@ export function tally(round: LiveRound, participants: Participant[]): Tally {
         headline: caught ? `¡Atraparon a ${name(round.answer)}! La palabra era "${round.secret}".` : `${name(round.answer)} los engañó a todos. La palabra era "${round.secret}".`,
       };
     }
+    case "duelo": {
+      const [a, b] = rows;
+      if (!a || !b) return { rows, total, loserIds: [], headline: "Nadie votó" };
+      if (a.count === b.count) return { rows, total, loserIds: [a.id, b.id], headline: total ? "¡Empate! Cumplen los dos." : "Nadie votó: cumplen los dos." };
+      const [win, lose] = a.count > b.count ? [a, b] : [b, a];
+      return { rows, total, loserIds: [lose.id], spotlightId: win.id, headline: `Ganó ${win.label}. ${lose.label} cumple.` };
+    }
+    case "mimica":
+    case "verdadreto": {
+      const si = rows.find((r) => r.id === "si")?.count ?? 0;
+      const no = rows.find((r) => r.id === "no")?.count ?? 0;
+      const lost = no > si;
+      const who = name(round.answer);
+      const headline =
+        round.game === "mimica"
+          ? lost
+            ? `No la sacaron: era «${round.secret}». ${who} cumple.`
+            : `¡La sacaron! Era «${round.secret}».`
+          : lost
+            ? `${who} se arrugó: cumple.`
+            : `¡${who} cumplió! Aplausos.`;
+      return { rows, total, loserIds: lost ? [round.answer!] : [], spotlightId: round.answer, headline };
+    }
+    case "categorias":
+      return {
+        rows,
+        total,
+        loserIds: top.map((r) => r.id),
+        spotlightId: top.length === 1 ? top[0].id : undefined,
+        headline: top.length === 0 ? "Nadie votó" : top.length === 1 ? `Se quedó pegado: ${top[0].label}` : `Empate: ${top.map((t) => t.label).join(" y ")}`,
+      };
     case "confesion": {
       const right = rows.find((r) => r.id === round.answer);
       const fooled = !right || right.count < max || top.length > 1;
@@ -177,6 +264,24 @@ export function penaltyFor(p: Participant, roundId: string, now = Date.now()): {
   return { text: "Toma un sorbo 🍻", water: false };
 }
 
+export type PenaltyKind = "prenda" | "sorbo" | "shot" | "agua" | "verdad" | "paso";
+
+/**
+ * Alternativas al castigo que cada persona elige desde su celular: el reto, un sorbo, un shot chico, agua, una verdad
+ * o pasar. Con alcoholemia media (0,5 g/l estimado) desaparece el shot; desde 0,8 g/l o si maneja, todo alcohol.
+ * Nadie está obligado: siempre hay agua y siempre se puede pasar.
+ */
+export function penaltyOptions(p: Participant, roundId: string, now = Date.now()): { kind: PenaltyKind; text: string }[] {
+  const h = Array.from(roundId + p.id).reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+  const at = <T,>(xs: T[], salt = 0) => xs[(h + salt) % xs.length];
+  const bac = p.role === "driver" ? Infinity : bacFor(p, now).bac;
+  const out: { kind: PenaltyKind; text: string }[] = [{ kind: "prenda", text: `🎭 ${at([...CASTIGOS.suaves, ...CASTIGOS.retos])}` }];
+  if (bac < 0.8) out.push({ kind: "sorbo", text: "🍺 Un sorbo" });
+  if (bac < 0.5) out.push({ kind: "shot", text: "🥃 Un shot chico" });
+  out.push({ kind: "agua", text: "💧 Shot de agua" }, { kind: "verdad", text: `🗣️ ${at(CASTIGOS.verdades, 3)}` }, { kind: "paso", text: "🙅 Paso esta vez" });
+  return out;
+}
+
 /**
  * ¿Se revela sola la ronda? Cuando votaron todos (con 2 o más personas) o cuando se acabó el tiempo
  * con al menos un voto. Nunca con 0 votos ni dos veces.
@@ -185,7 +290,8 @@ export function shouldAutoReveal(round: LiveRound, participantCount: number, now
   if (round.revealedAt) return false;
   const votes = Object.keys(round.votes).length;
   if (votes === 0) return false;
-  if (participantCount >= 2 && votes >= participantCount) return true;
+  // Quien está al centro (actúa, se juzga o se bate a duelo) no vota: no se espera su voto
+  if (participantCount >= 2 && votes >= participantCount - judgedIds(round).length) return true;
   return !!round.durationMs && now >= round.startedAt + round.durationMs;
 }
 

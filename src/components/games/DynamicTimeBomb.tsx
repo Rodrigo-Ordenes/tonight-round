@@ -8,6 +8,7 @@ import { audioEffects } from "@/lib/audioEffects";
 import { BOMBA_CATEGORIAS } from "@/data/party_prompts";
 import { penaltyFor } from "@/lib/liveGames";
 import type { Participant } from "@/lib/carreteState";
+import PenaltyChooser from "@/components/live/PenaltyChooser";
 
 const CATS: string[] = Array.from(new Set([...content.time_bomb_categories, ...BOMBA_CATEGORIAS]));
 
@@ -129,9 +130,12 @@ export default function DynamicTimeBomb({ store }: { store: CarreteStore }) {
           <div className="text-8xl">💥</div>
           <p className="display mt-2 text-4xl">¡BOOM!</p>
           {victim ? (
-            <p className="mt-3 text-lg text-slate-100">
-              Le explotó a <span className="font-bold">{victim.name}</span>: {penaltyFor(victim, `bomba-${games.bombRounds}`).text}
-            </p>
+            <div className="mx-auto mt-3 max-w-sm space-y-2 text-left">
+              <p className="text-center text-lg text-slate-100">
+                Le explotó a <span className="font-bold">{victim.name}</span>
+              </p>
+              <PenaltyChooser participant={victim} roundId={`bomba-${games.bombRounds}`} defaultText={penaltyFor(victim, `bomba-${games.bombRounds}`).text} />
+            </div>
           ) : (
             <p className="mt-3 text-slate-300">A quien tenga el celular: shot de agua o penitencia de la ruleta.</p>
           )}

@@ -70,7 +70,7 @@ function RoomPanel({ code }: { code: string }) {
 
   useEffect(() => {
     const url = `${window.location.origin}/carrete/${code}?modo=celular`;
-    QRCode.toDataURL(url, { width: 220, margin: 1, color: { dark: "#0D0907", light: "#F1ECE8" } })
+    QRCode.toDataURL(url, { width: 220, margin: 1, color: { dark: "#090A0D", light: "#ECECF1" } })
       .then(setQr)
       .catch(() => setQr(""));
   }, [code]);

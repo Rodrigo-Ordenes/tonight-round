@@ -7,6 +7,7 @@ import content from "@/data/games_content.json";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
 import { CASTIGOS } from "@/data/party_prompts";
+import PenaltyChooser from "@/components/live/PenaltyChooser";
 
 type Cat = { id: string; name: string; icon: string; phrases: string[] };
 const EXTRA: Record<string, string[]> = { penitencias: CASTIGOS.suaves, desafios: CASTIGOS.retos };
@@ -15,7 +16,7 @@ const CATS: Cat[] = [
   { id: "verdades", name: "Verdades", icon: "🗣️", phrases: CASTIGOS.verdades },
   { id: "sin_alcohol", name: "Sin alcohol", icon: "💧", phrases: CASTIGOS.sinAlcohol },
 ];
-const COLORS = ["#FF8346", "#BFAAFF", "#FFD375", "#59D2B1", "#95D1FF", "#FF9FAE", "#FD4576", "#B3EDD9"];
+const COLORS = ["#67AAFF", "#CA68FF", "#E4B853", "#9EEECB", "#9EEECB", "#FFA0A8", "#FA4C6D", "#D0FAE6"];
 
 type Modal = null | "players" | "custom" | "bank";
 
@@ -108,7 +109,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
           style={{ transform: `rotate(${rotation}deg)`, transition: "transform 4s cubic-bezier(0.17,0.67,0.12,1)" }}
         >
           {players.length === 0 ? (
-            <circle cx="100" cy="100" r="95" fill="#29231f" />
+            <circle cx="100" cy="100" r="95" fill="#23232a" />
           ) : players.length === 1 ? (
             <circle cx="100" cy="100" r="95" fill={COLORS[0]} />
           ) : (
@@ -123,7 +124,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
                   <path
                     d={`M100,100 L${x1},${y1} A95,95 0 ${slice > 180 ? 1 : 0} 1 ${x2},${y2} Z`}
                     fill={COLORS[i % COLORS.length]}
-                    stroke="#0d0907"
+                    stroke="#090a0d"
                     strokeWidth="1.5"
                   />
                   <text
@@ -142,7 +143,7 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
               );
             })
           )}
-          <circle cx="100" cy="100" r="9" fill="#0d0907" stroke="#fff" strokeWidth="2" />
+          <circle cx="100" cy="100" r="9" fill="#090a0d" stroke="#fff" strokeWidth="2" />
         </svg>
         {players.length === 0 && (
           <p className="absolute inset-0 flex items-center justify-center text-center text-xs text-slate-400 px-10">
@@ -164,6 +165,14 @@ export default function CustomizableRoulette({ store }: { store: CarreteStore })
           <p className="text-xs text-pink-300 font-bold uppercase">Le toca a</p>
           <p className="text-2xl font-black text-white">{result.player}</p>
           <p className="text-sm text-slate-200 mt-1">{result.phrase}</p>
+          {/* El reto tiene alternativas (sorbo, shot chico, agua o pasar) según cómo va cada uno */}
+          {players.some((p) => p.name === result.player) ? (
+            <div className="mt-3 text-left">
+              <PenaltyChooser participant={players.find((p) => p.name === result.player)!} roundId={`ruleta-${result.player}-${result.phrase}`} defaultText={result.phrase} />
+            </div>
+          ) : (
+            <p className="mt-2 text-xs text-slate-300">¿No quieres? Un sorbo, un shot chico, agua o pasar. Quien maneja: agua o pasar.</p>
+          )}
         </div>
       )}
 

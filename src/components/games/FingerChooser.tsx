@@ -20,14 +20,14 @@ interface TouchFinger {
 }
 
 const FINGER_COLORS = [
-  "#ff8346", // indigo
-  "#fd4576", // pink
-  "#59d2b1", // emerald
-  "#ffd375", // amber
-  "#95d1ff", // cyan
-  "#bfaaff", // purple
-  "#fd4576", // red
-  "#95d1ff", // blue
+  "#67aaff", // indigo
+  "#fa4c6d", // pink
+  "#9eeecb", // emerald
+  "#e4b853", // amber
+  "#9eeecb", // cyan
+  "#ca68ff", // purple
+  "#fa4c6d", // red
+  "#9eeecb", // blue
 ];
 
 export default function FingerChooser() {
@@ -118,7 +118,7 @@ export default function FingerChooser() {
               x: (rect.left + chosen.x) / window.innerWidth,
               y: (rect.top + chosen.y) / window.innerHeight,
             },
-            colors: [chosen.color, "#ffffff", "#ffd375"],
+            colors: [chosen.color, "#ffffff", "#e4b853"],
           });
         }
       }, 3000);
@@ -224,7 +224,7 @@ export default function FingerChooser() {
           fireConfetti({
             particleCount: 60,
             spread: 60,
-            colors: [chosen.color, "#ffffff", "#ffd375"],
+            colors: [chosen.color, "#ffffff", "#e4b853"],
           });
         }, 3000);
       }
@@ -349,7 +349,7 @@ export default function FingerChooser() {
                 className={`w-28 h-28 rounded-full border-4 animate-ping absolute -top-14 -left-14 opacity-75 ${
                   isSelected ? "scale-150 border-amber-400" : ""
                 }`}
-                style={{ borderColor: isSelected ? "#ffd375" : f.color }}
+                style={{ borderColor: isSelected ? "#e4b853" : f.color }}
               />
 
               {/* Main glowing touch spot */}
@@ -358,8 +358,8 @@ export default function FingerChooser() {
                   isSelected ? "scale-125 ring-8 ring-white" : "scale-100"
                 }`}
                 style={{
-                  backgroundColor: isSelected ? "#ffd375" : f.color,
-                  boxShadow: `0 0 35px ${isSelected ? "#ffd375" : f.color}`,
+                  backgroundColor: isSelected ? "#e4b853" : f.color,
+                  boxShadow: `0 0 35px ${isSelected ? "#e4b853" : f.color}`,
                 }}
               >
                 {isSelected ? (

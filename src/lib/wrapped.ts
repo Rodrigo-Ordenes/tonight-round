@@ -125,11 +125,11 @@ export async function drawWrapped(canvas: HTMLCanvasElement, d: WrappedData, par
   const sans = getComputedStyle(document.documentElement).getPropertyValue("--font-sans").trim() || "sans-serif";
   const mono = getComputedStyle(document.documentElement).getPropertyValue("--font-mono").trim() || "monospace";
 
-  ctx.fillStyle = "#0D0907";
+  ctx.fillStyle = "#090A0D";
   ctx.fillRect(0, 0, W, H);
   const g1 = ctx.createRadialGradient(150, 200, 0, 150, 200, 900);
-  g1.addColorStop(0, "rgba(255,131,70,0.55)");
-  g1.addColorStop(1, "rgba(255,131,70,0)");
+  g1.addColorStop(0, "rgba(103, 170, 255,0.55)");
+  g1.addColorStop(1, "rgba(103, 170, 255,0)");
   ctx.fillStyle = g1;
   ctx.fillRect(0, 0, W, H);
   const g2 = ctx.createRadialGradient(950, 1700, 0, 950, 1700, 1000);
@@ -139,11 +139,11 @@ export async function drawWrapped(canvas: HTMLCanvasElement, d: WrappedData, par
   ctx.fillRect(0, 0, W, H);
 
   const pad = 90;
-  ctx.fillStyle = "#C3BCB8";
+  ctx.fillStyle = "#BCBDC4";
   ctx.font = `600 34px ${mono}`;
   ctx.fillText(`TONIGHT WRAPPED · ${d.code}`, pad, 170);
 
-  ctx.fillStyle = "#F1ECE8";
+  ctx.fillStyle = "#ECECF1";
   ctx.font = `800 132px ${display}`;
   ctx.fillText("Qué", pad, 330);
   ctx.fillText("noche.", pad, 460);
@@ -158,36 +158,36 @@ export async function drawWrapped(canvas: HTMLCanvasElement, d: WrappedData, par
   stats.forEach(([n, label], i) => {
     const x = pad + (i % 2) * 460;
     const y = 620 + Math.floor(i / 2) * 190;
-    ctx.fillStyle = i === 2 ? "#95D1FF" : "#F1ECE8";
+    ctx.fillStyle = i === 2 ? "#9EEECB" : "#ECECF1";
     ctx.font = `800 110px ${display}`;
     ctx.fillText(n, x, y);
-    ctx.fillStyle = "#A8A09B";
+    ctx.fillStyle = "#A0A1A9";
     ctx.font = `600 38px ${sans}`;
     ctx.fillText(label, x, y + 52);
   });
 
   // Premios
-  ctx.fillStyle = "#C3BCB8";
+  ctx.fillStyle = "#BCBDC4";
   ctx.font = `600 32px ${mono}`;
   ctx.fillText("PREMIOS DE LA NOCHE", pad, 1080);
   d.awards.slice(0, 5).forEach((a, i) => {
     const y = 1170 + i * 135;
     ctx.font = `64px ${sans}`;
     ctx.fillText(a.emoji, pad, y + 6);
-    ctx.fillStyle = "#F1ECE8";
+    ctx.fillStyle = "#ECECF1";
     ctx.font = `800 52px ${display}`;
     ctx.fillText(a.who, pad + 100, y - 10, W - pad * 2 - 100);
-    ctx.fillStyle = "#A8A09B";
+    ctx.fillStyle = "#A0A1A9";
     ctx.font = `600 32px ${sans}`;
     ctx.fillText(a.title, pad + 100, y + 36, W - pad * 2 - 100);
   });
 
   if (d.topDrink || d.topSong) {
-    ctx.fillStyle = "#C3BCB8";
+    ctx.fillStyle = "#BCBDC4";
     ctx.font = `600 32px ${sans}`;
     ctx.fillText([d.topDrink ? `Trago: ${d.topDrink}` : "", d.topSong ? `Canción: ${d.topSong}` : ""].filter(Boolean).join("  ·  "), pad, H - 190, W - pad * 2);
   }
-  ctx.fillStyle = "#FF8346";
+  ctx.fillStyle = "#67AAFF";
   ctx.font = `800 40px ${display}`;
   ctx.fillText(`El ${partyName.toLowerCase()} se armó en Tonight`, pad, H - 120);
 }

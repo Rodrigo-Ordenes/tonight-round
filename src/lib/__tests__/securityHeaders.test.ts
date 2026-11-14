@@ -18,7 +18,7 @@ describe("cabeceras de seguridad", () => {
   });
   it("la CSP restringe orígenes y solo permite marcos de Spotify", () => {
     const csp = get("Content-Security-Policy");
-    for (const d of ["default-src 'self'", "frame-src https://open.spotify.com", "object-src 'none'", "base-uri 'self'", "frame-ancestors 'none'"])
+    for (const d of ["default-src 'self'", "frame-src https://open.spotify.com https://www.youtube-nocookie.com", "object-src 'none'", "base-uri 'self'", "frame-ancestors 'none'"])
       expect(csp).toContain(d);
   });
   it("el optimizador de imágenes está apagado", () => expect(config.images?.unoptimized).toBe(true));

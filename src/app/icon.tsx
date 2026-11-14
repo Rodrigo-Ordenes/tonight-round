@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { Moon } from "@/lib/og/brand";
+import { Mark } from "@/lib/og/brand";
 
 /** Íconos PNG para el manifest de la PWA (Android pide PNG de 192 y 512). */
 export function generateImageMetadata() {
@@ -12,8 +12,8 @@ export function generateImageMetadata() {
 export default function Icon({ id }: { id: string }) {
   const px = Number(id);
   return new ImageResponse(
-    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#0D0907" }}>
-      <Moon size={Math.round(px * 0.66)} />
+    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#090A0D" }}>
+      <Mark size={Math.round(px * 0.66)} />
     </div>,
     { width: px, height: px }
   );

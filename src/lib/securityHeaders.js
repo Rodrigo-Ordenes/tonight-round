@@ -12,7 +12,7 @@ const csp = [
   "font-src 'self'",
   "connect-src 'self'",
   "media-src 'self' blob:",
-  "frame-src https://open.spotify.com",
+  "frame-src https://open.spotify.com https://www.youtube-nocookie.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

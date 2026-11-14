@@ -22,6 +22,7 @@ import {
 } from "@/lib/alcohol";
 import type { Participant } from "@/lib/carreteState";
 import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
+import { addMine } from "@/lib/myPeople";
 
 interface Props {
   store: CarreteStore;
@@ -77,7 +78,8 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
   const create = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    addParticipant({ name: name.trim(), bodyFactor: bodyFactorFrom(gender, weight), role: isDriver ? "driver" : "drinker" });
+    const added = addParticipant({ name: name.trim(), bodyFactor: bodyFactorFrom(gender, weight), role: isDriver ? "driver" : "drinker" });
+    addMine(store.code, added);
     setName("");
     setIsDriver(false);
     setShowAdd(false);

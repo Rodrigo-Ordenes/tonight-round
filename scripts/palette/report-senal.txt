@@ -1,0 +1,159 @@
+{
+  "night": {
+    "600": "#3B4047",
+    "700": "#2C3137",
+    "800": "#20242A",
+    "850": "#191C21",
+    "900": "#111418",
+    "950": "#080A0D"
+  },
+  "ink": {
+    "50": "#EAEDF2",
+    "100": "#DEE1E7",
+    "200": "#CDD1D7",
+    "300": "#BABEC4",
+    "400": "#B1B6BD",
+    "500": "#9DA2A9",
+    "600": "#686C73",
+    "700": "#44484E",
+    "800": "#2D3136",
+    "900": "#1A1D22",
+    "950": "#0D1013"
+  },
+  "ember": {
+    "50": "#F6FDED",
+    "100": "#EEFBD9",
+    "200": "#E0FAB4",
+    "300": "#D6FD90",
+    "400": "#C8F669",
+    "500": "#BBEC4C",
+    "600": "#5E7D00",
+    "700": "#4B6400",
+    "800": "#384C00",
+    "900": "#253400",
+    "950": "#151F01"
+  },
+  "lime": {
+    "50": "#F0FDFC",
+    "100": "#DFFCF9",
+    "200": "#C1FCF7",
+    "300": "#97F5EE",
+    "400": "#71ECE4",
+    "500": "#54E0D8",
+    "600": "#00817C",
+    "700": "#006763",
+    "800": "#004F4C",
+    "900": "#023633",
+    "950": "#04201E"
+  },
+  "gold": {
+    "50": "#FDF7EA",
+    "100": "#FCEED4",
+    "200": "#F9DEA8",
+    "300": "#F3CA76",
+    "400": "#E8B647",
+    "500": "#DAA415",
+    "600": "#8F6900",
+    "700": "#725400",
+    "800": "#573F00",
+    "900": "#3C2B00",
+    "950": "#241902"
+  },
+  "alert": {
+    "50": "#FFEEEF",
+    "100": "#FFDDE0",
+    "200": "#FFC2C8",
+    "300": "#FF9FAB",
+    "400": "#FF788E",
+    "500": "#FA4C72",
+    "600": "#C82150",
+    "700": "#A11B40",
+    "800": "#791931",
+    "900": "#4D121F",
+    "950": "#2F0B12"
+  },
+  "iris": {
+    "50": "#F7F4FF",
+    "100": "#EFEAFF",
+    "200": "#E2D7FF",
+    "300": "#D2BFFF",
+    "400": "#C3A8FF",
+    "500": "#B491F9",
+    "600": "#7B5AB7",
+    "700": "#624893",
+    "800": "#4A376E",
+    "900": "#322649",
+    "950": "#1D162B"
+  },
+  "aqua": {
+    "50": "#F0FDFC",
+    "100": "#DFFCF9",
+    "200": "#C1FCF7",
+    "300": "#97F5EE",
+    "400": "#71ECE4",
+    "500": "#54E0D8",
+    "600": "#00817C",
+    "700": "#006763",
+    "800": "#004F4C",
+    "900": "#023633",
+    "950": "#04201E"
+  },
+  "white": {
+    "0": "#FFFFFF"
+  }
+}
+
+# Contraste (texto sobre fondo): WCAG | APCA Lc | mínimo pedido
+ok   ink.50         sobre night.950    16.89:1  Lc  96  (≥7 / Lc 90)
+ok   ink.50         sobre night.800    13.28:1  Lc  93  (≥7 / Lc 85)
+ok   ink.200        sobre night.900    12.05:1  Lc  78  (≥7 / Lc 75)
+ok   ink.300        sobre night.900     9.89:1  Lc  67  (≥4.5 / Lc 60)
+ok   ink.300        sobre night.800     8.35:1  Lc  65  (≥4.5 / Lc 60)
+ok   ink.400        sobre night.900     9.05:1  Lc  62  (≥4.5 / Lc 60)
+ok   ink.400        sobre night.850     8.37:1  Lc  61  (≥4.5 / Lc 55)
+ok   ink.500        sobre night.950     7.72:1  Lc  52  (≥4.5 / Lc 45)
+ok   ink.500        sobre night.850     6.65:1  Lc  50  (≥4.5 / Lc 45)
+ok   ink.500        sobre night.800     6.07:1  Lc  49  (≥4.5 / Lc 45)
+ok   ember.300      sobre night.900    16.10:1  Lc  97  (≥4.5 / Lc 60)
+ok   ember.400      sobre night.900    14.81:1  Lc  91  (≥4.5 / Lc 55)
+ok   lime.300       sobre night.900    14.61:1  Lc  90  (≥4.5 / Lc 60)
+ok   gold.300       sobre night.900    11.89:1  Lc  77  (≥4.5 / Lc 60)
+ok   alert.300      sobre night.900     9.50:1  Lc  65  (≥4.5 / Lc 60)
+ok   iris.300       sobre night.900    11.11:1  Lc  73  (≥4.5 / Lc 60)
+ok   aqua.300       sobre night.900    14.61:1  Lc  90  (≥4.5 / Lc 60)
+ok   night.950      sobre ember.500    14.36:1  Lc  85  (≥4.5 / Lc 55)
+ok   night.950      sobre ember.400    15.90:1  Lc  91  (≥4.5 / Lc 60)
+ok   night.950      sobre lime.400     13.99:1  Lc  84  (≥4.5 / Lc 60)
+ok   white.0        sobre ember.700     6.73:1  Lc  88  (≥4.5 / Lc 60)
+ok   white.0        sobre ember.600     4.76:1  Lc  78  (≥4.5 / Lc 60)
+ok   white.0        sobre lime.600      4.74:1  Lc  78  (≥4.5 / Lc 60)
+ok   white.0        sobre alert.600     5.54:1  Lc  81  (≥4.5 / Lc 60)
+ok   white.0        sobre iris.600      5.27:1  Lc  81  (≥4.5 / Lc 60)
+ok   white.0        sobre gold.600      5.01:1  Lc  80  (≥4.5 / Lc 60)
+ok   white.0        sobre aqua.600      4.74:1  Lc  78  (≥4.5 / Lc 60)
+ok   night.950      sobre lime.500     12.30:1  Lc  76  (≥4.5 / Lc 55)
+ok   night.950      sobre gold.400     10.58:1  Lc  68  (≥4.5 / Lc 60)
+ok   night.950      sobre iris.500      7.89:1  Lc  55  (≥4.5 / Lc 54)
+ok   white.0        sobre alert.500     3.31:1  Lc  65  (≥3 / Lc 60)
+
+# Pares semánticos que deben distinguirse (ΔE OKLab ×100, normal / protan / deutan / tritan; mínimo 12)
+ok   ember.500 vs alert.500: 39 / 37 / 22 / 36
+FALLA ember.400 vs gold.400: 16 / 15 / 11 / 17
+ok   lime.400 vs gold.400: 21 / 20 / 17 / 26
+ok   lime.400 vs alert.500: 38 / 34 / 20 / 45
+FALLA iris.400 vs ember.500: 33 / 31 / 28 / 12
+ok   gold.400 vs alert.500: 25 / 25 / 15 / 22
+FALLA lime.400 vs iris.400: 21 / 17 / 12 / 17
+FALLA gold.400 vs iris.400: 25 / 25 / 25 / 11
+
+fuera de gamut: ember.600 oklch(0.545 0.1805 125) → recortado #5E7D00
+fuera de gamut: ember.700 oklch(0.465 0.152 125) → recortado #4B6400
+fuera de gamut: ember.800 oklch(0.385 0.1178 125) → recortado #384C00
+fuera de gamut: gold.600 oklch(0.545 0.1425 84) → recortado #8F6900
+fuera de gamut: gold.700 oklch(0.465 0.12 84) → recortado #725400
+fuera de gamut: alert.200 oklch(0.87 0.105 12) → recortado #FFC2C8
+fuera de gamut: alert.300 oklch(0.803 0.1575 12) → recortado #FF9FAB
+fuera de gamut: alert.400 oklch(0.737 0.1932 12) → recortado #FF788E
+fuera de gamut: iris.300 oklch(0.843 0.1125 298) → recortado #D2BFFF
+
+4 fallas

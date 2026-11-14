@@ -68,7 +68,7 @@ export default function GlassVisual({ lines, glass, missingIds, className = "" }
         </linearGradient>
         <pattern id={`missing-${uid}`} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <rect width="8" height="8" fill="transparent" />
-          <rect width="3" height="8" fill="#FFD375" fillOpacity="0.55" />
+          <rect width="3" height="8" fill="#E4B853" fillOpacity="0.55" />
         </pattern>
       </defs>
 

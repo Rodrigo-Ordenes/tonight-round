@@ -1,5 +1,6 @@
 "use client";
 
+import MusicEmbed from "@/components/music/MusicEmbed";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Disc3 } from "lucide-react";
@@ -35,15 +36,7 @@ export default function NowPlayingMini({ code = SOLO }: { code?: string }) {
           <Disc3 className="w-3.5 h-3.5" /> DJ
         </Link>
       </div>
-      <iframe
-        title={`Spotify: ${np.title}`}
-        src={np.embed}
-        width="100%"
-        height="80"
-        loading="lazy"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        className="block rounded-2xl border-0"
-      />
+      <MusicEmbed np={np} size="mini" />
     </div>
   );
 }

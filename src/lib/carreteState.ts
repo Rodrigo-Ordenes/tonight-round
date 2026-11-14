@@ -1,3 +1,4 @@
+import { parseMusicLink } from "./musicLink";
 import { DEFAULT_BODY_FACTOR, bodyFactorFrom, clampBodyFactor, type Consumption } from "./alcohol";
 import { normalizePayLink } from "./split";
 
@@ -110,7 +111,7 @@ export interface SongRequest {
 
 /* ---------------- Rondas en vivo (TV = escenario, celulares = control) ---------------- */
 
-export type LiveGame = "yonunca" | "probable" | "mito" | "confesion" | "prefieres" | "impostor";
+export type LiveGame = "yonunca" | "probable" | "mito" | "confesion" | "prefieres" | "impostor" | "duelo" | "mimica" | "verdadreto" | "categorias";
 
 export interface LiveVote {
   value: string;
@@ -349,7 +350,12 @@ export function normalizeParticipant(raw: Participant): Participant {
 
 export function normalizeCarrete(s: CarreteState): CarreteState {
   // Una siembra o anti-entropía pasa por aquí: lo que no entra por acciones tampoco entra por estado completo
-  const music = { ...DEFAULT_MUSIC, ...s.music };
+  const rawMusic = { ...DEFAULT_MUSIC, ...s.music };
+  // Un enlace que no pasa la validación (llegó por estado completo, no por acción) sale y vuelve el DJ automático
+  const music =
+    rawMusic.customUrl && !parseMusicLink(rawMusic.customUrl)
+      ? { ...rawMusic, customUrl: undefined, auto: true, vibeId: rawMusic.vibeId === "custom" ? DEFAULT_MUSIC.vibeId : rawMusic.vibeId }
+      : rawMusic;
   const live = { ...DEFAULT_LIVE, ...s.live };
   const split = { ...DEFAULT_SPLIT, ...s.split };
   const bring = { ...DEFAULT_BRING, ...s.bring };
@@ -426,7 +432,14 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
       return { ...s, games: { ...s.games, ...a.patch, updatedAt: Math.max(s.games.updatedAt, at) } };
     case "SET_MUSIC": {
       const cur = s.music ?? DEFAULT_MUSIC;
-      return { ...s, music: { ...cur, ...a.patch, updatedAt: Math.max(cur.updatedAt, at) } };
+      let patch = a.patch;
+      // Un enlace que no es de Spotify o YouTube (o viene con otro protocolo) no entra a la sala: se ignora la acción
+      if (patch.customUrl !== undefined) {
+        const link = parseMusicLink(patch.customUrl);
+        if (!link) return s;
+        patch = { ...patch, customUrl: link.openUrl };
+      }
+      return { ...s, music: { ...cur, ...patch, updatedAt: Math.max(cur.updatedAt, at) } };
     }
     case "START_ROUND": {
       const live = s.live ?? DEFAULT_LIVE;

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useCarreteStore } from "@/store/useCarreteStore";
 import { LIVE_GAME_BY_ID } from "@/lib/liveGames";
 
-/** Píldora flotante en móvil: hay una ronda en vivo y aún no votas. */
+/** Píldora flotante: hay una ronda en vivo y aún no votas (en escritorio también, ya no hay panel lateral fijo). */
 export default function LiveNudge({ code }: { code: string }) {
   const pathname = usePathname() || "";
   const store = useCarreteStore(code);
@@ -18,7 +18,7 @@ export default function LiveNudge({ code }: { code: string }) {
   return (
     <Link
       href={`/carrete/${code}?modo=celular`}
-      className="xl:hidden fixed inset-x-6 bottom-[calc(max(12px,env(safe-area-inset-bottom))+84px)] z-40 flex items-center gap-3 rounded-full border border-indigo-300/40 bg-indigo-500 px-5 py-3 text-sm font-bold text-night-950 shadow-glow animate-rise-in lg:bottom-6 lg:left-auto lg:right-6 lg:w-80"
+      className="fixed inset-x-6 bottom-[calc(max(12px,env(safe-area-inset-bottom))+84px)] z-40 flex items-center gap-3 rounded-full border border-indigo-300/40 bg-indigo-500 px-5 py-3 text-sm font-bold text-night-950 shadow-glow animate-rise-in lg:bottom-6 lg:left-auto lg:right-6 lg:w-80"
     >
       <span className="text-lg">{g?.emoji}</span>
       <span className="flex-1 truncate">Ronda en vivo: {g?.name}</span>

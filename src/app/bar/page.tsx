@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import SlidingIndicator, { useActiveRect } from "@/components/ui/SlidingIndicator";
 import BarStudio, { type GlassDraft } from "@/components/bar/BarStudio";
 import Recetario from "@/components/bar/Recetario";
 import Diccionario from "@/components/bar/Diccionario";
@@ -10,6 +11,7 @@ import { useLocale } from "@/lib/useLocale";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore } from "@/store/useCarreteStore";
 import { pantryFromBasket } from "@/lib/basket";
+import GhostTitle from "@/components/ui/GhostTitle";
 
 type BarTab = "preparar" | "recetario" | "diccionario" | "piscolometro";
 
@@ -39,6 +41,8 @@ export default function BarPage() {
   const { code } = useActiveCode();
   const store = useCarreteStore(code);
   const [tab, setTab] = useState<BarTab>("preparar");
+  const barTabs = useRef<HTMLDivElement>(null);
+  const barTabsRect = useActiveRect(barTabs, '[aria-selected="true"]', tab);
   const [pantry, setPantryState] = useState<Set<string>>(new Set(DEFAULT_PANTRY));
   const [shopping, setShoppingState] = useState<string[]>([]);
   const [draft, setDraft] = useState<GlassDraft>({ recipeId: "piscola", lines: [], scale: { kind: "vaso" } });
@@ -100,7 +104,8 @@ export default function BarPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <header className="flex flex-wrap items-end justify-between gap-6">
+      <header className="relative isolate flex flex-wrap items-end justify-between gap-6">
+        <GhostTitle text="Arma el trago" />
         <div className="max-w-2xl">
           <h1 className="display text-display-lg">
             Arma el trago<span className="text-accent">.</span>
@@ -109,7 +114,8 @@ export default function BarPage() {
             Primero lo que tienen, después la idea, y al final el vaso con medidas exactas para uno o para la jarra.
           </p>
         </div>
-        <div className="flex max-w-full overflow-x-auto no-scrollbar rounded-2xl bg-white/[0.04] p-1" role="tablist" aria-label="Secciones del bar">
+        <div ref={barTabs} className="relative flex max-w-full overflow-x-auto no-scrollbar rounded-2xl bg-white/[0.04] p-1" role="tablist" aria-label="Secciones del bar">
+            <SlidingIndicator rect={barTabsRect} className="rounded-xl bg-white" />
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -120,7 +126,7 @@ export default function BarPage() {
                 audioEffects.playPop();
                 setTab(t.id);
               }}
-              className={`min-h-[44px] shrink-0 rounded-xl px-4 text-sm font-bold transition-colors ${tab === t.id ? "bg-white text-night-950" : "text-slate-300 hover:text-white"}`}
+              className={`relative min-h-[44px] shrink-0 rounded-xl px-4 text-sm font-bold transition-colors duration-300 ${tab === t.id ? "text-night-950" : "text-slate-300 hover:text-white"}`}
             >
               {t.label}
             </button>

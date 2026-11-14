@@ -18,7 +18,7 @@ export default function QuickActionBar({
   onWater: () => void;
 }) {
   return (
-    <div className="fixed inset-x-3 bottom-[calc(84px+env(safe-area-inset-bottom,0px))] z-30 mx-auto flex max-w-md gap-2 rounded-2xl border border-white/10 bg-night-800 p-2 lg:bottom-4">
+    <div className="fixed inset-x-3 bottom-[calc(84px+env(safe-area-inset-bottom,0px))] z-30 mx-auto flex max-w-md gap-2 rounded-2xl border border-white/10 bg-night-800 p-2 lg:bottom-4 [@media(max-height:480px)]:hidden">
       {showDrink && (
         <div className="flex min-w-0 flex-1">
           <button

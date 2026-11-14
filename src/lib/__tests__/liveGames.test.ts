@@ -87,3 +87,71 @@ describe("tiempo restante de la ronda", () => {
   });
   it("sin duración devuelve null", () => expect(roundRemaining({ startedAt: 0 } as never, 5)).toBeNull());
 });
+
+describe("juegos nuevos", () => {
+  const ctx = { participants: people, confessions: [], usedPrompts: new Set<string>() };
+  const built = (game: Parameters<typeof buildRound>[0]) => {
+    const r = buildRound(game, ctx);
+    if ("error" in r) throw new Error(r.error);
+    return r;
+  };
+
+  it("Duelo: dos personas distintas al centro y la sala vota entre ellas", () => {
+    const r = built("duelo");
+    expect(r.options).toHaveLength(2);
+    expect(r.options[0].id).not.toBe(r.options[1].id);
+    for (const o of r.options) expect(people.map((p) => p.id)).toContain(o.id);
+  });
+
+  it("Duelo: pierde quien saca menos votos; si empatan, cumplen los dos", () => {
+    const duel = [
+      { id: "a", label: "a" },
+      { id: "b", label: "b" },
+    ];
+    expect(tally(round({ game: "duelo", options: duel, votes: { c: { value: "a", at: 1 }, b: { value: "a", at: 1 }, a: { value: "b", at: 1 } } }), people).loserIds).toEqual(["b"]);
+    expect(tally(round({ game: "duelo", options: duel, votes: { c: { value: "a", at: 1 }, a: { value: "b", at: 1 } } }), people).loserIds.sort()).toEqual(["a", "b"]);
+  });
+
+  it("Mímica: la palabra la tiene solo quien actúa y cumple si no la sacan", () => {
+    const r = built("mimica");
+    expect(r.secret).toBeTruthy();
+    expect(people.map((p) => p.id)).toContain(r.answer);
+    expect(r.prompt).not.toContain(r.secret!);
+    expect(tally(round({ game: "mimica", answer: "a", secret: "Titanic", votes: { b: { value: "no", at: 1 }, c: { value: "no", at: 1 } } }), people).loserIds).toEqual(["a"]);
+    expect(tally(round({ game: "mimica", answer: "a", secret: "Titanic", votes: { b: { value: "si", at: 1 }, c: { value: "no", at: 1 } } }), people).loserIds).toEqual([]);
+  });
+
+  it("Verdad o reto: la TV elige a alguien y su desafío; si se arruga, cumple", () => {
+    const r = built("verdadreto");
+    expect(people.map((p) => p.id)).toContain(r.answer);
+    expect(r.prompt).toMatch(/(verdad|reto): /);
+    expect(tally(round({ game: "verdadreto", answer: "b", votes: { a: { value: "no", at: 1 }, c: { value: "no", at: 1 }, b: { value: "si", at: 1 } } }), people).loserIds).toEqual(["b"]);
+    expect(tally(round({ game: "verdadreto", answer: "b", votes: { a: { value: "si", at: 1 } } }), people).loserIds).toEqual([]);
+  });
+
+  it("Cultura chupística: categoría con quien parte, y cumple el más votado", () => {
+    const r = built("categorias");
+    expect(r.options).toHaveLength(3);
+    expect(r.prompt).toMatch(/Parte .+/);
+    const all = people.map((p) => ({ id: p.id, label: p.name }));
+    expect(tally(round({ game: "categorias", options: all, votes: { a: { value: "c", at: 1 }, b: { value: "c", at: 1 } } }), people).loserIds).toEqual(["c"]);
+  });
+
+  it("piden gente suficiente", () => {
+    const two = { ...ctx, participants: people.slice(0, 2) };
+    expect("error" in buildRound("duelo", two)).toBe(true);
+    expect("error" in buildRound("mimica", two)).toBe(true);
+    expect("error" in buildRound("verdadreto", two)).toBe(false);
+  });
+});
+
+describe("quien está al centro no vota", () => {
+  it("en Mímica la ronda se revela con los votos de los demás, sin esperar a quien actúa", () => {
+    const r = round({ game: "mimica", answer: "a", durationMs: 60_000, votes: { b: { value: "si", at: 1 }, c: { value: "no", at: 1 } } });
+    expect(shouldAutoReveal(r, 3, 2)).toBe(true);
+  });
+  it("en un Duelo no se espera a los dos del centro", () => {
+    const r = round({ game: "duelo", durationMs: 45_000, options: [{ id: "a", label: "a" }, { id: "b", label: "b" }], votes: { c: { value: "a", at: 1 } } });
+    expect(shouldAutoReveal(r, 3, 2)).toBe(true);
+  });
+});

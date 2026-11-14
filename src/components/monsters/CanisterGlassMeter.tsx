@@ -32,7 +32,7 @@ export default function CanisterGlassMeter({
   const liquidColors = useMemo(() => {
     if (isDriverBreached) {
       return {
-        fill: "#FD4576",
+        fill: "#FA4C6D",
         glow: "rgba(253, 69, 118, 0.6)",
         gradientTop: "from-rose-500",
         gradientBottom: "to-red-950",
@@ -42,7 +42,7 @@ export default function CanisterGlassMeter({
 
     if (isDriver) {
       return {
-        fill: "#59D2B1",
+        fill: "#9EEECB",
         glow: "rgba(89, 210, 177, 0.4)",
         gradientTop: "from-emerald-400",
         gradientBottom: "to-emerald-950",
@@ -53,7 +53,7 @@ export default function CanisterGlassMeter({
     if (isOverload) {
       return {
         // Reducción de daños: tono cálido, sin alarma roja ni lenguaje punitivo
-        fill: "#F8C655",
+        fill: "#D5A62E",
         glow: "rgba(248, 198, 85, 0.45)",
         gradientTop: "from-amber-500",
         gradientBottom: "to-amber-950",
@@ -63,7 +63,7 @@ export default function CanisterGlassMeter({
 
     if (isHigh) {
       return {
-        fill: "#FD4576",
+        fill: "#FA4C6D",
         glow: "rgba(253, 69, 118, 0.5)",
         gradientTop: "from-pink-500",
         gradientBottom: "to-fuchsia-950",
@@ -73,7 +73,7 @@ export default function CanisterGlassMeter({
 
     // Normal (0 - 50%)
     return {
-      fill: "#95D1FF",
+      fill: "#9EEECB",
       glow: "rgba(149, 209, 255, 0.45)",
       gradientTop: "from-cyan-400",
       gradientBottom: "to-indigo-950",

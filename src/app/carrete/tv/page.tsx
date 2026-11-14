@@ -7,12 +7,18 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Maximize2, Minimize2 } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
+import { BrandMark } from "@/components/shell/AppShell";
+import SignalField from "@/components/ui/SignalField";
+import TvDepth from "@/components/live/TvDepth";
+import { roomEvents } from "@/lib/roomEvents";
+import ScrambleCode from "@/components/ui/ScrambleCode";
 import { CODE_RE } from "@/lib/carreteState";
 import { useCarreteStore, SOLO } from "@/store/useCarreteStore";
 import { useLocale } from "@/lib/useLocale";
 import { bacFor, hydrationFor } from "@/lib/alcohol";
 import { LIVE_GAME_BY_ID } from "@/lib/liveGames";
 import { resolveNowPlaying, songQueue } from "@/lib/music";
+import MusicEmbed from "@/components/music/MusicEmbed";
 import { nightMoment } from "@/lib/nightMoment";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
@@ -49,6 +55,9 @@ function TvStage() {
 
   const valid = code !== SOLO && CODE_RE.test(code);
   const round = store.state.live?.round ?? null;
+  // Red viva de la sala: cada persona con su nombre y una señal por cada cosa que pasa
+  const people = useMemo(() => store.participants.filter((p) => !p.deleted).map((p) => ({ id: p.id, name: p.name })), [store.participants]);
+  const events = useMemo(() => roomEvents(store.state, 0).slice(-150), [store.state]);
   useWakeLock(valid);
 
   // Control con teclado o control remoto (TV conectada a un notebook o Android TV)
@@ -99,14 +108,14 @@ function TvStage() {
 
   useEffect(() => {
     if (!valid) return;
-    QRCode.toDataURL(`${window.location.origin}/carrete/${code}?modo=celular`, { width: 520, margin: 1, color: { dark: "#0D0907", light: "#F1ECE8" } })
+    QRCode.toDataURL(`${window.location.origin}/carrete/${code}?modo=celular`, { width: 520, margin: 1, color: { dark: "#090A0D", light: "#ECECF1" } })
       .then(setQr)
       .catch(() => setQr(""));
   }, [code, valid]);
 
   useRevealMoment(round, () => {
     audioEffects.playReveal();
-    void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#FF8346", "#BFAAFF", "#59D2B1", "#95D1FF"] });
+    void fireConfetti({ particleCount: 160, spread: 100, origin: { y: 0.55 }, colors: ["#67AAFF", "#CA68FF", "#9EEECB", "#9EEECB"] });
   });
   const clock = useRoundClock(valid ? round : null, { participants: store.participants, dispatch: store.dispatch, sound: true });
 
@@ -145,18 +154,23 @@ function TvStage() {
   const seats = store.games.seats && now - store.games.seats.at < 10 * 60_000 ? store.games.seats : null;
 
   return (
-    <div className="relative flex min-h-[100dvh] flex-col px-[4vw] py-[3vh]">
+    <div className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-[4vw] py-[3vh]">
+      <TvDepth scene={round ? `${round.id}-${round.revealedAt ? "revelado" : "votacion"}` : "lobby"} />
+      {!round && <SignalField people={people} events={events} seed={11} className="inset-0 h-full w-full" />}
       <CheersOverlay code={code} big />
       {/* Barra superior */}
-      <header className="flex items-center justify-between gap-6">
+      <header className="relative flex items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <span className="font-display text-tv-sm font-extrabold tracking-[0.2em] text-white">TONIGHT</span>
+          <span className="neon-electric flex items-center gap-3 font-display text-tv-sm font-extrabold tracking-[0.2em] text-indigo-100 [text-shadow:0_0_14px_rgba(103,170,255,0.7)]">
+            <BrandMark className="h-10 w-10" />
+            TONIGHT
+          </span>
           <span className="eyebrow !text-2xl">{moment.eyebrow}</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2">
             <span className="live-dot" />
-            <span className="font-mono text-tv-sm font-bold tracking-[0.25em] text-white">{code}</span>
+            <ScrambleCode code={code} className="neon-blue font-led text-tv-md font-black tracking-[0.18em]" />
           </span>
           <button type="button" onClick={toggleFull} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.05] text-white" aria-label="Pantalla completa">
             {full ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}
@@ -169,7 +183,7 @@ function TvStage() {
 
       {round ? (
         /* ---------------- Ronda en vivo ---------------- */
-        <main className="flex flex-1 flex-col justify-center py-[4vh]" aria-live="polite">
+        <main key={round.id} className="tv-scene-in flex flex-1 flex-col justify-center py-[4vh]" aria-live="polite">
           <p className="eyebrow !text-2xl">
             {LIVE_GAME_BY_ID.get(round.game)?.emoji} {LIVE_GAME_BY_ID.get(round.game)?.name}
           </p>
@@ -251,6 +265,12 @@ function TvStage() {
                   {music.vibe?.emoji} {music.title}
                 </p>
                 <p className="text-2xl text-slate-400">{music.reason}</p>
+                {/* El Jam no se incrusta: la TV muestra su QR para que todos sumen canciones desde el celular */}
+                {!music.embed && (
+                  <div className="mt-4">
+                    <MusicEmbed np={music} size="tv" qr />
+                  </div>
+                )}
               </div>
             </div>
           </section>

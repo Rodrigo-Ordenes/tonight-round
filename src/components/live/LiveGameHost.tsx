@@ -28,7 +28,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
 
   useRevealMoment(round, () => {
     audioEffects.playReveal();
-    void fireConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 }, colors: ["#FF8346", "#BFAAFF", "#59D2B1", "#F1ECE8"] });
+    void fireConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 }, colors: ["#67AAFF", "#CA68FF", "#9EEECB", "#ECECF1"] });
   });
   // Entre los celulares solo quien inició la ronda la revela al acabar el tiempo; el tic suena únicamente en la TV.
   const drives = !!round && isRoundDriver(round, { tv: false, meId });

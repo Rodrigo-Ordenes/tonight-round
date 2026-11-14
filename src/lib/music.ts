@@ -1,3 +1,4 @@
+import { parseMusicLink, type MusicKind, type MusicProvider } from "./musicLink";
 import type { CountryCode } from "@/config/locales";
 import type { CarreteState, MusicState, SongRequest } from "./carreteState";
 import { nightMoment, type MomentKey } from "./nightMoment";
@@ -236,39 +237,52 @@ export function djSuggestions({ country, now, state }: DjContext): DjPick[] {
     .map(({ vibe, reason }) => ({ vibe, reason }));
 }
 
-/** Convierte un link de Spotify (playlist, álbum, canción, artista, podcast) en URL de embed. */
-export function spotifyEmbedFromUrl(input: string): string | null {
-  const s = input.trim();
-  const uri = s.match(/^spotify:(playlist|album|track|artist|episode|show):([A-Za-z0-9]{10,40})$/);
-  if (uri) return `https://open.spotify.com/embed/${uri[1]}/${uri[2]}`;
-  try {
-    const u = new URL(s);
-    if (!/(^|\.)spotify\.com$/.test(u.hostname)) return null;
-    const m = u.pathname.match(/\/(playlist|album|track|artist|episode|show)\/([A-Za-z0-9]{10,40})/);
-    return m ? `https://open.spotify.com/embed/${m[1]}/${m[2]}` : null;
-  } catch {
-    return null;
-  }
-}
-
 export const embedForVibe = (v: Vibe) => `https://open.spotify.com/embed/playlist/${v.spotifyId}?theme=0`;
 export const openForVibe = (v: Vibe) => `https://open.spotify.com/playlist/${v.spotifyId}`;
 export const youtubeMusicSearch = (q: string) => `https://music.youtube.com/search?q=${encodeURIComponent(q)}`;
 export const appleMusicSearch = (q: string) => `https://music.apple.com/search?term=${encodeURIComponent(q)}`;
 
-/** Lo que está sonando en la sala (resuelve DJ automático vs. elección manual vs. playlist propia). */
-export function resolveNowPlaying(music: MusicState | undefined, ctx: DjContext): { title: string; embed: string; open: string; vibe?: Vibe; reason?: string } {
+export interface NowPlaying {
+  title: string;
+  /** Reproductor para incrustar; null para el Jam de Spotify (no se puede incrustar: se abre en la app) */
+  embed: string | null;
+  open: string;
+  provider: MusicProvider;
+  kind?: MusicKind;
+  vibe?: Vibe;
+  reason?: string;
+}
+
+/** Lo que está sonando en la sala (resuelve DJ automático vs. elección manual vs. enlace propio validado). */
+export function resolveNowPlaying(music: MusicState | undefined, ctx: DjContext): NowPlaying {
   const vibes = vibesFor(ctx.country);
   if (music && !music.auto && music.vibeId === "custom" && music.customUrl) {
-    const embed = spotifyEmbedFromUrl(music.customUrl);
-    if (embed) return { title: "Playlist del grupo", embed: `${embed}?theme=0`, open: music.customUrl };
+    const link = parseMusicLink(music.customUrl);
+    if (link) {
+      const jam = link.kind === "jam" || link.kind === "link";
+      return {
+        title: jam ? "Jam del grupo" : link.provider === "youtube" ? "YouTube del grupo" : "Playlist del grupo",
+        embed: link.embedUrl ? (link.provider === "spotify" ? `${link.embedUrl}?theme=0` : link.embedUrl) : null,
+        open: link.openUrl,
+        provider: link.provider,
+        kind: link.kind,
+        reason: jam ? "Jam de Spotify" : "Elegida por el grupo",
+      };
+    }
   }
   if (music && !music.auto) {
     const v = vibes.find((x) => x.id === music.vibeId);
-    if (v) return { title: v.name, embed: embedForVibe(v), open: openForVibe(v), vibe: v, reason: "Elegido por el grupo" };
+    if (v) return { title: v.name, embed: embedForVibe(v), open: openForVibe(v), provider: "spotify", vibe: v, reason: "Elegido por el grupo" };
   }
   const pick = djSuggestions(ctx)[0];
-  return { title: pick.vibe.name, embed: embedForVibe(pick.vibe), open: openForVibe(pick.vibe), vibe: pick.vibe, reason: `DJ automático · ${pick.reason}` };
+  return {
+    title: pick.vibe.name,
+    embed: embedForVibe(pick.vibe),
+    open: openForVibe(pick.vibe),
+    provider: "spotify",
+    vibe: pick.vibe,
+    reason: `DJ automático · ${pick.reason}`,
+  };
 }
 
 /** Cola de pedidos pendientes: más votos primero; a igual votos, el más antiguo. */

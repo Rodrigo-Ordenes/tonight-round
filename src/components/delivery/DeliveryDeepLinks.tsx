@@ -75,7 +75,7 @@ export default function DeliveryDeepLinks({
       tagline: "Botillería online chilena con despacho en 30 min",
       webUrl: "https://www.booz.cl/",
       badge: "Especialista Licores",
-      badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/40",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/40",
       borderColor: "border-purple-500/40 hover:border-purple-500",
       bgHover: "hover:bg-purple-950/30",
     },

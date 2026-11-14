@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
+import SlidingIndicator, { useActiveRect } from "@/components/ui/SlidingIndicator";
 import { Check, ClipboardCopy, Minus, Plus, ShoppingCart, Sparkles, Trash2, X } from "lucide-react";
 import {
   GLASS_LABEL,
@@ -73,6 +74,8 @@ export default function BarStudio({
   basketPantry = [],
 }: Props) {
   const [cat, setCat] = useState(INGREDIENT_CATS[0].id);
+  const catTabs = useRef<HTMLDivElement>(null);
+  const catTabsRect = useActiveRect(catTabs, '[aria-selected="true"]', cat);
   const [copied, setCopied] = useState(false);
   const [logged, setLogged] = useState(false);
 
@@ -184,7 +187,8 @@ export default function BarStudio({
             ))}
           </div>
 
-          <div className="mt-5 -mx-4 flex gap-1 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0" role="tablist" aria-label="Categorías de ingredientes">
+          <div ref={catTabs} className="relative mt-5 -mx-4 flex gap-1 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0" role="tablist" aria-label="Categorías de ingredientes">
+            <SlidingIndicator rect={catTabsRect} className="rounded-full bg-white" />
             {INGREDIENT_CATS.map((c) => {
               const n = INGREDIENTS.filter((i) => i.cat === c.id && pantry.has(i.id)).length;
               return (
@@ -194,8 +198,8 @@ export default function BarStudio({
                   role="tab"
                   aria-selected={cat === c.id}
                   onClick={() => setCat(c.id)}
-                  className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-colors ${
-                    cat === c.id ? "bg-white text-night-950" : "text-slate-400 hover:text-white"
+                  className={`relative shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-colors duration-300 ${
+                    cat === c.id ? "text-night-950" : "text-slate-400 hover:text-white"
                   }`}
                 >
                   {c.emoji} {c.label}

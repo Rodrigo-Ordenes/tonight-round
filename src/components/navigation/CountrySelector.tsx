@@ -27,6 +27,9 @@ export default function CountrySelector({ variant = "compact", placement = "down
     return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
 
+  // Con un solo país visible no hay nada que elegir
+  if (countries.length < 2) return null;
+
   const select = (c: CountryCode) => {
     audioEffects.playPop();
     setCountry(c);
