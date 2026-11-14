@@ -75,6 +75,6 @@ Opcional: con `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN` en las varia
 
 ## Notas de seguridad
 
-- **CSP:** mantiene `'unsafe-inline'` en scripts y estilos porque Next inyecta scripts en línea para hidratar y la app usa atributos `style`. Con nonces, cada página tendría que renderizarse dinámicamente. Solo se permiten marcos de `open.spotify.com`.
+- **CSP:** mantiene `'unsafe-inline'` en scripts y estilos porque Next inyecta scripts en línea para hidratar y la app usa atributos `style`. Con nonces, cada página tendría que renderizarse dinámicamente. Solo se permiten marcos de `open.spotify.com` y `www.youtube-nocookie.com`.
 - **Optimizador de imágenes:** apagado con `images.unoptimized`; `/_next/image` responde 404.
 - **Caché:** las páginas estáticas salen con `s-maxage=31536000`, que solo aplica a cachés compartidas. En producción no hay señales de una delante de la app (ni `x-litespeed-cache` ni `age`), y una versión nueva reemplaza el HTML de Next, así que no hace falta ajuste. Si se activa LSCache o una CDN, hay que purgarla al actualizar.
