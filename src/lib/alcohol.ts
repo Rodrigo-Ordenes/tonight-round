@@ -50,6 +50,20 @@ export const pureGrams = (ml: number, abv: number) => ml * abv * 0.8;
 
 export const widmarkR = (gender: "M" | "F") => (gender === "M" ? 0.68 : 0.55);
 
+const MIN_BODY_FACTOR = 16;
+const MAX_BODY_FACTOR = 180;
+export const clampBodyFactor = (f: number) => Math.min(MAX_BODY_FACTOR, Math.max(MIN_BODY_FACTOR, f));
+
+/**
+ * Litros de distribución (r × kg) redondeados a pares: es lo único que viaja a la sala.
+ * El peso y el sexo quedan en el celular; el factor no permite saber el sexo y solo aproxima el peso.
+ */
+export function bodyFactorFrom(gender: "M" | "F", weightKg: number): number {
+  return clampBodyFactor(Math.round((widmarkR(gender) * Math.max(30, weightKg)) / 2) * 2);
+}
+
+export const DEFAULT_BODY_FACTOR = bodyFactorFrom("M", 75);
+
 export type StomachState = "empty" | "normal" | "full";
 
 /** Minutos hasta absorber por completo un trago y fracción que llega a la sangre. */
@@ -80,8 +94,7 @@ const STEP_MIN = 2;
  */
 export function computeBac(
   consumptions: Consumption[],
-  gender: "M" | "F",
-  weightKg: number,
+  bodyFactor: number,
   now: number = Date.now(),
   stomach: StomachState = "normal"
 ): BacResult {
@@ -91,7 +104,7 @@ export function computeBac(
     return { totalGrams: 0, bac: 0, hoursToZero: 0, zeroAt: null, totalMl: 0, peakBac: 0, peakAt: null, pendingGrams: 0 };
 
   const { minutes, bioavailability } = ABSORPTION[stomach];
-  const volume = widmarkR(gender) * Math.max(30, weightKg); // litros de distribución
+  const volume = clampBodyFactor(bodyFactor); // litros de distribución
   const drinks = consumptions
     .map((c) => ({ ts: c.ts, grams: pureGrams(c.ml, c.abv) * bioavailability }))
     .sort((a, b) => a.ts - b.ts);
@@ -131,12 +144,12 @@ export function computeBac(
   return { totalGrams, bac: current, hoursToZero, zeroAt, totalMl, peakBac, peakAt, pendingGrams };
 }
 
-/** Atajo para un participante del carrete (usa su peso, sexo y estómago). */
+/** Atajo para un participante del carrete (usa su factor corporal y estómago). */
 export function bacFor(
-  p: { consumptions: Consumption[]; gender: "M" | "F"; weightKg: number; stomach?: StomachState },
+  p: { consumptions: Consumption[]; bodyFactor: number; stomach?: StomachState },
   now: number = Date.now()
 ): BacResult {
-  return computeBac(p.consumptions, p.gender, p.weightKg, now, p.stomach ?? "normal");
+  return computeBac(p.consumptions, p.bodyFactor, now, p.stomach ?? "normal");
 }
 
 /** Gramos de alcohol por vaso de agua recomendado (~1 vaso cada 15–20 g). */

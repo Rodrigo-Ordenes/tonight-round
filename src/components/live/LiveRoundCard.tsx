@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Check, Send } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
-import { LIVE_GAME_BY_ID, penaltyFor, tally } from "@/lib/liveGames";
+import { LIVE_GAME_BY_ID, isRoundDriver, judgedIds, penaltyFor, tally } from "@/lib/liveGames";
+import PenaltyChooser from "./PenaltyChooser";
 import { audioEffects } from "@/lib/audioEffects";
 import RoundResults from "./RoundResults";
 import { useRevealMoment } from "@/lib/useRevealMoment";
@@ -38,12 +39,16 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
   useRevealMoment(round, (r) => {
     if (me && tally(r, participants).loserIds.includes(me.id)) audioEffects.triggerHaptic([200, 80, 200]);
   });
-  const clock = useRoundClock(round);
+  // Sin TV, quien inició la ronda la revela también desde la vista de su celular
+  const drives = !!round && isRoundDriver(round, { tv: false, meId });
+  const clock = useRoundClock(round, drives ? { participants, dispatch } : undefined);
 
   if (!me) return null;
 
   const myVote = round?.votes[me.id]?.value;
   const isImpostor = round?.game === "impostor" && round.answer === me.id;
+  // Quien actúa, se juzga o se bate a duelo no vota: la sala decide
+  const judged = !!round && judgedIds(round).includes(me.id);
 
   const vote = (value: string) => {
     if (!round || round.revealedAt) return;
@@ -82,6 +87,13 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
             </div>
           )}
 
+          {round.game === "mimica" && !round.revealedAt && (
+            <div className={`relative mt-3 rounded-2xl border p-4 text-center ${judged ? "border-purple-400/50 bg-purple-500/10" : "border-white/10 bg-white/[0.04]"}`}>
+              <p className="eyebrow">{judged ? "Te toca actuar, sin hablar" : "Adivina en voz alta"}</p>
+              <p className="display mt-1 text-3xl">{judged ? round.secret : "🎭"}</p>
+            </div>
+          )}
+
           <p className={`display relative mt-3 ${compact ? "text-lg" : "text-2xl"}`}>
             {round.game === "confesion" ? `"${round.prompt}"` : round.prompt}
           </p>
@@ -92,7 +104,11 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
             </div>
           )}
 
-          {!round.revealedAt ? (
+          {!round.revealedAt && judged ? (
+            <p className="relative mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-center text-sm font-semibold text-slate-200">
+              Estás al centro: la sala vota.
+            </p>
+          ) : !round.revealedAt ? (
             <div className={`relative mt-4 grid gap-2 ${round.options.length <= 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2"}`}>
               {round.options
                 // En El Impostor y Confesiones no puedes votarte a ti mismo
@@ -105,7 +121,7 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
                       type="button"
                       onClick={() => vote(o.id)}
                       aria-pressed={on}
-                      className={`min-h-[56px] rounded-2xl border px-4 text-left text-base font-bold transition-all active:scale-[0.98] ${
+                      className={`min-h-[56px] rounded-2xl border px-4 text-left text-base font-bold transition active:scale-[0.98] ${
                         on ? "border-indigo-300 bg-indigo-500 text-night-950" : "border-white/10 bg-white/[0.04] text-white hover:border-white/25"
                       }`}
                     >
@@ -123,9 +139,7 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
           ) : (
             <div className="relative mt-4 space-y-3">
               {tally(round, participants).loserIds.includes(me.id) ? (
-                <p className="rounded-2xl border border-indigo-400/40 bg-indigo-500/15 p-3 text-center font-display text-lg font-bold text-white">
-                  Te toca: {penaltyFor(me, round.id).text}
-                </p>
+                <PenaltyChooser participant={me} roundId={round.id} defaultText={penaltyFor(me, round.id).text} />
               ) : (
                 <p className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-center text-sm font-bold text-emerald-100">Te salvaste esta ronda 😎</p>
               )}
@@ -149,6 +163,7 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
           <div className="mt-3 flex gap-2">
             <input
               value={confession}
+              maxLength={280}
               onChange={(e) => setConfession(e.target.value.slice(0, 140))}
               onKeyDown={(e) => e.key === "Enter" && sendConfession()}
               placeholder="Una vez me quedé dormido en…"

@@ -1,13 +1,13 @@
 import { ImageResponse } from "next/og";
-import { Moon } from "@/lib/og/brand";
+import { Mark } from "@/lib/og/brand";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
 export default function AppleIcon() {
   return new ImageResponse(
-    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#0D0907" }}>
-      <Moon size={120} />
+    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#090A0D" }}>
+      <Mark size={120} />
     </div>,
     size
   );

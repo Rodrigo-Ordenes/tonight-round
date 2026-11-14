@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { CountryCode, LocaleConfig, getLocale, COUNTRIES } from "@/config/locales";
+import { CountryCode, LocaleConfig, getLocale, COUNTRIES, VISIBLE_COUNTRIES } from "@/config/locales";
 
 const KEY = "tonight_country";
 
@@ -12,7 +12,8 @@ export function useLocale() {
   useEffect(() => {
     const read = () => {
       const saved = localStorage.getItem(KEY);
-      if (saved && (saved === "CL" || saved === "MX" || saved === "US" || saved === "JP")) {
+      // Un país oculto guardado antes vuelve a Chile (no quedaría forma de cambiarlo)
+      if (saved && VISIBLE_COUNTRIES.includes(saved as CountryCode)) {
         setCountryState(saved as CountryCode);
       } else {
         setCountryState("CL");
@@ -51,7 +52,7 @@ export function useLocale() {
     country,
     locale,
     setCountry,
-    countries: COUNTRIES,
+    countries: COUNTRIES.filter((c) => VISIBLE_COUNTRIES.includes(c.code)),
     formatCurrency,
     hydrated,
   };

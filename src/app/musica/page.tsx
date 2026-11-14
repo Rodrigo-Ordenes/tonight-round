@@ -1,5 +1,7 @@
 "use client";
 
+import MusicEmbed from "@/components/music/MusicEmbed";
+import { parseMusicLink } from "@/lib/musicLink";
 import React, { useEffect, useMemo, useState } from "react";
 import { ExternalLink, Heart, Link2, Sparkles, Wand2 } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
@@ -13,11 +15,11 @@ import {
   resolveNowPlaying,
   roomPulse,
   songQueue,
-  spotifyEmbedFromUrl,
   vibesFor,
   youtubeMusicSearch,
 } from "@/lib/music";
 import { audioEffects } from "@/lib/audioEffects";
+import GhostTitle from "@/components/ui/GhostTitle";
 
 function EnergyMeter({ value }: { value: number }) {
   return (
@@ -67,21 +69,22 @@ export default function MusicaPage() {
   };
 
   const applyCustom = () => {
-    const embed = spotifyEmbedFromUrl(custom);
-    if (!embed) {
-      setCustomError("Pega un link de Spotify (playlist, álbum, canción o artista).");
+    const link = parseMusicLink(custom);
+    if (!link) {
+      setCustomError("Pega un link de Spotify (playlist, álbum, canción, artista o Jam) o de YouTube (lista o video).");
       return;
     }
     setCustomError(null);
     audioEffects.playSuccessChime();
-    dispatch({ type: "SET_MUSIC", patch: { vibeId: "custom", customUrl: custom.trim(), auto: false } });
+    dispatch({ type: "SET_MUSIC", patch: { vibeId: "custom", customUrl: link.openUrl, auto: false } });
     setCustom("");
   };
 
   return (
     <div className="space-y-10 animate-fade-in">
       {/* Cabecera editorial */}
-      <header className="max-w-3xl">
+      <header className="relative isolate max-w-3xl">
+        <GhostTitle text="DJ" />
         <h1 className="display text-display-lg">
           DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-accent">.</span>
         </h1>
@@ -103,19 +106,10 @@ export default function MusicaPage() {
               {np.reason ?? "Sonando"}
             </span>
             <a href={np.open} target="_blank" rel="noopener noreferrer" className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white">
-              Abrir en Spotify <ExternalLink className="w-3.5 h-3.5" />
+              Abrir en {np.provider === "youtube" ? "YouTube" : "Spotify"} <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
-          <iframe
-            key={np.embed}
-            title={`Spotify: ${np.title}`}
-            src={np.embed}
-            width="100%"
-            height="380"
-            loading="lazy"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            className="block rounded-2xl border-0"
-          />
+          <MusicEmbed np={np} size="main" />
           <div className="mt-4 flex flex-wrap gap-2">
             <a className="chip" href={youtubeMusicSearch(np.title)} target="_blank" rel="noopener noreferrer">
               YouTube Music <ExternalLink className="w-3 h-3" />
@@ -157,15 +151,15 @@ export default function MusicaPage() {
 
           <div className="surface p-4">
             <p className="eyebrow flex items-center gap-1.5">
-              <Link2 className="w-3.5 h-3.5" /> Tu propia playlist
+              <Link2 className="w-3.5 h-3.5" /> Pon tu música
             </p>
             <div className="mt-3 flex gap-2">
               <input
                 value={custom}
                 onChange={(e) => setCustom(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && applyCustom()}
-                placeholder="https://open.spotify.com/playlist/…"
-                aria-label="Link de Spotify"
+                placeholder="Link de Spotify, Jam o YouTube"
+                aria-label="Link de Spotify o YouTube"
                 className="min-h-[46px] min-w-0 flex-1 rounded-2xl border border-white/10 bg-night-950/60 px-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-400"
               />
               <button type="button" onClick={applyCustom} className="btn-primary !px-4">
@@ -173,6 +167,11 @@ export default function MusicaPage() {
               </button>
             </div>
             {customError && <p className="mt-2 text-xs text-rose-300">{customError}</p>}
+            <p className="mt-3 text-xs leading-relaxed text-slate-400">
+              Con tu sesión de Spotify abierta en este navegador suenan las canciones completas; sin sesión, Spotify da adelantos de 30
+              segundos. YouTube suena completo (puede tener anuncios). Un Jam se abre en Spotify y la TV muestra su QR para que todos sumen
+              canciones.
+            </p>
           </div>
         </div>
       </section>

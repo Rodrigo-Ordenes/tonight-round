@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Car, Crown, Droplets, Plus, RefreshCw, RotateCcw, ShieldAlert, Trash2, UserPlus, X } from "lucide-react";
+import DriverStatus from "@/components/monsters/DriverStatus";
+import Modal from "@/components/ui/Modal";
+import { Car, Droplets, Plus, RefreshCw, RotateCcw, ShieldAlert, Trash2, UserPlus, X } from "lucide-react";
 import CanisterGlassMeter from "./CanisterGlassMeter";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { audioEffects } from "@/lib/audioEffects";
@@ -16,9 +18,11 @@ import {
   hydrationFor,
   type DrinkPreset,
   type StomachState,
+  bodyFactorFrom,
 } from "@/lib/alcohol";
 import type { Participant } from "@/lib/carreteState";
 import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
+import { addMine } from "@/lib/myPeople";
 
 interface Props {
   store: CarreteStore;
@@ -74,7 +78,8 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
   const create = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    addParticipant({ name: name.trim(), gender, weightKg: weight, role: isDriver ? "driver" : "drinker" });
+    const added = addParticipant({ name: name.trim(), bodyFactor: bodyFactorFrom(gender, weight), role: isDriver ? "driver" : "drinker" });
+    addMine(store.code, added);
     setName("");
     setIsDriver(false);
     setShowAdd(false);
@@ -146,13 +151,11 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               <header className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="truncate font-display text-lg font-bold text-white">{p.name}</h3>
-                  <p className="text-xs text-slate-400">
-                    {p.gender === "M" ? "Hombre" : "Mujer"} · {p.weightKg} kg
-                  </p>
+                  {p.role === "driver" && <DriverStatus breach={breach} className="text-xs" />}
                 </div>
                 {p.role === "driver" ? (
                   <span className="flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-1 text-xs font-bold uppercase text-amber-200">
-                    <Crown className="w-3 h-3" /> {breach ? "¡Bebió!" : "Piloto 0.0"}
+                    <Car className="w-3 h-3" /> {breach ? "¡Bebió!" : "Piloto 0.0"}
                   </span>
                 ) : null}
               </header>
@@ -199,7 +202,9 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               >
                 {r.zeroAt
                   ? `${rising ? `Sigue subiendo hasta las ${fmtTime(r.peakAt!)}. ` : ""}Vuelve a 0.00 ≈ ${fmtTime(r.zeroAt)} (${fmtDuration(r.hoursToZero)})`
-                  : "En 0.00 g/l ahora"}
+                  : hasAlcohol(p.consumptions)
+                  ? "Estimación: 0.00 g/l. No sirve para decidir si manejar."
+                  : "Sin alcohol registrado"}
               </p>
 
               {h.needsWater && p.consumptions.length > 0 && (
@@ -338,8 +343,8 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
       </p>
 
       {driverWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-night-950/90 p-4 backdrop-blur-md">
-          <div role="alertdialog" aria-modal="true" className="w-full max-w-md space-y-4 rounded-3xl border-2 border-rose-500 bg-night-900 p-6 text-center">
+        <Modal role="alertdialog" label="Aviso de conductor" onClose={() => setDriverWarning(null)} className="flex items-center justify-center bg-night-950/90 p-4 backdrop-blur-md">
+          <div className="w-full max-w-md space-y-4 rounded-3xl border-2 border-rose-500 bg-night-900 p-6 text-center">
             <ShieldAlert className="mx-auto w-10 h-10 text-rose-400" />
             <h3 className="font-display text-xl font-extrabold text-white">{driverWarning} es {locale.terminology.driverTitle.toLowerCase()}</h3>
             <div className="space-y-2 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-3 text-left text-xs text-rose-100">
@@ -353,11 +358,11 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               Entendido
             </button>
           </div>
-        </div>
+        </Modal>
       )}
 
       {showAdd && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-night-950/80 p-4 backdrop-blur-sm">
+        <Modal label="Sumar persona" onClose={() => setShowAdd(false)} className="flex items-center justify-center bg-night-950/80 p-4 backdrop-blur-sm">
           <form onSubmit={create} className="w-full max-w-sm space-y-4 rounded-3xl border border-white/10 bg-night-900 p-5">
             <div className="flex items-center justify-between">
               <h3 className="font-display text-lg font-bold text-white">Sumar persona</h3>
@@ -369,6 +374,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               autoFocus
               required
               value={name}
+              maxLength={30}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nombre o apodo"
               className="min-h-[48px] w-full rounded-xl border border-white/10 bg-night-950 px-4 text-sm text-white outline-none focus:border-indigo-400"
@@ -397,7 +403,7 @@ export default function MonstruometroRanking({ store, readOnly = false }: Props)
               Agregar
             </button>
           </form>
-        </div>
+        </Modal>
       )}
     </div>
   );

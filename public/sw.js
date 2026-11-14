@@ -2,7 +2,7 @@
  * - Páginas: red primero, caché como respaldo (y la portada si no hay nada).
  * - Assets estáticos de Next: caché primero (tienen hash en el nombre).
  * - /api: nunca se cachea; la cola offline del cliente reenvía las acciones al volver la red. */
-const VERSION = "tonight-v10-1";
+const VERSION = "tonight-v11-1";
 const PAGES = ["/", "/bar", "/juegos", "/armar", "/dividir", "/musica"];
 
 self.addEventListener("install", (event) => {

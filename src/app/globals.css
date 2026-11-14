@@ -3,25 +3,35 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------
-   Tonight V11 — paleta "Brasa" (carbón cálido, coral, menta, ámbar).
-   Fuente de verdad: tailwind.config.js · estudio y validación: docs/paleta-v11.md
+   Tonight V12 — paleta «Neón» (penumbra violeta, azul y morado neón, menta, ámbar, frambuesa).
+   Fuente de verdad: tailwind.config.js · estudio y validación: docs/paleta-v12.md
    ------------------------------------------------------------------ */
 :root {
-  --bg: #0d0907;
-  --surface-1: #171310;
-  --surface-2: #201a17;
-  --surface-3: #29231f;
-  --line: rgba(241, 236, 232, 0.08);
-  --line-strong: rgba(241, 236, 232, 0.14);
-  --text: #f1ece8;
-  --text-muted: #c3bcb8;
-  --text-faint: #a8a09b;
-  --ember: #ff8346;
-  --lime: #59d2b1;
-  --iris: #bfaaff;
-  --gold: #ffd375;
-  --aqua: #95d1ff;
-  --alert: #fd4576;
+  --bg: #090a0d;
+  --surface-1: #131318;
+  --surface-2: #1b1b21;
+  --surface-3: #23232a;
+  --line: rgba(236, 236, 241, 0.08);
+  --line-strong: rgba(236, 236, 241, 0.14);
+  --text: #ececf1;
+  --text-muted: #bcbdc4;
+  --text-faint: #a0a1a9;
+  /* Neón de bar: azul (marca y acción) y morado (juegos y destacados) dominan; menta para lo que está en vivo,
+     ámbar para avisos y frambuesa para peligro. Valores de tailwind.config.js (docs/paleta-v12.md). */
+  --blue: #67aaff;
+  --blue-text: #89bdff;
+  --violet: #b93ef3;
+  --violet-text: #d793ff;
+  --signal: #8ce3be;
+  --amber: #e4b853;
+  --flare: #fa4c6d;
+  /* Ilustración de tragos (no interfaz) */
+  --beer: #f0c24e;
+  --cola: #3b1a0b;
+  --wine: #a3234b;
+  --citrus: #a8d64a;
+  /* Curva de salida compartida por toda la capa de movimiento */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --background: var(--bg);
   --foreground: var(--text);
 }
@@ -48,7 +58,7 @@ body {
   overflow-x: hidden;
   /* Sin "pull to refresh" ni rebote que robe el gesto en plena ronda */
   overscroll-behavior-y: none;
-  caret-color: var(--ember);
+  caret-color: var(--blue);
 }
 
 a {
@@ -82,13 +92,24 @@ button,
 }
 
 :focus-visible {
-  outline: 2px solid var(--ember);
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
   border-radius: 10px;
 }
 
+/* Sin esto, un hijo de grilla con contenido ancho ensancha toda la página en celulares chicos */
+main .grid > * {
+  min-width: 0;
+}
+
+/* outline-none no debe esconder el foco de teclado */
+.outline-none:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
 ::selection {
-  background: rgba(255, 131, 70, 0.4);
+  background: rgba(103, 170, 255, 0.4);
   color: var(--text);
 }
 
@@ -100,11 +121,11 @@ button,
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #362F2A;
+  background: #2F3037;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #463E39;
+  background: #3E3F47;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -147,15 +168,17 @@ button,
   }
   .surface {
     @apply rounded-2xl border border-white/[0.08] bg-night-900;
+    /* Filo de luz superior: la superficie se lee como un panel, sin sombra de color */
+    box-shadow: inset 0 1px 0 rgba(236, 236, 241, 0.05);
   }
   .surface-hover {
     @apply transition-[border-color,background-color] duration-200 ease-out hover:border-white/[0.18] hover:bg-night-850;
   }
 
   /* Tipografía */
-  /* Etiqueta de dato (no va sobre títulos): 12 px, sans, sin disfraz monoespaciado */
+  /* Etiqueta de dato: 12 px, sans, en minúsculas de oración (las mayúsculas espaciadas son un tic de plantilla) */
   .eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.08em] text-slate-400;
+    @apply text-xs font-semibold text-slate-400;
   }
   /* Línea de contexto bajo un título (hora, sala, cantidad) */
   .meta {
@@ -163,19 +186,19 @@ button,
   }
   .display {
     @apply font-display font-extrabold tracking-tight text-white;
-    font-variation-settings: "wdth" 88, "opsz" 96;
+    font-variation-settings: "wdth" 106;
   }
   /* Acento sólido: el énfasis viene del color y el peso, no de un degradado */
   .text-accent {
-    color: #ffa176;
+    color: var(--violet-text);
   }
 
   /* Botones */
   .btn {
-    @apply inline-flex min-h-[48px] select-none items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition-[transform,background-color,border-color,color] duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex min-h-[48px] select-none items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition-[transform,background-color,border-color,color] duration-150 ease-out active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-indigo-500 text-night-950 hover:bg-indigo-400;
+    @apply btn bg-indigo-500 text-night-950 shadow-neon hover:bg-indigo-400;
   }
   .btn-ghost {
     @apply btn border border-white/10 bg-white/[0.03] text-slate-100 hover:border-white/20 hover:bg-white/[0.07];
@@ -186,7 +209,7 @@ button,
 
   /* Chips */
   .chip {
-    @apply inline-flex min-h-[36px] select-none items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 text-xs font-semibold text-slate-200 transition-[border-color,background-color,transform] duration-150 ease-out hover:border-white/25 active:scale-[0.97];
+    @apply inline-flex max-w-full min-h-[44px] select-none items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 text-xs font-semibold text-slate-200 transition-[border-color,background-color,transform] duration-150 ease-out hover:border-white/25 active:scale-[0.96];
   }
   .chip-on {
     @apply border-indigo-400/70 bg-indigo-500/15 text-indigo-100;
@@ -210,5 +233,626 @@ button,
   }
   .tabular {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Intro del trago: llega desde el servidor y se apaga antes de pintar si ya se vio o con movimiento reducido */
+:root[data-intro="off"] .pour-intro {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pour-intro {
+    display: none;
+  }
+}
+
+/* Retícula de puntos (papel técnico) detrás de la red de la portada y de la TV; se desvanece hacia los bordes */
+.tech-grid {
+  background-image: radial-gradient(rgba(236, 236, 241, 0.085) 1px, transparent 1.25px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 62% 42%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse 75% 70% at 62% 42%, #000 30%, transparent 78%);
+}
+
+/* Intro «La ronda»: la cinta trae los vasos y el dispensador entra por el riel (CSS: corre antes de hidratar) */
+@keyframes ronda-belt {
+  from {
+    transform: translateX(-420px);
+  }
+}
+@keyframes ronda-head {
+  from {
+    transform: translateX(-120px);
+    opacity: 0;
+  }
+}
+@keyframes ronda-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.ronda-belt {
+  animation: ronda-belt 1150ms var(--ease-out) both;
+}
+.ronda-head-in {
+  animation: ronda-head 900ms var(--ease-out) 180ms both;
+}
+.ronda-counter {
+  stroke-dasharray: 1;
+  animation: ronda-draw 900ms var(--ease-out) both;
+}
+
+/* Letrero de neón: el tubo (texto) y su halo. Solo en la marca, la palabra de acento y piezas puntuales. */
+.neon-blue {
+  color: var(--blue-text);
+  text-shadow: 0 0 2px rgba(137, 189, 255, 0.9), 0 0 10px rgba(103, 170, 255, 0.55), 0 0 28px rgba(103, 170, 255, 0.35);
+}
+.neon-violet {
+  /* Como un tubo real: el centro se ve casi blanco (300) y el color intenso está en el halo (500) */
+  color: var(--violet-text);
+  text-shadow: 0 0 2px rgba(215, 147, 255, 0.9), 0 0 12px rgba(185, 62, 243, 0.65), 0 0 32px rgba(185, 62, 243, 0.45);
+}
+
+/* ------------------------------------------------------------------
+   Movimiento V12: la app se siente viva en cada sección (es gente pasándola bien).
+   Solo transform y opacity, curvas de salida fuertes y nada de esto con prefers-reduced-motion.
+   ------------------------------------------------------------------ */
+
+/* Píldora del menú y de las pestañas: viaja con un rebote leve (el primer cuadro se ubica sin viajar) */
+.sliding-indicator[data-ready] {
+  transition: transform 420ms cubic-bezier(0.34, 1.36, 0.64, 1), width 420ms cubic-bezier(0.34, 1.36, 0.64, 1),
+    height 420ms cubic-bezier(0.34, 1.36, 0.64, 1), opacity 200ms ease-out;
+}
+
+/* Destello de la acción principal de la portada */
+.cta-shine {
+  isolation: isolate;
+  overflow: hidden;
+}
+.cta-shine::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 35%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: translateX(-140%) skewX(-14deg);
+  pointer-events: none;
+}
+
+@keyframes section-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes section-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: perspective(900px) translateY(30px) rotateX(9deg) scale(0.97);
+  }
+}
+/* Un letrero que se enciende: parpadea y queda prendido (solo opacidad) */
+@keyframes neon-on {
+  0% {
+    opacity: 0.1;
+  }
+  7% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 0.25;
+  }
+  16% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  27%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes cta-shine {
+  0% {
+    transform: translateX(-140%) skewX(-14deg);
+  }
+  22%,
+  100% {
+    transform: translateX(420%) skewX(-14deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Cada sección de la página entra en cascada (delays que se acortan: se lee como una ola, no como una fila).
+     Las que contienen piezas fijas solo se funden: un transform las movería mientras dura. */
+  /* Fuera de la cascada: la intro y el recorrido fijado (.pin-spacer de GSAP). Un transform que sigue aplicado en el
+     envoltorio lo vuelve contenedor de lo «fixed» y la sección fijada se iba con el scroll en vez de quedarse. */
+  .page-in > * > :nth-child(-n + 8):not(.pour-intro):not(.pin-spacer):not([data-track-section]) {
+    animation: section-in 560ms var(--ease-out) both;
+  }
+  .page-in > * > :nth-child(-n + 8):not(.pour-intro):not(.pin-spacer):not([data-track-section]):has([class~="fixed"]) {
+    animation-name: section-fade;
+  }
+  .page-in > * > :nth-child(2) {
+    animation-delay: 70ms;
+  }
+  .page-in > * > :nth-child(3) {
+    animation-delay: 130ms;
+  }
+  .page-in > * > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .page-in > * > :nth-child(5) {
+    animation-delay: 220ms;
+  }
+  .page-in > * > :nth-child(6) {
+    animation-delay: 250ms;
+  }
+  .page-in > * > :nth-child(7) {
+    animation-delay: 270ms;
+  }
+  .page-in > * > :nth-child(8) {
+    animation-delay: 285ms;
+  }
+
+  .neon-violet,
+  .neon-blue {
+    animation: neon-on 1.4s steps(1, end) both;
+  }
+
+  .cta-shine::after {
+    animation: cta-shine 6.5s var(--ease-out) 2.4s infinite;
+  }
+}
+
+/* Las tarjetas aparecen al entrar en pantalla mientras se baja (animación ligada al scroll: corre en el
+   compositor; donde no hay soporte, el contenido simplemente se ve) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    main .surface:not(.animate-rise-in):not(dialog .surface):not(:has([class~="fixed"])),
+    main .reveal,
+    main .grid:has(> :nth-child(4)):not(:has(> .sliding-indicator)):not([role="tablist"]):not([role="radiogroup"]):not([data-gsap] *):not(dialog *) > :not([class*="animate-"]):not(.sliding-indicator):not(:has([class~="fixed"])) {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+      transform-origin: 50% 100%;
+    }
+    /* En las grillas de tarjetas, cada columna llega un poco después que la anterior: una ola ligada al scroll. Fuera
+       quedan los selectores con píldora deslizante (su posición es un transform que la animación pisaría) */
+    main .grid:has(> :nth-child(4)):not(:has(> .sliding-indicator)):not([role="tablist"]):not([role="radiogroup"]):not([data-gsap] *):not(dialog *) > :not([class*="animate-"]):not(.sliding-indicator):not(:has([class~="fixed"])):nth-child(4n + 2) {
+      animation-range: entry 6% entry 76%;
+    }
+    main .grid:has(> :nth-child(4)):not(:has(> .sliding-indicator)):not([role="tablist"]):not([role="radiogroup"]):not([data-gsap] *):not(dialog *) > :not([class*="animate-"]):not(.sliding-indicator):not(:has([class~="fixed"])):nth-child(4n + 3) {
+      animation-range: entry 12% entry 82%;
+    }
+    main .grid:has(> :nth-child(4)):not(:has(> .sliding-indicator)):not([role="tablist"]):not([role="radiogroup"]):not([data-gsap] *):not(dialog *) > :not([class*="animate-"]):not(.sliding-indicator):not(:has([class~="fixed"])):nth-child(4n + 4) {
+      animation-range: entry 18% entry 88%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-nav-pop,
+  .animate-dock-in,
+  .animate-float-up,
+  .animate-bar-grow {
+    animation: none !important;
+  }
+  .sliding-indicator {
+    transition: none !important;
+  }
+}
+
+/* Logo: letrero de neón de bar, con un tubo que zumba cada tanto (se enciende al cargar y parpadea intermitente) */
+@keyframes neon-buzz {
+  0%,
+  82%,
+  100% {
+    opacity: 1;
+  }
+  83% {
+    opacity: 0.25;
+  }
+  84% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 0.45;
+  }
+  87%,
+  92% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.6;
+  }
+  94% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .neon-sign {
+    animation: neon-on 1.4s steps(1, end) both, neon-buzz 6.5s steps(1, end) 2s infinite;
+  }
+}
+
+/* Logo de la intro: neón eléctrico (se enciende, zumba seguido y su halo pulsa en azul y morado) */
+@keyframes electric-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px rgba(103, 170, 255, 0.6)) drop-shadow(0 0 18px rgba(185, 62, 243, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(103, 170, 255, 0.95)) drop-shadow(0 0 34px rgba(185, 62, 243, 0.65));
+  }
+}
+.neon-electric {
+  filter: drop-shadow(0 0 8px rgba(103, 170, 255, 0.7)) drop-shadow(0 0 22px rgba(185, 62, 243, 0.45));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .neon-electric {
+    animation: neon-on 1.2s steps(1, end) 0.3s both, neon-buzz 3.4s steps(1, end) 2s infinite, electric-glow 1.6s ease-in-out infinite;
+  }
+}
+
+/* Parallax: capas a distinta profundidad mientras se baja. El fondo (retícula, red) se queda atrás y los títulos
+   se adelantan. Ligado al scroll en el compositor y solo con transform; sin soporte o con movimiento reducido, quieto. */
+@keyframes parallax-deep {
+  from {
+    transform: translateY(-14%);
+  }
+  to {
+    transform: translateY(14%);
+  }
+}
+@keyframes parallax-mid {
+  from {
+    transform: translateY(-8%);
+  }
+  to {
+    transform: translateY(8%);
+  }
+}
+@keyframes parallax-near {
+  from {
+    transform: translateY(18px);
+  }
+  to {
+    transform: translateY(-18px);
+  }
+}
+@keyframes parallax-float {
+  from {
+    transform: translateY(6px) rotate(-4deg);
+  }
+  to {
+    transform: translateY(-6px) rotate(4deg);
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .parallax-deep,
+    .parallax-mid,
+    .parallax-near,
+    .parallax-float {
+      animation-duration: 1ms;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    .parallax-deep {
+      animation-name: parallax-deep;
+    }
+    .parallax-mid {
+      animation-name: parallax-mid;
+    }
+    .parallax-near {
+      animation-name: parallax-near;
+    }
+    .parallax-float {
+      animation-name: parallax-float;
+    }
+  }
+}
+
+/* Parallax en todas las vistas: retícula de fondo por página y títulos de sección que se adelantan. La portada
+   ([data-gsap]) mueve lo suyo con GSAP: animation-timeline: view() dentro de una sección fijada calcula mal */
+.tech-grid-page {
+  background-image: radial-gradient(rgba(236, 236, 241, 0.06) 1px, transparent 1.25px);
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 85%);
+  mask-image: linear-gradient(to bottom, #000, transparent 85%);
+}
+@keyframes parallax-page {
+  from {
+    transform: translateY(-80px);
+  }
+  to {
+    transform: translateY(80px);
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .parallax-page,
+    main h2.display:not(dialog *):not([data-gsap] *):not([class*="animate-"]) {
+      animation-duration: 1ms;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    .parallax-page {
+      animation-name: parallax-page;
+    }
+    main h2.display:not(dialog *):not([data-gsap] *):not([class*="animate-"]) {
+      animation-name: parallax-near;
+    }
+  }
+}
+
+/* Elementos flotantes del hero: deriva lenta y propia de cada uno (el scroll y el puntero los mueven por encima) */
+@keyframes float-drift {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  50% {
+    translate: 0 -10px;
+    rotate: 8deg;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .float-a {
+    animation: float-drift 7s ease-in-out infinite;
+  }
+  .float-b {
+    animation: float-drift 9s ease-in-out 1.2s infinite reverse;
+  }
+  .float-c {
+    animation: float-drift 6s ease-in-out 0.6s infinite;
+  }
+}
+
+/* Título fantasma de las vistas: contorno de neón muy tenue, sin relleno (no compite con el título real) */
+.ghost-title {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 900;
+  font-size: clamp(5rem, 17vw, 13rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(185, 62, 243, 0.22);
+  user-select: none;
+}
+
+/* Fondo vivo común: dos halos de neón (azul y morado) que derivan muy lento sobre la penumbra */
+.ambient-bg {
+  overflow: hidden;
+}
+.ambient-bg::before,
+.ambient-bg::after {
+  content: "";
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 9999px;
+}
+.ambient-bg::before {
+  left: -30vmax;
+  top: -35vmax;
+  background: radial-gradient(circle, rgba(103, 170, 255, 0.09), transparent 62%);
+}
+.ambient-bg::after {
+  right: -32vmax;
+  bottom: -38vmax;
+  background: radial-gradient(circle, rgba(185, 62, 243, 0.09), transparent 62%);
+}
+@keyframes halo-drift {
+  to {
+    transform: translate(16vmax, 20vmax) scale(1.12);
+  }
+}
+/* Además de derivar, los halos reaccionan al scroll de la página: el azul sube y el morado baja (propiedad translate,
+   aparte del transform de la deriva, así las dos animaciones se suman) */
+@keyframes halo-scroll-up {
+  to {
+    translate: 0 -22vh;
+  }
+}
+@keyframes halo-scroll-down {
+  to {
+    translate: 0 16vh;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ambient-bg::before {
+    animation: halo-drift 38s ease-in-out infinite alternate;
+  }
+  .ambient-bg::after {
+    animation: halo-drift 46s ease-in-out infinite alternate-reverse;
+  }
+  @supports (animation-timeline: scroll()) {
+    .ambient-bg::before {
+      animation: halo-drift 38s ease-in-out infinite alternate, halo-scroll-up 1ms linear both;
+      animation-timeline: auto, scroll(root);
+    }
+    .ambient-bg::after {
+      animation: halo-drift 46s ease-in-out infinite alternate-reverse, halo-scroll-down 1ms linear both;
+      animation-timeline: auto, scroll(root);
+    }
+  }
+}
+
+/* Títulos de página: palabras que suben desde una máscara */
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+}
+.word-in {
+  display: inline-block;
+}
+@keyframes word-up {
+  from {
+    transform: translateY(105%);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .word-in {
+    animation: word-up 700ms var(--ease-out) both;
+  }
+}
+
+/* Tarjetas que se tocan: suben y encienden el borde (solo con mouse real) */
+@media (hover: hover) and (pointer: fine) {
+  a.surface,
+  button.surface {
+    transition: translate 220ms var(--ease-out), border-color 220ms ease, box-shadow 220ms ease;
+  }
+  a.surface:hover,
+  button.surface:hover {
+    translate: 0 -3px;
+    border-color: rgba(103, 170, 255, 0.35);
+    box-shadow: inset 0 1px 0 rgba(236, 236, 241, 0.05), 0 14px 34px -18px rgba(103, 170, 255, 0.45);
+  }
+}
+
+/* TV: cada ronda entra como una escena */
+/* TV: cámara lenta que pasa de lado. Mismo ritmo y fase para las tres capas, amplitud creciente hacia adelante: eso es
+   lo que se lee como profundidad a 3 metros. Propiedad translate, aparte de cualquier transform. */
+@keyframes tv-dolly-far {
+  from {
+    translate: -0.6vw 0.3vh;
+  }
+  to {
+    translate: 0.6vw -0.3vh;
+  }
+}
+@keyframes tv-dolly-mid {
+  from {
+    translate: -1.8vw 0.6vh;
+  }
+  to {
+    translate: 1.8vw -0.6vh;
+  }
+}
+@keyframes tv-dolly-near {
+  from {
+    translate: -4vw 1.4vh;
+  }
+  to {
+    translate: 4vw -1.4vh;
+  }
+}
+/* Con cada escena nueva, lo cercano llega empujado hacia la cámara */
+@keyframes tv-push {
+  from {
+    opacity: 0;
+    scale: 1.14;
+  }
+}
+/* Capas de la escena: el rótulo del juego primero y casi quieto, luego el título, y lo de abajo viaja más */
+@keyframes tv-layer {
+  from {
+    opacity: 0;
+    translate: 0 var(--tv-travel, 24px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tv-depth-far,
+  .tv-depth-mid,
+  .tv-depth-near {
+    animation: tv-dolly-far 28s ease-in-out infinite alternate;
+  }
+  .tv-depth-mid {
+    animation-name: tv-dolly-mid;
+  }
+  .tv-depth-near {
+    animation-name: tv-dolly-near;
+  }
+  .tv-push {
+    animation: tv-push 1100ms var(--ease-out) both;
+  }
+  .tv-scene-in > :not([class*="animate-"]) {
+    animation: tv-layer 750ms var(--ease-out) both;
+  }
+  .tv-scene-in > :nth-child(1) {
+    --tv-travel: 10px;
+  }
+  .tv-scene-in > :nth-child(2) {
+    --tv-travel: 28px;
+    animation-delay: 120ms;
+  }
+  .tv-scene-in > :nth-child(n + 3) {
+    --tv-travel: 48px;
+    animation-delay: 220ms;
+  }
+}
+
+@keyframes tv-scene {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+    filter: blur(6px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tv-scene-in {
+    animation: tv-scene 650ms var(--ease-out) both;
+  }
+}
+
+/* Recorrido de módulos de la portada. Fijado por GSAP ([data-pinned]): ancho natural y lo mueve el scroll. Sin
+   fijar (pantalla grande táctil, movimiento reducido o antes de hidratar): fila con scroll horizontal y encaje,
+   así siempre se llega a la quinta tarjeta. */
+[data-track-section]:not([data-pinned]) [data-track] {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
+  overscroll-behavior-x: contain;
+  padding-bottom: 0.75rem;
+}
+[data-track-section][data-pinned] [data-track] {
+  width: max-content;
+}
+[data-track-section]:not([data-pinned]) [data-track-nav] .meta {
+  display: none;
+}
+
+/* Sala en vivo: sube desde abajo en el celular y entra desde la derecha en escritorio (cajón) */
+@keyframes drawer-up {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+@keyframes drawer-side {
+  from {
+    opacity: 0.4;
+    translate: 100% 0;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .drawer-panel {
+    animation: drawer-up 280ms var(--ease-out) both;
+  }
+  @media (min-width: 1024px) {
+    .drawer-panel {
+      animation: drawer-side 340ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
   }
 }

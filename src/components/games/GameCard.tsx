@@ -25,7 +25,7 @@ export default function GameCard({ game, isFeatured = false }: GameCardProps) {
 
   return (
     <div
-      className={`glass-panel rounded-3xl p-5 border transition-all ${
+      className={`glass-panel rounded-3xl p-5 border transition ${
         isFeatured
           ? "border-carrete-primary/60 bg-night-900/90 shadow-glow"
           : "border-night-800 hover:border-night-700 bg-night-950/70"

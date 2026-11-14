@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import CountUp from "@/components/ui/CountUp";
 import type { LiveRound, Participant } from "@/lib/carreteState";
 import { penaltyFor, tally } from "@/lib/liveGames";
 
@@ -31,21 +32,23 @@ export default function RoundResults({
         {t.rows
           .filter((r) => r.count > 0 || t.rows.length <= 4)
           .sort((a, b) => b.count - a.count)
-          .map((r) => {
+          .map((r, i) => {
             const correct = !!round.answer && r.id === round.answer;
+            // Revelado en cascada: cada fila entra y su barra crece 70 ms después de la anterior
+            const delay = { animationDelay: `${120 + i * 70}ms` };
             return (
-              <li key={r.id}>
+              <li key={r.id} className="animate-rise-in" style={delay}>
                 <div className={`flex items-center justify-between gap-3 ${tv ? "text-tv-sm" : "text-sm"} font-semibold text-white`}>
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="truncate">{r.label}</span>
                     {correct && <span className="rounded-full bg-emerald-400 px-2 py-0.5 text-[0.7em] font-bold text-night-950">{round.game === "mito" ? "correcta" : "¡era!"}</span>}
                   </span>
-                  <span className="font-mono tabular text-slate-300">{r.count}</span>
+                  <span className="font-mono tabular text-slate-300">{tv ? <CountUp value={r.count} duration={900} /> : r.count}</span>
                 </div>
                 <div className={`mt-1.5 overflow-hidden rounded-full bg-white/[0.06] ${tv ? "h-5" : "h-2.5"}`}>
                   <div
-                    className={`h-full rounded-full transition-[width] duration-1000 ease-out ${correct ? "bg-emerald-400" : "bg-indigo-500"}`}
-                    style={{ width: `${(r.count / max) * 100}%` }}
+                    className={`h-full rounded-full origin-left animate-bar-grow transition-transform duration-300 ease-out ${correct ? "bg-emerald-400" : "bg-indigo-500"}`}
+                    style={{ transform: `scaleX(${((r.count / max) * 100) / 100})`, ...delay }}
                   />
                 </div>
                 {round.game !== "impostor" && round.game !== "confesion" && r.voterIds.length > 0 && round.game !== "probable" && (
@@ -57,7 +60,10 @@ export default function RoundResults({
       </ul>
 
       {losers.length > 0 && (
-        <div className={`rounded-3xl border border-indigo-400/30 bg-indigo-500/[0.08] ${tv ? "p-8" : "p-4"}`}>
+        <div
+          className={`animate-rise-in rounded-3xl border border-indigo-400/30 bg-indigo-500/[0.08] ${tv ? "p-8" : "p-4"}`}
+          style={{ animationDelay: `${200 + t.rows.length * 70}ms` }}
+        >
           <p className={`eyebrow ${tv ? "!text-lg" : ""}`}>Cumplen</p>
           <ul className={`mt-2 grid gap-2 ${tv ? "grid-cols-2" : ""}`}>
             {losers.map((p) => {
@@ -70,6 +76,7 @@ export default function RoundResults({
               );
             })}
           </ul>
+          <p className={`mt-2 ${tv ? "text-2xl" : "text-xs"} text-slate-400`}>Cada uno puede elegir otra opción en su celular, o pasar.</p>
         </div>
       )}
     </div>

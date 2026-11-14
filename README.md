@@ -91,9 +91,23 @@ npm run dev
 npm test
 ```
 
+Pruebas E2E con Playwright sobre el build de producción (crear sala, invitar, unirse, votar y revelar; cabeceras de seguridad; intro). La primera vez instala el navegador:
+
+```bash
+npx playwright install chromium
+```
+
+```bash
+npm run test:e2e
+```
+
 ```bash
 npm run build && npm run start
 ```
+
+## Publicar en V2 Networks (subdominio)
+
+`npm run release:v2` publica la versión compilada en la rama `v2-release`, y cPanel la clona sin Terminal. Los pasos están en [`docs/despliegue-v2networks.md`](docs/despliegue-v2networks.md).
 
 ## Cómo seguir mejorándolo
 

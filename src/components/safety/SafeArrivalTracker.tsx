@@ -20,7 +20,7 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
         particleCount: 65,
         spread: 75,
         origin: { y: 0.75 },
-        colors: ["#59d2b1", "#85e1c4", "#ffffff", "#ff8346"],
+        colors: ["#9eeecb", "#b7f6d9", "#ffffff", "#67aaff"],
       });
       updateParticipant(pId, { status, arrivedAt: Date.now() });
     } else {
@@ -76,7 +76,7 @@ export default function SafeArrivalTracker({ store }: SafeArrivalTrackerProps) {
           return (
             <div
               key={p.id}
-              className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between ${
+              className={`p-3.5 rounded-2xl border transition flex flex-col justify-between ${
                 p.status === "safe"
                   ? "bg-emerald-950/40 border-emerald-500/50 shadow-sm"
                   : p.status === "transit"

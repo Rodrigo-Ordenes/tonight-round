@@ -1,4 +1,4 @@
-# Prompt maestro V11 — Tonight
+# Prompt maestro V11.1 — Tonight
 
 Optimizado con la skill **prompt-optimizer** a partir del "Master Prompt V10" (Gemini), del estado del arte (`docs/estado-del-arte-v11.md`) y de la auditoría de diseño (impeccable). Proyecto detectado: Next.js 14 + React 18 + TypeScript + Tailwind 3 + Vitest, sin `CLAUDE.md`.
 
@@ -20,6 +20,8 @@ Optimizado con la skill **prompt-optimizer** a partir del "Master Prompt V10" (G
 | No exige verificar en navegador | "Compila" ≠ "funciona" | Probar en 1440 px y 375 px, con datos extremos |
 | Mezcla investigación con implementación | Decisiones sin fuente | Investigación con NotebookLM primero, guardada en el repo |
 | Sin límites de alcance | Se cuelan pagos, cuentas, dependencias pesadas | Sección "No hacer" explícita |
+| No describía dónde corre la app | Propuestas que no sirven en cPanel (Vercel, serverless, Python) | Bloque "Producción" con plan, runtime y límites |
+| Paquete sin probar | "Compila" no garantiza que arranque en el hosting | Compuerta: arrancar en limpio el clon de la rama compilada con Node 20 |
 
 **Respuestas que ya da el proyecto** (no hace falta preguntar): stack (package.json), patrones (`src/lib/carreteState.ts` reductor puro + acciones; `useCarreteStore` motor compartido), tokens (`tailwind.config.js`, `globals.css`), pruebas (`npm test`).
 
@@ -38,6 +40,7 @@ Optimizado con la skill **prompt-optimizer** a partir del "Master Prompt V10" (G
 | Robustez | `break-ui` | Nombres larguísimos, emoji, cero personas, montos enormes |
 | Rendimiento | `react-performance` / `vercel-react-best-practices` | Re-renders, bundles, hidratación |
 | Cierre | `verification-loop`, `requesting-code-review`, `finishing-a-development-branch` | Build, pruebas, revisión y PR |
+| Publicación | `verification-loop`, `security-review` | Probar el despliegue real y revisar lo expuesto antes de subirlo |
 | Modelo | Opus 5.5 para diseño y revisión final; Sonnet 5.5 para ejecutar tareas | Alcance HIGH: varias áreas y 5+ archivos |
 
 ## 3. Prompt optimizado — versión completa
@@ -48,6 +51,11 @@ Tailwind 3 y Vitest. Tonight es una web app gratuita y sin cuentas para carretes
 EE.UU. y Japón: Armar (canasta y presupuesto), Bar (barra/ideas/vaso, recetario, diccionario), Juegos (rondas en
 vivo TV + celulares, juegos rápidos), Música (DJ Spotify embebido y pedidos), Cuentas (multi-pagador),
 Monstruómetro (Widmark dinámico educativo), Wrapped y Modo TV.
+
+PRODUCCIÓN: tonight.misitio.cl en V2 Networks, plan Crecimiento (cPanel + CloudLinux + LiteSpeed, 1,5 CPU, 3 GB).
+Corre en "Setup Node.js App" con Node 20, no en Python (la app es Next.js). Se compila en local y `npm run release:v2` publica la rama
+v2-release; cPanel la clona desde Git Version Control, sin Terminal, compilación ni npm install en el hosting. Las salas viven en archivos JSON
+(CARRETE_DATA_DIR, por defecto ~/tonight-data), o en Redis REST si hay variables. Guía: docs/despliegue-v2networks.md.
 
 OBJETIVO DE ESTA SESIÓN: <describe aquí la mejora concreta, con el resultado que verá una persona en el carrete>.
 
@@ -80,6 +88,8 @@ FLUJO OBLIGATORIO
      tiny-text, skipped-heading y script-error (hidratación).
    - Navegador a 1440 px y 375 px; sala de prueba creada por la API con un nombre de 48 caracteres y emoji.
    - design:accessibility-review en lo que cambió.
+   - Si va a producción: clonar en limpio el resultado de release:v2, arrancar app.js con Node 20 y comprobar
+     portada, TV, imagen OG, POST de sala, scripts/carrete-concurrency.mjs y que la sala siga tras reiniciar.
 7. Revisión final con requesting-code-review (modelo más capaz) y cierre con finishing-a-development-branch:
    rama propia, commits pequeños y PR con resumen, pruebas y decisiones.
 
@@ -88,11 +98,17 @@ CRITERIOS DE ACEPTACIÓN
 - Sin texto degradado, halos radiales, sombras de color, etiquetas sobre títulos, tarjetas anidadas ni radios > 16 px.
 - La hora y cualquier valor que dependa del cliente se calculan en efectos (sin desajustes de hidratación).
 - Cada mecánica nueva de sala tiene acción idempotente, merge y prueba.
+- Paleta: colores solo desde tailwind.config.js (docs/paleta-v11.md); 500 con texto oscuro, 600+ con texto blanco;
+  ningún estado se comunica solo con color. src/lib/__tests__/palette.test.ts debe seguir en verde.
+- Todo dato de sala que se muestre como enlace o se guarde en disco se valida en el servidor y tiene tope de tamaño.
 
 NO HACER
 - No crear cuentas, pagos, rastreo ni almacenamiento de archivos de terceros sin aprobación explícita.
 - No migrar a WebSockets/PartyKit ni cambiar el almacén (src/lib/carreteStore.ts) sin un documento de diseño aprobado.
 - No reintroducir el tema Halloween ni el ranking por consumo.
+- No hacer commit, push, merge ni subir al hosting sin que se pida.
+- No pedir ni guardar contraseñas de cPanel, tokens o datos de .env en el repositorio ni en v2-release.
+- No usar funciones que dependan de Vercel (Edge, cron, ISR compartido) ni compilar en el hosting.
 - No inventar precios: el catálogo sale de src/data/prices_cl.json.
 ```
 
@@ -103,7 +119,8 @@ Tonight (Next 14/TS/Tailwind/Vitest). Objetivo: <mejora>. using-superpowers → 
 NotebookLM deep research si aplica → writing-plans → executing-plans con TDD por tarea. UI con impeccable
 craft-floor + emil-design-eng + animate/choreograph + mobile-native + break-ui. Verifica: npm test, npm run build,
 impeccable detect en src y rutas en vivo, navegador 1440/375 px. Invariantes: gratis, sin login, alcohol solo
-educativo y no punitivo, toda mutación de sala como acción idempotente. Cierra con requesting-code-review y PR.
+educativo y no punitivo, toda mutación de sala como acción idempotente. Producción: V2 Networks, Node 20, rama v2-release
+clonada desde cPanel, probada antes en limpio. Cierra con requesting-code-review y PR; sin push ni despliegue sin pedirlo.
 ```
 
 ## 5. Por qué estos cambios
@@ -118,6 +135,7 @@ educativo y no punitivo, toda mutación de sala como acción idempotente. Cierra
 | `npm run build` explícito además de tsc | En la V11 un CSS roto pasó tsc y pruebas; solo el build lo detecta |
 | Rutas en vivo + datos extremos | Los errores de hidratación y desbordes solo aparecen al renderizar |
 | Invariantes de reducción de daños | Alinea con AlcoTrack/Alcohol Tracker: sin castigo ni competencia por tomar |
+| Bloque de producción y prueba desde clon limpio | El hosting compartido impone Node, CloudLinux limita node_modules y los procesos se apagan |
 | "No hacer" explícito | Evita dependencias de pago, cuentas y cambios de infraestructura no pedidos |
 
 > ¿No es lo que necesitas? Dime qué ajustar, o pide la tarea directamente si quieres que la ejecute.

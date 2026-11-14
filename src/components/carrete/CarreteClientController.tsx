@@ -1,21 +1,52 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import SignalField from "@/components/ui/SignalField";
+import { roomEvents } from "@/lib/roomEvents";
+import SlidingIndicator, { useActiveRect } from "@/components/ui/SlidingIndicator";
+import { usePathname, useSearchParams } from "next/navigation";
+import { lastDrink } from "@/lib/lastDrink";
+import { zeroCopy } from "@/lib/zeroCopy";
+import QuickActionBar from "@/components/carrete/QuickActionBar";
+import Modal from "@/components/ui/Modal";
 import Link from "next/link";
-import { ChevronDown, Crown, Droplets, Eye, EyeOff, Heart, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
+import { ChevronDown, Car, Droplets, Eye, EyeOff, Heart, GlassWater, Music2, RotateCcw, ShieldAlert, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { TONE_CLASS, bacTone, hasAlcohol } from "@/lib/bacTone";
 import { CHEERS_WORD } from "@/components/live/CheersOverlay";
-import { ABSORPTION, DRINK_PRESETS, bacFor, fmtDuration, fmtTime, hydrationFor, type DrinkPreset, type StomachState } from "@/lib/alcohol";
+import { ABSORPTION, DRINK_PRESETS, bacFor, bodyFactorFrom, fmtDuration, fmtTime, hydrationFor, type DrinkPreset, type StomachState } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
 import { normalizePayLink } from "@/lib/split";
 import { songQueue } from "@/lib/music";
+import UndoToast from "@/components/ui/UndoToast";
+import { acceptTap } from "@/lib/tapGuard";
+import { addMine, readMine, selectablePeople } from "@/lib/myPeople";
+import { useTiltDepth } from "@/lib/useTiltDepth";
 
 const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "🥨", full: "🍝" };
+
+const BODY_KEY = "tonight_body";
+
+/** Peso y sexo solo en este celular: a la sala viaja únicamente el factor corporal. */
+function loadBody(): { gender: "M" | "F"; weightKg: number } | null {
+  try {
+    return JSON.parse(localStorage.getItem(BODY_KEY) ?? "null");
+  } catch {
+    return null;
+  }
+}
+
+function saveBody(body: { gender: "M" | "F"; weightKg: number }) {
+  try {
+    localStorage.setItem(BODY_KEY, JSON.stringify(body));
+  } catch {
+    /* almacenamiento bloqueado: se vuelve a preguntar la próxima vez */
+  }
+}
 
 /** El celular como control personal: identidad, tragos, agua, votos y confesiones. */
 export default function CarreteClientController({ store }: { store: CarreteStore }) {
@@ -23,18 +54,50 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const { participants, meId, setMeId, addParticipant, addConsumption, removeLastConsumption, addWater, updateParticipant, dispatch } = store;
 
   const [name, setName] = useState("");
+  const lastTap = useRef<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  // «+1» de neón que sube desde la barra al sumar (la confirmación se siente, no solo se lee)
+  const [pops, setPops] = useState<{ id: number; water: boolean }[]>([]);
+  const popId = useRef(0);
+  const pop = (water: boolean) => {
+    const id = ++popId.current;
+    setPops((ps) => [...ps.slice(-3), { id, water }]);
+    setTimeout(() => setPops((ps) => ps.filter((x) => x.id !== id)), 950);
+  };
+  const [mine, setMine] = useState<string[]>([]);
+  useEffect(() => setMine(readMine(store.code)), [store.code]);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(t);
+  }, [toast]);
   const [gender, setGender] = useState<"M" | "F">("M");
   const [weight, setWeight] = useState(70);
   const [isDriver, setIsDriver] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const panel = searchParams.get("panel") === "mas" ? "mas" : "ahora";
+  const panelTabs = useRef<HTMLDivElement>(null);
+  const panelTabsRect = useActiveRect(panelTabs, '[aria-selected="true"]', panel);
+  const setPanelUrl = (id: "ahora" | "mas") => {
+    const q = new URLSearchParams(searchParams.toString());
+    if (id === "mas") q.set("panel", "mas");
+    else q.delete("panel");
+    // Sin ir al servidor: cambiar de pestaña debe funcionar sin señal
+    window.history.replaceState(null, "", `${pathname}?${q.toString()}`);
+  };
   const [stomach, setStomach] = useState<StomachState>("normal");
   const [showAll, setShowAll] = useState(false);
   const [pulse, setPulse] = useState(false);
+  // Señales que dispara la red de la tarjeta al sumar un trago o agua (retroalimentación sin tocar las cifras)
+  const [burst, setBurst] = useState(0);
+  const meCard = useRef<HTMLElement>(null);
   const [roundOpen, setRoundOpen] = useState(false);
   const [roundFor, setRoundFor] = useState<string[]>([]);
   const [roundDrink, setRoundDrink] = useState(DRINK_PRESETS[0].key);
   const [song, setSong] = useState("");
   const [songSent, setSongSent] = useState(false);
-  const [waterToast, setWaterToast] = useState(false);
   const warnedAt = useRef(0);
   const [discreet, setDiscreet] = useState(false);
   useEffect(() => {
@@ -55,6 +118,14 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   };
 
   const me = participants.find((p) => p.id === meId) ?? null;
+  useTiltDepth(meCard, Boolean(me));
+  useEffect(() => {
+    const body = loadBody();
+    if (!body) return;
+    setGender(body.gender === "F" ? "F" : "M");
+    if (Number.isFinite(body.weightKg)) setWeight(body.weightKg);
+  }, []);
+
   // El celular que es control no se apaga en plena noche.
   useWakeLock(!!me);
 
@@ -68,25 +139,29 @@ export default function CarreteClientController({ store }: { store: CarreteStore
     if (warnedAt.current === sinceWater) return;
     warnedAt.current = sinceWater;
     audioEffects.triggerHaptic([120, 80, 120]);
-    setWaterToast(true);
-    const t = setTimeout(() => setWaterToast(false), 6000);
-    return () => clearTimeout(t);
   }, [sinceWater]);
 
   const join = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     audioEffects.playSuccessChime();
-    addParticipant({ name: name.trim(), role: isDriver ? "driver" : "drinker", gender, weightKg: weight, stomach }, true);
+    const id = addParticipant({ name: name.trim(), role: isDriver ? "driver" : "drinker", bodyFactor: bodyFactorFrom(gender, weight), stomach }, true);
+    addMine(store.code, id);
+    setMine(readMine(store.code));
+    saveBody({ gender, weightKg: weight });
     setName("");
   };
+
+  // Hooks antes de cualquier return temprano. Red viva de la sala detrás de tu tarjeta: una señal por cada trago, voto o canción de cualquiera
+  const people = useMemo(() => participants.filter((p) => !p.deleted).map((p) => ({ id: p.id, name: p.name })), [participants]);
+  const events = useMemo(() => roomEvents(store.state, 0).slice(-120), [store.state]);
 
   if (!me) {
     return (
       <div className="mx-auto max-w-md space-y-5">
         <div>
           <h2 className="display text-3xl">¿Cómo te llamas?</h2>
-          <p className="mt-2 text-sm text-slate-400">Con tu peso y sexo estimamos tu alcoholemia (solo como referencia educativa). Nada sale de esta sala.</p>
+          <p className="mt-2 text-sm text-slate-400">Con tu peso y sexo estimamos tu alcoholemia, solo como referencia. Esos dos datos quedan en este celular. Tu nombre y lo que registras se comparten con la sala y se borran a las 48 h sin actividad.</p>
         </div>
 
         {participants.length > 0 && (
@@ -94,7 +169,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             <p className="text-xs font-semibold text-slate-400">¿Ya te agregaron? Elige tu nombre</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {participants.map((p) => (
-                <button key={p.id} type="button" onClick={() => setMeId(p.id)} className="chip">
+                <button key={p.id} type="button" onClick={() => setMeId(p.id)} className="chip max-w-full truncate">
                   {p.name}
                 </button>
               ))}
@@ -107,6 +182,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             type="text"
             required
             value={name}
+            maxLength={30}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre o apodo"
             aria-label="Nombre o apodo"
@@ -148,7 +224,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           </div>
           <label className="flex min-h-[52px] cursor-pointer items-center gap-3 rounded-xl border border-amber-400/20 bg-amber-400/[0.05] p-3 text-sm font-semibold text-amber-100">
             <input type="checkbox" checked={isDriver} onChange={(e) => setIsDriver(e.target.checked)} className="w-5 h-5 accent-amber-400" />
-            👑 Hoy soy {locale.terminology.driverTitle.toLowerCase()} (0.0)
+            🚗 Hoy soy {locale.terminology.driverTitle.toLowerCase()} (0.0)
           </label>
           <button type="submit" className="btn-primary w-full !min-h-[54px] text-base">
             Entrar a la sala
@@ -165,15 +241,29 @@ export default function CarreteClientController({ store }: { store: CarreteStore
   const presets = showAll ? DRINK_PRESETS : DRINK_PRESETS.slice(0, 8);
   const rising = r.peakAt !== null && r.peakAt > Date.now() && r.peakBac > r.bac + 0.02;
 
-  const drink = (p: DrinkPreset) => {
+  const last = lastDrink(me.consumptions);
+  const copy = zeroCopy({ hadDrinks: hasAlcohol(me.consumptions), zeroAt: r.zeroAt });
+
+  const logDrink = (d: { label: string; ml: number; abv: number }) => {
+    const now = Date.now();
+    if (!acceptTap(lastTap.current, now)) return;
+    lastTap.current = now;
     audioEffects.playBubble();
     if (driver) audioEffects.playBuzz();
-    addConsumption(me.id, { label: p.label, ml: p.ml, abv: p.abv });
+    addConsumption(me.id, { label: d.label, ml: d.ml, abv: d.abv });
+    setBurst((b) => b + 6);
+    setToast(`${d.label} sumada`);
+    pop(false);
   };
+
+  const drink = (p: DrinkPreset) => logDrink(p);
+  const switchable = selectablePeople(participants, me.id, mine);
 
   const water = () => {
     audioEffects.playWaterDrop();
     addWater(me.id);
+    setBurst((b) => b + 6);
+    pop(true);
     setPulse(true);
     setTimeout(() => setPulse(false), 2400);
   };
@@ -183,26 +273,29 @@ export default function CarreteClientController({ store }: { store: CarreteStore
       {store.state.live?.round && <LiveRoundCard store={store} />}
 
       {/* Yo */}
-      <section className={`surface p-5 ${breach ? "!border-rose-500 ring-2 ring-rose-500/50" : ""}`}>
+      <section ref={meCard} className={`surface relative isolate overflow-hidden p-5 ${breach ? "!border-rose-500 ring-2 ring-rose-500/50" : "shadow-neon-uv"}`}>
+        <div aria-hidden data-tilt-depth="-1" className="pointer-events-none absolute inset-0 -z-10">
+          <SignalField people={people} events={events} labels={false} seed={5} burst={burst} className="parallax-mid inset-0 h-full w-full opacity-70" />
+        </div>
         {breach && (
           <p className="-mx-5 -mt-5 mb-4 flex items-center justify-center gap-1.5 rounded-t-3xl bg-rose-600 py-2 text-center text-xs font-bold uppercase text-white">
             <ShieldAlert className="w-3.5 h-3.5" /> Tomaste alcohol: hoy no manejas
           </p>
         )}
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="display truncate text-3xl">{me.name}</h2>
+          <div data-tilt-depth="0.8" className="min-w-0">
+            <h2 className="display neon-blue text-3xl [overflow-wrap:anywhere]">{me.name}</h2>
             <p className="meta mt-1">{driver ? `${locale.terminology.driverTitle} · 0.0 toda la noche` : "Este celular es tu control"}</p>
           </div>
-          {participants.length > 1 && (
-            <label className="relative">
+          {switchable.length > 1 && (
+            <label className="relative min-w-0 max-w-[45%] shrink-0">
               <span className="sr-only">Cambiar de persona</span>
               <select
                 value={me.id}
                 onChange={(e) => setMeId(e.target.value)}
-                className="min-h-[38px] appearance-none rounded-xl border border-white/10 bg-white/[0.04] pl-3 pr-8 text-xs font-semibold text-slate-200 outline-none"
+                className="min-h-[44px] w-full appearance-none truncate rounded-xl border border-white/10 bg-white/[0.04] pl-3 pr-8 text-xs font-semibold text-slate-200 outline-none"
               >
-                {participants.map((p) => (
+                {switchable.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
                   </option>
@@ -216,37 +309,40 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         {discreet ? (
           <div className="mt-5">
             {/* Modo discreto: nadie alrededor ve una cifra; solo la hora de volver a 0.00 */}
-            <p className="font-display text-5xl font-extrabold leading-none text-white tabular">{r.zeroAt ? fmtTime(r.zeroAt) : "0.00"}</p>
-            <p className="meta mt-2">{r.zeroAt ? "Hora estimada de volver a 0.00" : "Sin alcohol estimado"}</p>
+            <p className="font-display text-5xl font-extrabold leading-none text-white tabular">{r.zeroAt ? fmtTime(r.zeroAt) : copy.headline}</p>
+            {r.zeroAt && <p className="meta mt-2">Hora estimada de volver a 0.00</p>}
+            {copy.caveat && <p className="meta mt-2">{copy.caveat}</p>}
           </div>
         ) : (
-          <div className="mt-5 flex items-end gap-6">
-            <div>
-              <p className="eyebrow">Ahora (g/l)</p>
-              <p className={`font-display text-6xl font-extrabold leading-none tabular ${TONE_CLASS[bacTone(r.bac, driver, hasAlcohol(me.consumptions))].text}`}>
-                {r.bac.toFixed(2)}
+          <div className="mt-5">
+            {r.zeroAt ? (
+              <>
+                <p className="eyebrow">{copy.headline}</p>
+                <p className="mt-1 font-display text-4xl font-extrabold leading-none text-white tabular">cerca de las {fmtTime(r.zeroAt)}</p>
+                <p className="meta mt-2">en {fmtDuration(r.hoursToZero)}. {copy.caveat}</p>
+              </>
+            ) : (
+              <>
+                <p className={`font-display text-4xl font-extrabold leading-none ${hasAlcohol(me.consumptions) ? "text-white" : "text-emerald-200"}`}>{copy.headline}</p>
+                {copy.caveat && <p className="meta mt-2">{copy.caveat}</p>}
+              </>
+            )}
+            {!driver && r.zeroAt && (
+              <p className="mt-3 text-sm text-slate-300">
+                Ahora{" "}
+                <span className={`font-mono font-semibold tabular ${TONE_CLASS[bacTone(r.bac, driver, hasAlcohol(me.consumptions))].text}`}>
+                  {r.bac.toFixed(2)} g/l
+                </span>
+                {rising && <> · sube hasta {r.peakBac.toFixed(2)} a las {fmtTime(r.peakAt!)}</>}
               </p>
-            </div>
-            <div className="pb-1 text-sm text-slate-300">
-              {r.zeroAt ? (
-                <>
-                  {rising && <p>Sube hasta {r.peakBac.toFixed(2)} a las {fmtTime(r.peakAt!)}</p>}
-                  <p>
-                    Vuelves a 0.00 ≈ <span className="font-semibold text-white">{fmtTime(r.zeroAt)}</span>
-                  </p>
-                  <p className="text-xs text-slate-400">en {fmtDuration(r.hoursToZero)}</p>
-                </>
-              ) : (
-                <p className="text-cyan-200">Estás en 0.00</p>
-              )}
-            </div>
+            )}
           </div>
         )}
         <button
           type="button"
           onClick={() => toggleDiscreet()}
           aria-pressed={discreet}
-          className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white"
+          className="mt-3 flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white"
         >
           {discreet ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
           {discreet ? "Mostrar cifras" : "Modo discreto"}
@@ -260,7 +356,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
               role="radio"
               aria-checked={(me.stomach ?? "normal") === s}
               onClick={() => updateParticipant(me.id, { stomach: s })}
-              className={`min-h-[36px] rounded-lg text-xs font-bold ${(me.stomach ?? "normal") === s ? "bg-white text-night-950" : "text-slate-400"}`}
+              className={`min-h-[44px] rounded-lg text-xs font-bold ${(me.stomach ?? "normal") === s ? "bg-white text-night-950" : "text-slate-400"}`}
             >
               {STOMACH_ICON[s]} {ABSORPTION[s].label}
             </button>
@@ -274,12 +370,30 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         )}
       </section>
 
+      <div ref={panelTabs} className="relative grid grid-cols-2 gap-1 rounded-xl bg-white/[0.03] p-1" role="tablist" aria-label="Secciones de tu celular">
+        <SlidingIndicator rect={panelTabsRect} className="rounded-lg bg-indigo-500 shadow-neon" />
+        {([["ahora", "Ahora"], ["mas", "Más"]] as const).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={panel === id}
+            onClick={() => setPanelUrl(id)}
+            className={`relative min-h-[44px] rounded-lg text-sm font-bold transition-colors duration-300 ${panel === id ? "text-night-950" : "text-slate-300"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {panel === "ahora" && (
+      <>
       {/* Agua y deshacer */}
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <button
           type="button"
           onClick={water}
-          className={`btn !min-h-[60px] border border-cyan-300/40 bg-cyan-400/15 text-base text-cyan-50 ${pulse ? "animate-shield-pulse" : ""}`}
+          className={`btn !min-h-[60px] border border-cyan-300/40 bg-cyan-400/15 text-base text-cyan-50 shadow-[0_0_26px_-8px_rgba(140,227,190,0.6)] ${pulse ? "animate-shield-pulse" : ""}`}
         >
           <Droplets className="w-5 h-5" /> +1 vaso de agua · {me.waterCount}
         </button>
@@ -304,7 +418,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
           onClick={() => {
             dispatch({ type: "CHEERS", id: uid(), by: me.id });
           }}
-          className="btn !min-h-[52px] border border-amber-400/40 bg-amber-400/10 text-amber-100"
+          className="btn !min-h-[52px] border border-purple-400/50 bg-purple-500/15 text-purple-100 shadow-neon-uv"
         >
           🥂 {CHEERS_WORD[country] ?? "¡Salud!"}
         </button>
@@ -315,7 +429,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             setRoundOpen(!roundOpen);
           }}
           aria-expanded={roundOpen}
-          className="btn-ghost !min-h-[52px]"
+          className="btn !min-h-[52px] border border-indigo-400/40 bg-indigo-500/10 text-indigo-100"
         >
           <Users className="w-4 h-4" /> Invito la ronda
         </button>
@@ -338,7 +452,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
                   className={`chip ${on ? "chip-on" : ""} disabled:opacity-50`}
                   title={driver ? "Maneja: no se le sirve alcohol" : undefined}
                 >
-                  {driver && <Crown className="w-3 h-3" />} <span className="max-w-[10rem] truncate">{p.name}</span>
+                  {driver && <Car className="w-3 h-3" />} <span className="max-w-[10rem] truncate">{p.name}</span>
                 </button>
               );
             })}
@@ -374,38 +488,11 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         </section>
       )}
 
-      {/* Tragos */}
-      <section className="surface p-4">
-        <div className="flex items-center justify-between">
-          <p className="eyebrow">+1 trago</p>
-          <Link href="/bar" className="flex items-center gap-1 text-xs font-semibold text-indigo-300">
-            <GlassWater className="w-3.5 h-3.5" /> Desde el bar
-          </Link>
-        </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {presets.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              onClick={() => drink(p)}
-              className={`min-h-[58px] rounded-2xl border p-3 text-left transition-all active:scale-[0.97] ${
-                driver ? "border-rose-500/30 bg-rose-500/[0.06]" : "border-white/[0.07] bg-white/[0.03] hover:border-white/20"
-              }`}
-            >
-              <span className="block truncate text-sm font-bold text-white">
-                {p.emoji} {p.label}
-              </span>
-              <span className="font-mono text-xs text-slate-400">
-                {p.ml} ml · {Math.round(p.abv * 1000) / 10}%
-              </span>
-            </button>
-          ))}
-        </div>
-        <button type="button" onClick={() => setShowAll(!showAll)} className="mt-3 w-full text-center text-xs font-semibold text-slate-400 hover:text-white">
-          {showAll ? "Ver menos" : `Ver ${DRINK_PRESETS.length - 8} tragos más`}
-        </button>
-      </section>
+      </>
+      )}
 
+      {panel === "mas" && (
+        <>
       {/* Link de pago para Cuentas */}
       <PayLinkField
         value={me.payLink ?? ""}
@@ -433,6 +520,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
         >
           <input
             value={song}
+            maxLength={280}
             onChange={(e) => setSong(e.target.value)}
             placeholder="Artista o canción"
             aria-label="Pedir una canción"
@@ -470,16 +558,82 @@ export default function CarreteClientController({ store }: { store: CarreteStore
 
       {!store.state.live?.round && <LiveRoundCard store={store} />}
 
-      {waterToast && (
-        <div role="status" className="fixed inset-x-4 top-[calc(env(safe-area-inset-top,0px)+68px)] z-50 mx-auto max-w-md rounded-2xl border border-cyan-300/50 bg-night-900/95 p-4 text-sm font-semibold text-cyan-50 shadow-glow-water backdrop-blur-xl animate-rise-in">
-          💧 Llevas {sinceWater} tragos sin agua. Un vaso y sigues en la pista.
-          <button type="button" onClick={() => { water(); setWaterToast(false); }} className="btn mt-3 w-full !min-h-[42px] bg-cyan-400 text-night-950">
-            +1 vaso de agua
-          </button>
-        </div>
+
+        </>
       )}
 
-      <p className="text-center text-xs text-slate-500">
+      {picking && (
+        <Modal label="Elegir trago" onClose={() => setPicking(false)} className="flex items-end justify-center bg-night-950/80 sm:items-center sm:p-4">
+          <section className="surface max-h-[86dvh] w-full max-w-md overflow-y-auto !rounded-b-none p-4 sm:!rounded-b-2xl">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-lg font-bold text-white">Elegir trago</h2>
+              <Link href="/bar" className="flex min-h-[44px] items-center gap-1 text-xs font-semibold text-indigo-300">
+                <GlassWater className="w-3.5 h-3.5" /> Desde el bar
+              </Link>
+            </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {presets.map((p) => (
+            <button
+              key={p.key}
+              type="button"
+              onClick={() => {
+                drink(p);
+                setPicking(false);
+              }}
+              className={`min-h-[58px] rounded-2xl border p-3 text-left transition active:scale-[0.97] ${
+                driver ? "border-rose-500/30 bg-rose-500/[0.06]" : "border-white/[0.07] bg-white/[0.03] hover:border-white/20"
+              }`}
+            >
+              <span className="block truncate text-sm font-bold text-white">
+                {p.emoji} {p.label}
+              </span>
+              <span className="font-mono text-xs text-slate-400">
+                {p.ml} ml · {Math.round(p.abv * 1000) / 10}%
+              </span>
+            </button>
+          ))}
+        </div>
+        <button type="button" onClick={() => setShowAll(!showAll)} className="mt-3 w-full text-center text-xs font-semibold text-slate-400 hover:text-white">
+          {showAll ? "Ver menos" : `Ver ${DRINK_PRESETS.length - 8} tragos más`}
+        </button>
+            <button type="button" onClick={() => setPicking(false)} className="btn-ghost mt-3 w-full">Cerrar</button>
+          </section>
+        </Modal>
+      )}
+
+      <QuickActionBar
+        drinkLabel={last ? last.label : null}
+        showDrink={!driver}
+        onDrink={() => last && logDrink(last)}
+        onPick={() => setPicking(true)}
+        onWater={water}
+      />
+
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-[calc(176px+env(safe-area-inset-bottom,0px))] z-50 flex justify-center">
+        {pops.map((p) => (
+          <span
+            key={p.id}
+            className={`absolute animate-float-up font-display text-4xl font-extrabold ${
+              p.water ? "text-emerald-300 [text-shadow:0_0_14px_rgba(140,227,190,0.6)]" : "text-purple-300 [text-shadow:0_0_14px_rgba(185,62,243,0.75)]"
+            }`}
+          >
+            +1
+          </span>
+        ))}
+      </div>
+
+      {toast && (
+        <UndoToast
+          text={toast}
+          className="bottom-[calc(156px+env(safe-area-inset-bottom,0px))]"
+          onUndo={() => {
+            removeLastConsumption(me.id);
+            setToast(null);
+          }}
+        />
+      )}
+
+      <p className="pb-20 text-center text-xs text-slate-500">
         Estimación educativa, no medición. {locale.legal.bacLimitText}: si bebiste, no manejes.
       </p>
     </div>

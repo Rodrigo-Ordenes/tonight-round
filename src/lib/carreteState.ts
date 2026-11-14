@@ -1,4 +1,5 @@
-import type { Consumption } from "./alcohol";
+import { parseMusicLink } from "./musicLink";
+import { DEFAULT_BODY_FACTOR, bodyFactorFrom, clampBodyFactor, type Consumption } from "./alcohol";
 import { normalizePayLink } from "./split";
 
 export type Gender = "M" | "F";
@@ -16,8 +17,8 @@ export type Stomach = "empty" | "normal" | "full";
 export interface Participant {
   id: string;
   name: string;
-  gender: Gender;
-  weightKg: number;
+  /** Litros de distribución redondeados (ver bodyFactorFrom). El peso y el sexo nunca salen del celular. */
+  bodyFactor: number;
   role: Role;
   consumptions: Consumption[];
   waterCount: number; // derivado de `water` (se mantiene por compatibilidad de lectura)
@@ -110,7 +111,7 @@ export interface SongRequest {
 
 /* ---------------- Rondas en vivo (TV = escenario, celulares = control) ---------------- */
 
-export type LiveGame = "yonunca" | "probable" | "mito" | "confesion" | "prefieres" | "impostor";
+export type LiveGame = "yonunca" | "probable" | "mito" | "confesion" | "prefieres" | "impostor" | "duelo" | "mimica" | "verdadreto" | "categorias";
 
 export interface LiveVote {
   value: string;
@@ -306,35 +307,76 @@ const uniqBy = <T>(xs: T[], key: (x: T) => string): T[] => {
   return Array.from(m.values());
 };
 
+/** Topes de lo que entra a una sala (formulario, acciones, siembras y anti-entropía). */
+export const LIMITS = { name: 30, text: 280, label: 60, amount: 100_000_000, participants: 60 } as const;
+
+/** Corta por puntos de código para no partir un emoji por la mitad. */
+/** Tragos o vasos de agua por persona y marcas de borrado que se conservan: muy por encima de una noche real. */
+const MAX_LOG = 200;
+const MAX_TOMBSTONES = 500;
+
+const clip = (value: unknown, max: number) => Array.from(String(value ?? "")).slice(0, max).join("");
+const clipAmount = (n: unknown) => Math.min(LIMITS.amount, Math.max(0, Number(n) || 0));
+
 /** Completa campos de versiones anteriores (V9 guardaba solo `waterCount`). */
-export function normalizeParticipant(p: Participant): Participant {
+export function normalizeParticipant(raw: Participant): Participant {
+  // Salas anteriores traían peso y sexo: se convierten y no se conservan (tampoco si los reenvía un cliente viejo)
+  const { weightKg, gender, ...p } = raw as Participant & { weightKg?: number; gender?: "M" | "F" };
+  const bodyFactor =
+    typeof p.bodyFactor === "number" && Number.isFinite(p.bodyFactor)
+      ? clampBodyFactor(p.bodyFactor)
+      : typeof weightKg === "number" && Number.isFinite(weightKg)
+      ? bodyFactorFrom(gender === "F" ? "F" : "M", weightKg)
+      : DEFAULT_BODY_FACTOR;
   const water =
     p.water ?? Array.from({ length: p.waterCount ?? 0 }, (_, i) => ({ id: `legacy_${p.id}_${i}`, ts: p.joinedAt + i }));
   const removed = new Set(p.removedIds ?? []);
   const live = water.filter((w) => !removed.has(w.id));
   return {
     ...p,
-    consumptions: (p.consumptions ?? []).filter((c) => !removed.has(c.id)),
-    water: live,
-    waterCount: live.length,
-    removedIds: p.removedIds ?? [],
+    name: clip(p.name, LIMITS.name),
+    bodyFactor,
+    consumptions: (p.consumptions ?? [])
+      .filter((c) => !removed.has(c.id))
+      .slice(-MAX_LOG)
+      .map((c) => ({ ...c, label: clip(c.label, LIMITS.label) })),
+    water: live.slice(-MAX_LOG),
+    waterCount: Math.min(live.length, MAX_LOG),
+    removedIds: (p.removedIds ?? []).slice(-MAX_TOMBSTONES),
     // Cualquiera con el código puede escribir en la sala: solo se guardan links http(s) válidos (nada de javascript:)
     payLink: p.payLink ? normalizePayLink(p.payLink) ?? undefined : undefined,
   };
 }
 
 export function normalizeCarrete(s: CarreteState): CarreteState {
+  // Una siembra o anti-entropía pasa por aquí: lo que no entra por acciones tampoco entra por estado completo
+  const rawMusic = { ...DEFAULT_MUSIC, ...s.music };
+  // Un enlace que no pasa la validación (llegó por estado completo, no por acción) sale y vuelve el DJ automático
+  const music =
+    rawMusic.customUrl && !parseMusicLink(rawMusic.customUrl)
+      ? { ...rawMusic, customUrl: undefined, auto: true, vibeId: rawMusic.vibeId === "custom" ? DEFAULT_MUSIC.vibeId : rawMusic.vibeId }
+      : rawMusic;
+  const live = { ...DEFAULT_LIVE, ...s.live };
+  const split = { ...DEFAULT_SPLIT, ...s.split };
+  const bring = { ...DEFAULT_BRING, ...s.bring };
+  // Solo se conservan las claves conocidas: lo demás no ocupa disco
   return {
-    ...s,
+    code: s.code,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
     epoch: s.epoch ?? 0,
     seen: s.seen ?? [],
-    participants: (s.participants ?? []).map(normalizeParticipant),
-    basket: { ...DEFAULT_BASKET, ...s.basket },
+    participants: (s.participants ?? []).slice(0, LIMITS.participants).map(normalizeParticipant),
+    basket: { ...DEFAULT_BASKET, ...s.basket, items: (s.basket?.items ?? DEFAULT_BASKET.items).slice(-200) },
     games: { ...DEFAULT_GAMES, ...s.games },
-    music: { ...DEFAULT_MUSIC, ...s.music },
-    live: { ...DEFAULT_LIVE, ...s.live },
-    split: { ...DEFAULT_SPLIT, ...s.split },
-    bring: { ...DEFAULT_BRING, ...s.bring },
+    music: { ...music, requests: (music.requests ?? []).slice(-30).map(clipSong) },
+    live: { ...live, confessions: (live.confessions ?? []).slice(-40).map(clipConfession) },
+    split: { ...split, expenses: (split.expenses ?? []).slice(-200).map(clipExpense), removed: (split.removed ?? []).slice(-MAX_TOMBSTONES) },
+    bring: {
+      ...bring,
+      items: (bring.items ?? []).slice(-60).map((i) => ({ ...i, label: clip(i.label, LIMITS.label) })),
+      removed: (bring.removed ?? []).slice(-MAX_TOMBSTONES),
+    },
   };
 }
 
@@ -343,10 +385,14 @@ const mapParticipant = (s: CarreteState, id: string, fn: (p: Participant) => Par
   participants: s.participants.map((p) => (p.id === id ? normalizeParticipant(fn(p)) : p)),
 });
 
+const clipExpense = (e: Expense): Expense => ({ ...e, description: clip(e.description, LIMITS.label), amount: clipAmount(e.amount) });
+const clipSong = <T extends { text: string }>(r: T): T => ({ ...r, text: clip(r.text, LIMITS.text) });
+const clipConfession = (c: Confession): Confession => ({ ...c, text: clip(c.text, LIMITS.text) });
+
 function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
   switch (a.type) {
     case "ADD_PARTICIPANT":
-      if (s.participants.some((p) => p.id === a.participant.id)) return s;
+      if (s.participants.some((p) => p.id === a.participant.id) || s.participants.length >= LIMITS.participants) return s;
       return {
         ...s,
         participants: [...s.participants, normalizeParticipant(a.participant)].sort((x, y) => x.joinedAt - y.joinedAt),
@@ -386,7 +432,14 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
       return { ...s, games: { ...s.games, ...a.patch, updatedAt: Math.max(s.games.updatedAt, at) } };
     case "SET_MUSIC": {
       const cur = s.music ?? DEFAULT_MUSIC;
-      return { ...s, music: { ...cur, ...a.patch, updatedAt: Math.max(cur.updatedAt, at) } };
+      let patch = a.patch;
+      // Un enlace que no es de Spotify o YouTube (o viene con otro protocolo) no entra a la sala: se ignora la acción
+      if (patch.customUrl !== undefined) {
+        const link = parseMusicLink(patch.customUrl);
+        if (!link) return s;
+        patch = { ...patch, customUrl: link.openUrl };
+      }
+      return { ...s, music: { ...cur, ...patch, updatedAt: Math.max(cur.updatedAt, at) } };
     }
     case "START_ROUND": {
       const live = s.live ?? DEFAULT_LIVE;
@@ -435,7 +488,7 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
     case "SUBMIT_CONFESSION": {
       const live = s.live ?? DEFAULT_LIVE;
       if (live.confessions.some((c) => c.id === a.confession.id)) return s;
-      return { ...s, live: { ...live, confessions: [...live.confessions, a.confession].slice(-40), updatedAt: Math.max(live.updatedAt, at) } };
+      return { ...s, live: { ...live, confessions: [...live.confessions, clipConfession(a.confession)].slice(-40), updatedAt: Math.max(live.updatedAt, at) } };
     }
     case "CHEERS": {
       const live = s.live ?? DEFAULT_LIVE;
@@ -445,7 +498,7 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
     case "SONG_REQUEST": {
       const m = s.music ?? DEFAULT_MUSIC;
       if ((m.requests ?? []).some((r) => r.id === a.request.id)) return s;
-      return { ...s, music: { ...m, requests: [...(m.requests ?? []), a.request].slice(-30), updatedAt: Math.max(m.updatedAt, at) } };
+      return { ...s, music: { ...m, requests: [...(m.requests ?? []), clipSong(a.request)].slice(-30), updatedAt: Math.max(m.updatedAt, at) } };
     }
     case "VOTE_SONG": {
       const m = s.music ?? DEFAULT_MUSIC;
@@ -474,7 +527,7 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
     case "ADD_BRING": {
       const b = s.bring ?? DEFAULT_BRING;
       if (b.items.some((i) => i.id === a.item.id) || b.removed.includes(a.item.id)) return s;
-      return { ...s, bring: { ...b, items: [...b.items, { id: a.item.id, label: a.item.label }] } };
+      return { ...s, bring: { ...b, items: [...b.items, { id: a.item.id, label: clip(a.item.label, LIMITS.label) }] } };
     }
     case "CLAIM_BRING": {
       // Primero gana; quien lo tiene puede soltarlo (volver a tocar)
@@ -502,7 +555,7 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
     case "ADD_EXPENSE": {
       const sp = s.split ?? DEFAULT_SPLIT;
       if (sp.expenses.some((e) => e.id === a.expense.id)) return s;
-      return { ...s, split: { ...sp, expenses: [...sp.expenses, a.expense], updatedAt: Math.max(sp.updatedAt, at) } };
+      return { ...s, split: { ...sp, expenses: [...sp.expenses, clipExpense(a.expense)], updatedAt: Math.max(sp.updatedAt, at) } };
     }
     case "REMOVE_EXPENSE": {
       const sp = s.split ?? DEFAULT_SPLIT;
@@ -671,11 +724,14 @@ function mergeMusic(a?: MusicState, b?: MusicState, authority?: "a" | "b"): Musi
   return { ...newer, requests };
 }
 
-export const CODE_RE = /^[A-Z0-9]{4}$/;
+/** Una sala vive 48 h desde su última escritura. */
+export const ROOM_TTL_SECONDS = 48 * 60 * 60;
+
+/** Los códigos nuevos tienen 6 caracteres; los de 4 siguen válidos hasta que venzan esas salas. */
+export const CODE_RE = /^[A-Z0-9]{4}([A-Z0-9]{2})?$/;
 
 export function randomCode(): string {
+  // 32 caracteres sin ambiguos (I, O, 0, 1): con 6 hay más de mil millones de combinaciones
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let out = "";
-  for (let i = 0; i < 4; i++) out += chars[Math.floor(Math.random() * chars.length)];
-  return out;
+  return Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => chars[b & 31]).join("");
 }

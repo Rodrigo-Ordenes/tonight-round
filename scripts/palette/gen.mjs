@@ -61,7 +61,8 @@ const pairs = [
   ["night.950", "lime.500", 4.5, 55], ["night.950", "gold.400", 4.5, 60], ["night.950", "iris.500", 4.5, 54], ["white.0", "alert.500", 3, 60],
 ];
 
-const distinct = [
+// La especificación puede traer su propia lista de pares (la V12 une agua y en vivo en un solo cian)
+const distinct = cfg.distinct ?? [
   ["ember.500", "alert.500"], ["ember.400", "gold.400"], ["lime.400", "gold.400"], ["lime.400", "alert.500"], ["aqua.400", "lime.400"],
   ["iris.400", "ember.500"], ["gold.400", "alert.500"],
 ];

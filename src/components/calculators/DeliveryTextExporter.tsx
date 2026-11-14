@@ -89,7 +89,7 @@ export default function DeliveryTextExporter({
         <button
           type="button"
           onClick={handleCopy}
-          className="min-h-[48px] px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shrink-0"
+          className="min-h-[48px] px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95 shrink-0"
         >
           {copied ? (
             <>
@@ -113,7 +113,7 @@ export default function DeliveryTextExporter({
       )}
 
       {/* Vista previa del texto a copiar */}
-      <div className="p-3.5 rounded-2xl bg-night-950 border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed select-all">
+      <div tabIndex={0} role="region" aria-label="Vista previa del texto del pedido" className="p-3.5 rounded-2xl bg-night-950 border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed select-all outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">
         {orderText}
       </div>
 
@@ -128,7 +128,7 @@ export default function DeliveryTextExporter({
               key={app.name}
               type="button"
               onClick={() => handleOpenDelivery(app.url, app.name)}
-              className={`min-h-[50px] p-3 rounded-2xl border bg-night-950/70 flex items-center justify-between transition-all active:scale-98 ${app.bgClass}`}
+              className={`min-h-[50px] p-3 rounded-2xl border bg-night-950/70 flex items-center justify-between transition active:scale-98 ${app.bgClass}`}
             >
               <div className="text-left">
                 <span className="font-black text-sm text-white block">{app.name}</span>

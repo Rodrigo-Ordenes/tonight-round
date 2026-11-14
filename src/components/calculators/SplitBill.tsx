@@ -320,7 +320,7 @@ export default function SplitBill() {
                   key={pct}
                   type="button"
                   onClick={() => setTipPercentage(pct)}
-                  className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition ${
                     tipPercentage === pct
                       ? "bg-amber-500/20 border border-amber-500/60 text-amber-300"
                       : "bg-night-800 text-slate-400 hover:text-slate-200"
@@ -394,9 +394,9 @@ export default function SplitBill() {
             <button
               type="button"
               onClick={() => setIncludeSafeRideFund(!includeSafeRideFund)}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all text-xs ${
+              className={`px-3 py-1.5 rounded-xl font-bold transition text-xs ${
                 includeSafeRideFund
-                  ? "bg-emerald-600 text-white shadow-glow-accent"
+                  ? "bg-emerald-600 text-white"
                   : "bg-night-900 text-slate-400 border border-night-700"
               }`}
             >
@@ -759,7 +759,7 @@ export default function SplitBill() {
             <button
               type="button"
               onClick={handleCopyBankPayload}
-              className="px-3 py-1.5 rounded-xl bg-carrete-primary hover:bg-indigo-500 text-white font-bold shrink-0 transition-all flex items-center gap-1 active:scale-95"
+              className="px-3 py-1.5 rounded-xl bg-carrete-primary hover:bg-indigo-500 text-night-950 font-bold shrink-0 transition flex items-center gap-1 active:scale-95"
             >
               {copiedBankPayload ? (
                 <>

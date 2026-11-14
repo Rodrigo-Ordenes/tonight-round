@@ -27,7 +27,7 @@ function Meter({ label, have, need, unit, tone = "bg-emerald-400" }: { label: st
         </span>
       </div>
       <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[0.06]">
-        <div className={`h-full rounded-full ${ok ? tone : "bg-amber-400"} transition-[width] duration-500`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full ${ok ? tone : "bg-amber-400"} origin-left transition-transform duration-300 ease-out`} style={{ transform: `scaleX(${(pct) / 100})` }} />
       </div>
     </div>
   );
@@ -84,7 +84,7 @@ export default function BasketInsightsCard({ insights: x, hours, items, code, on
   return (
     <section className={`surface p-5 ${over ? "!border-rose-500/50" : ""}`} aria-live="polite" aria-labelledby="alcanza-title">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div>
+        <div className="min-w-0">
           <h2 id="alcanza-title" className={`display text-3xl ${over ? "text-rose-200" : ""}`}>
             {headline}
           </h2>
@@ -93,7 +93,7 @@ export default function BasketInsightsCard({ insights: x, hours, items, code, on
             {!over && x.diff > 0 ? ` · sobran ${fmtCLP(x.diff)}` : ""}.
           </p>
 
-          <div className="mt-5 flex items-end gap-6">
+          <div className="mt-5 flex flex-wrap items-end gap-x-6 gap-y-3">
             <div>
               <p className="eyebrow !text-xs">Cada uno pone</p>
               <p className="font-display text-5xl font-extrabold leading-none text-white tabular">{fmtCLP(x.quota)}</p>

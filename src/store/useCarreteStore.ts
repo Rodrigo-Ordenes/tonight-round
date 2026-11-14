@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { DEFAULT_BODY_FACTOR } from "@/lib/alcohol";
+import { keepaliveBody } from "./keepalive";
 import {
   CODE_RE,
   applyEvent,
@@ -94,6 +96,8 @@ export function setActiveCode(code: string | null) {
   window.dispatchEvent(new Event("tonight-active-change"));
 }
 
+export class CreateRoomError extends Error {}
+
 /** Crea un carrete nuevo en el servidor (regenera el código si hay colisión 409). */
 export async function createCarrete(): Promise<string> {
   for (let i = 0; i < 6; i++) {
@@ -102,8 +106,14 @@ export async function createCarrete(): Promise<string> {
     try {
       const res = await fetch(`/api/carrete/${code}`, { method: "POST", body: JSON.stringify(s) });
       if (res.status === 409) continue;
+      // Límite o disco lleno: la sala no existiría para nadie más, así que se avisa en vez de seguir solo en local
+      if (res.status === 429 || res.status === 503) {
+        const body = (await res.json().catch(() => ({}))) as { message?: string };
+        throw new CreateRoomError(body.message ?? "No se pudo crear la sala. Intenta en un rato.");
+      }
       if (!res.ok) throw new Error("server");
-    } catch {
+    } catch (e) {
+      if (e instanceof CreateRoomError) throw e;
       // sin servidor: igual funciona local
     }
     writeLocal(s);
@@ -151,6 +161,7 @@ class CarreteEngine {
   private listeners = new Set<() => void>();
   private chan: BroadcastChannel | null = null;
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
+  private leaving = false;
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
   private flushing = false;
   private missing = false;
@@ -212,6 +223,7 @@ class CarreteEngine {
     const out = [...readOutbox(this.code), ev];
     writeOutbox(this.code, out);
     this.set({ pending: out.length });
+    if (this.leaving) return this.sendOnExit();
     if (this.flushTimer) clearTimeout(this.flushTimer);
     this.flushTimer = setTimeout(() => void this.flush(), 120);
   };
@@ -293,6 +305,23 @@ class CarreteEngine {
     }
   };
 
+  /** Al cerrar la página el temporizador de envío ya no corre: se manda con keepalive (idempotente si se repite). */
+  private sendOnExit() {
+    if (this.isSolo) return;
+    const body = keepaliveBody(readOutbox(this.code));
+    if (body) void fetch(`/api/carrete/${this.code}`, { method: "POST", body, keepalive: true }).catch(() => undefined);
+  }
+
+  private onPageHide = () => {
+    this.leaving = true;
+    this.sendOnExit();
+  };
+
+  private onPageShow = () => {
+    this.leaving = false;
+    void this.flush();
+  };
+
   private onOnline = () => {
     this.failures = 0;
     void this.flush();
@@ -348,6 +377,8 @@ class CarreteEngine {
     this.lastAntiEntropy = Date.now();
     this.pollTimer = setTimeout(this.tick, POLL_BASE_MS);
     window.addEventListener("online", this.onOnline);
+    window.addEventListener("pagehide", this.onPageHide);
+    window.addEventListener("pageshow", this.onPageShow);
   }
 
   private stop() {
@@ -355,6 +386,8 @@ class CarreteEngine {
     if (this.pollTimer) clearTimeout(this.pollTimer);
     if (this.flushTimer) clearTimeout(this.flushTimer);
     window.removeEventListener("online", this.onOnline);
+    window.removeEventListener("pagehide", this.onPageHide);
+    window.removeEventListener("pageshow", this.onPageShow);
     this.chan?.close();
     this.chan = null;
     this.snap = { ...this.snap, status: "loading" };
@@ -395,8 +428,7 @@ export function useCarreteStore(codeRaw: string) {
       const id = uid();
       const now = Date.now();
       const full: Participant = {
-        gender: "M",
-        weightKg: 75,
+        bodyFactor: DEFAULT_BODY_FACTOR,
         role: "drinker",
         status: "party",
         commune: "",

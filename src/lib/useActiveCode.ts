@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ACTIVE_KEY, SOLO } from "@/store/useCarreteStore";
 
+/** Código de sala en una ruta /carrete/XXXX o /carrete/XXXXXX. */
+export function codeFromPath(pathname: string): string | null {
+  const m = pathname.match(/^\/carrete\/([A-Za-z0-9]{4}(?:[A-Za-z0-9]{2})?)$/);
+  return m && m[1].toLowerCase() !== "tv" ? m[1].toUpperCase() : null;
+}
+
 /** Código de carrete en contexto: el de la URL (/carrete/XXXX) o el activo guardado; "SOLO" si no hay. */
 export function useActiveCode(): { code: string; hydrated: boolean } {
   const pathname = usePathname();
@@ -18,7 +24,6 @@ export function useActiveCode(): { code: string; hydrated: boolean } {
     return () => window.removeEventListener("tonight-active-change", read);
   }, []);
 
-  const m = pathname?.match(/^\/carrete\/([A-Za-z0-9]{4})$/);
-  const fromUrl = m && m[1].toLowerCase() !== "tv" ? m[1].toUpperCase() : null;
+  const fromUrl = pathname ? codeFromPath(pathname) : null;
   return { code: fromUrl ?? stored ?? SOLO, hydrated };
 }

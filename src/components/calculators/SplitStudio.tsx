@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Check, ClipboardCopy, Crown, Plus, Trash2, UserPlus } from "lucide-react";
+import { useDeferredDelete } from "@/lib/useDeferredDelete";
+import UndoToast from "@/components/ui/UndoToast";
+import { ArrowRight, Check, ClipboardCopy, Car, Plus, Trash2, UserPlus } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
 import { uid } from "@/store/useCarreteStore";
 import type { ExpenseCategory, SplitMode } from "@/lib/carreteState";
@@ -9,6 +11,7 @@ import { DEFAULT_SPLIT } from "@/lib/carreteState";
 import { ROUND_UNIT, computeSplit, normalizePayLink } from "@/lib/split";
 import { useLocale } from "@/lib/useLocale";
 import { audioEffects } from "@/lib/audioEffects";
+import { addMine } from "@/lib/myPeople";
 
 const MODES: { id: SplitMode; label: string; desc: string }[] = [
   { id: "justo", label: "Justo", desc: "Lo común entre todos; el alcohol solo entre quienes toman." },
@@ -24,6 +27,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
   const { locale, country, formatCurrency } = useLocale();
   const { participants, dispatch, meId, isSolo } = store;
   const split = store.state.split ?? DEFAULT_SPLIT;
+  const undoExpense = useDeferredDelete((id) => dispatch({ type: "REMOVE_EXPENSE", id }));
   const unit = ROUND_UNIT[country] ?? 10;
 
   const [payer, setPayer] = useState<string>("");
@@ -87,7 +91,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
     `Modo: ${MODES.find((m) => m.id === result.effectiveMode)?.label}`,
     "",
     ...result.transfers.map((t) => `• ${name(t.from)} → ${name(t.to)}: *${formatCurrency(t.amount)}*${payLink(t.to) ? ` · pagar: ${payLink(t.to)}` : ""}`),
-    drivers.length ? `\n👑 ${drivers.map((d) => d.name).join(" y ")} no paga alcohol: fue ${locale.terminology.driverTitle.toLowerCase()}. ¡Gracias!` : "",
+    drivers.length ? `\n🚗 ${drivers.map((d) => d.name).join(" y ")} no paga alcohol: fue ${locale.terminology.driverTitle.toLowerCase()}. ¡Gracias!` : "",
     meIsCreditor && bankText ? `\n${bankText}` : "",
   ]
     .filter((x) => x !== "")
@@ -105,6 +109,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)] lg:items-start">
+      {undoExpense.last && <UndoToast text="Gasto borrado" onUndo={undoExpense.undo} />}
       <div className="min-w-0 space-y-10">
         {/* Quiénes */}
         <section>
@@ -120,10 +125,10 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
                     key={p.id}
                     type="button"
                     onClick={() => p.role !== "driver" && toggleSober(p.id)}
-                    className={`chip !min-h-[42px] ${sober ? "border-amber-400/50 bg-amber-400/10 text-amber-100" : ""}`}
+                    className={`chip ${sober ? "border-amber-400/50 bg-amber-400/10 text-amber-100" : ""}`}
                     title={p.role === "driver" ? "Conductor designado: no paga alcohol" : "Tocar para marcar si no toma alcohol"}
                   >
-                    {p.role === "driver" && <Crown className="w-3.5 h-3.5" />}
+                    {p.role === "driver" && <Car className="w-3.5 h-3.5" />}
                     <span className="max-w-[10rem] truncate">{p.name}</span>
                     <span className="text-xs font-normal text-slate-400">{sober ? "sin alcohol" : "toma"}</span>
                   </button>
@@ -136,19 +141,20 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
             onSubmit={(e) => {
               e.preventDefault();
               if (!newName.trim()) return;
-              store.addParticipant({ name: newName.trim() });
+              addMine(store.code, store.addParticipant({ name: newName.trim() }));
               setNewName("");
             }}
           >
             <input
               value={newName}
+              maxLength={30}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Agregar persona"
               aria-label="Nombre de la persona"
               className="min-h-[44px] min-w-0 flex-1 rounded-2xl border border-white/10 bg-night-950/60 px-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-400 sm:max-w-xs"
             />
-            <button type="submit" className="btn-ghost !min-h-[44px]">
-              <UserPlus className="w-4 h-4" />
+            <button type="submit" className="btn-ghost !min-h-[44px]" aria-label="Agregar persona">
+              <UserPlus className="w-4 h-4" aria-hidden />
             </button>
           </form>
           <p className="mt-2 text-xs text-slate-500">Toca un nombre para marcar a quien no toma alcohol. El conductor designado ya viene marcado.</p>
@@ -187,6 +193,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
               En qué
               <input
                 value={desc}
+                maxLength={60}
                 onChange={(e) => setDesc(e.target.value)}
                 placeholder="Botillería, pizzas, hielo…"
                 className="mt-1 min-h-[46px] w-full rounded-xl border border-white/10 bg-night-950 px-3 text-sm text-white outline-none focus:border-indigo-400"
@@ -218,7 +225,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
 
           {split.expenses.length > 0 && (
             <ul className="mt-3 space-y-1.5">
-              {split.expenses.map((e) => (
+              {split.expenses.filter((e) => !undoExpense.hidden.has(e.id)).map((e) => (
                 <li key={e.id} className="flex items-center gap-3 rounded-2xl bg-white/[0.03] px-4 py-3 text-sm">
                   <span className="text-lg">{e.category === "alcohol" ? "🍾" : "🍕"}</span>
                   <span className="min-w-0 flex-1">
@@ -228,9 +235,9 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
                   <span className="font-mono tabular text-slate-100">{formatCurrency(e.amount)}</span>
                   <button
                     type="button"
-                    onClick={() => dispatch({ type: "REMOVE_EXPENSE", id: e.id })}
+                    onClick={() => undoExpense.remove(e.id)}
                     aria-label={`Borrar ${e.description}`}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white/[0.06] hover:text-rose-300"
+                    className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 hover:bg-white/[0.06] hover:text-rose-300"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -298,7 +305,7 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
                 <span className="min-w-0 truncate font-semibold text-white">{name(t.to)}</span>
                 <span className="ml-auto shrink-0 font-mono font-bold tabular text-emerald-300">{formatCurrency(t.amount)}</span>
                 {payLink(t.to) && t.from === meId && (
-                  <a href={payLink(t.to)} target="_blank" rel="noopener noreferrer" className="chip !min-h-[30px] shrink-0">
+                  <a href={payLink(t.to)} target="_blank" rel="noopener noreferrer" className="chip shrink-0">
                     Pagar
                   </a>
                 )}

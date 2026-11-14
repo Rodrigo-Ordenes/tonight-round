@@ -64,7 +64,7 @@ export default function RandomPicanteGame({ store }: { store: CarreteStore }) {
 
   return (
     <div className="rounded-3xl bg-night-900/80 border border-pink-500/30 p-5 space-y-4 text-center">
-      <div className="text-pink-300 font-black">🙈 YO NUNCA NUNCA</div>
+      <div className="text-pink-300 font-bold">🙈 YO NUNCA NUNCA</div>
       <div className="flex flex-wrap justify-center gap-2">
         {[{ id: "todas", name: "Todas", icon: "🎲" }, ...CATS].map((c) => (
           <button
@@ -79,8 +79,8 @@ export default function RandomPicanteGame({ store }: { store: CarreteStore }) {
         ))}
       </div>
 
-      <div className="rounded-2xl border-2 border-pink-500/40 bg-pink-950/20 p-5 min-h-[120px] flex items-center justify-center">
-        <p className="text-xl font-black text-white leading-snug">
+      <div className="rounded-2xl border border-pink-500/40 bg-pink-950/20 p-5 min-h-[120px] flex items-center justify-center">
+        <p className="text-xl font-bold text-white leading-snug">
           {current ? `Yo nunca nunca… ${current}` : "Toca el botón para sacar la primera frase."}
         </p>
       </div>
@@ -89,7 +89,7 @@ export default function RandomPicanteGame({ store }: { store: CarreteStore }) {
         {games.neverDeck.length > 0 ? `Frase ${games.neverIdx} de ${games.neverDeck.length}` : `${pool.length} frases en el mazo`}
       </p>
 
-      <button onClick={draw} className="w-full min-h-[56px] rounded-2xl bg-pink-600 text-white font-black flex items-center justify-center gap-2">
+      <button onClick={draw} className="w-full min-h-[56px] rounded-2xl bg-pink-600 text-white font-bold flex items-center justify-center gap-2">
         <Shuffle className="w-5 h-5" /> 🎲 Frase Aleatoria
       </button>
     </div>

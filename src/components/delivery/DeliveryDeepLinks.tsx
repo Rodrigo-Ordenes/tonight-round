@@ -75,7 +75,7 @@ export default function DeliveryDeepLinks({
       tagline: "Botillería online chilena con despacho en 30 min",
       webUrl: "https://www.booz.cl/",
       badge: "Especialista Licores",
-      badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/40",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/40",
       borderColor: "border-purple-500/40 hover:border-purple-500",
       bgHover: "hover:bg-purple-950/30",
     },
@@ -179,7 +179,7 @@ export default function DeliveryDeepLinks({
             key={app.name}
             type="button"
             onClick={() => handleOpenApp(app)}
-            className={`p-4 rounded-2xl border text-left transition-all active:scale-[0.98] flex flex-col justify-between bg-night-900/90 ${app.borderColor} ${app.bgHover}`}
+            className={`p-4 rounded-2xl border text-left transition active:scale-[0.98] flex flex-col justify-between bg-night-900/90 ${app.borderColor} ${app.bgHover}`}
           >
             <div>
               <div className="flex items-center justify-between gap-2">

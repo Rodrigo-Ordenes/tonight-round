@@ -75,7 +75,7 @@ export default function MultiStoreCompare({
               key={store.id}
               type="button"
               onClick={() => onSelectBase(store.id)}
-              className={`p-4 rounded-2xl border text-left transition-all active:scale-[0.98] flex flex-col justify-between ${
+              className={`p-4 rounded-2xl border text-left transition active:scale-[0.98] flex flex-col justify-between ${
                 isSelected
                   ? "bg-indigo-500/10 border-indigo-400"
                   : "bg-night-950/80 border-slate-800 hover:border-slate-700"

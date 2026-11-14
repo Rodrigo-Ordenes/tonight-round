@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Modal from "@/components/ui/Modal";
+import { usePathname } from "next/navigation";
 import { ChevronDown, PhoneCall } from "lucide-react";
 import { useLocale } from "@/lib/useLocale";
-import { COUNTRIES } from "@/config/locales";
+import { COUNTRIES, VISIBLE_COUNTRIES } from "@/config/locales";
 
 interface DisclaimerModalProps {
   forceOpen?: boolean;
@@ -14,7 +16,7 @@ interface DisclaimerModalProps {
 const LEGAL_AGE: Record<string, number> = { CL: 18, MX: 18, US: 21, JP: 20 };
 
 const RULES = [
-  { emoji: "👑", title: "Si tomas, no manejas", text: "La única cifra segura al volante es 0.00. Siempre hay alguien de conductor o un transporte." },
+  { emoji: "🚗", title: "Si tomas, no manejas", text: "La única cifra segura al volante es 0.00. Siempre hay alguien de conductor o un transporte." },
   { emoji: "🧪", title: "Las cifras son estimaciones", text: "La alcoholemia que ves es educativa (fórmula de Widmark), no una medición. No sirve para decidir si manejar." },
   { emoji: "💧", title: "Agua entre trago y trago", text: "La app te lo recuerda. Comer y alternar con agua hace que la noche dure más y la caña sea menor." },
 ];
@@ -24,6 +26,8 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
   const { locale, country, setCountry } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
+  // Quien llega por QR a una sala ve lo esencial; el detalle legal sigue a un toque
+  const compact = usePathname().startsWith("/carrete/");
 
   useEffect(() => {
     if (forceOpen || !localStorage.getItem("tonight_disclaimer_ack")) setIsOpen(true);
@@ -39,20 +43,17 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
   const age = LEGAL_AGE[country] ?? 18;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-night-950/85 p-0 backdrop-blur-md animate-fade-in sm:items-center sm:p-4">
+    <Modal dismissible={false} labelledBy="welcome-title" className="flex items-end justify-center bg-night-950/85 p-0 backdrop-blur-md animate-fade-in sm:items-center sm:p-4">
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="welcome-title"
         className="relative flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-[32px] border border-white/10 bg-night-900 shadow-lift sm:rounded-[32px]"
       >
         <div className="relative overflow-y-auto p-6 sm:p-8">
           <h2 id="welcome-title" className="display text-4xl">
-            Antes de empezar<span className="text-accent">.</span>
+            {compact ? "Antes de entrar" : "Antes de empezar"}<span className="text-accent">.</span>
           </h2>
 
-          <div className="mt-5 flex flex-wrap gap-1.5" role="radiogroup" aria-label="País">
-            {COUNTRIES.map((c) => (
+          <div className={`mt-5 flex flex-wrap gap-1.5 ${VISIBLE_COUNTRIES.length < 2 ? "hidden" : ""}`} role="radiogroup" aria-label="País">
+            {COUNTRIES.filter((c) => VISIBLE_COUNTRIES.includes(c.code)).map((c) => (
               <button
                 key={c.code}
                 type="button"
@@ -66,6 +67,11 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
             ))}
           </div>
 
+          {compact ? (
+            <p className="mt-5 text-base leading-relaxed text-slate-300">
+              Si tomas, no manejas. Las cifras de alcohol son estimaciones educativas y no sirven para decidir si manejar.
+            </p>
+          ) : (
           <ul className="mt-6 space-y-4">
             {RULES.map((r) => (
               <li key={r.title} className="flex gap-4">
@@ -77,6 +83,7 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
               </li>
             ))}
           </ul>
+          )}
 
           <button
             type="button"
@@ -109,6 +116,6 @@ export default function DisclaimerModal({ forceOpen = false, onClose }: Disclaim
           </p>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

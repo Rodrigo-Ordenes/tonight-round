@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import Modal from "@/components/ui/Modal";
 import { Clock, AlertTriangle, ShieldCheck, Zap, User, Plus } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
-import { bacFor, BETA, widmarkR, fmtDuration, fmtTime } from "@/lib/alcohol";
+import { bacFor, BETA, fmtDuration, fmtTime } from "@/lib/alcohol";
 import { audioEffects } from "@/lib/audioEffects";
 
 interface CarreteResurrectionPacingProps {
@@ -29,13 +30,13 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-night-950 via-amber-950/40 to-night-950 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-5 sm:p-6 rounded-3xl bg-night-900 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 shrink-0">
             <Clock className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-white">
+            <h2 className="text-xl font-bold text-white">
               ¿PARA CUÁNDO TENGO QUE ESTAR VIVO?
             </h2>
             <p className="text-xs text-slate-400">
@@ -81,9 +82,9 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
           return (
             <div
               key={p.id}
-              className={`p-5 rounded-3xl border transition-all space-y-4 ${
+              className={`p-5 rounded-3xl border transition space-y-4 ${
                 lightStatus === "red"
-                  ? "bg-rose-950/40 border-rose-500/60 shadow-[0_0_20px_rgba(253,69,118,0.2)]"
+                  ? "bg-rose-950/40 border-rose-500/60"
                   : lightStatus === "yellow"
                   ? "bg-amber-950/30 border-amber-500/50"
                   : "bg-night-900/90 border-slate-800"
@@ -95,15 +96,15 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
                     <User className="w-4 h-4 text-slate-300" />
                   </div>
                   <div>
-                    <h3 className="font-black text-base text-white">{p.name}</h3>
+                    <h3 className="font-bold text-base text-white">{p.name}</h3>
                     <p className="text-xs text-slate-400">
-                      {p.gender === "M" ? "Hombre" : "Mujer"} · {p.weightKg} kg · {p.consumptions.length} consumos
+                      {p.consumptions.length} consumos
                     </p>
                   </div>
                 </div>
 
                 <span
-                  className={`text-xs font-black px-2.5 py-1 rounded-full border ${
+                  className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
                     lightStatus === "red"
                       ? "bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse"
                       : lightStatus === "yellow"
@@ -125,7 +126,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
                   <span className="text-xs text-slate-400 uppercase font-bold block">
                     Compromiso de mañana
                   </span>
-                  <span className="text-xs font-black text-white">
+                  <span className="text-xs font-bold text-white">
                     {p.resurrectionLabel || "Almuerzo Familiar (13:00)"}
                   </span>
                   <span className="text-xs text-slate-400 block mt-0.5">
@@ -184,9 +185,9 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
 
       {/* Modal para configurar compromiso */}
       {editingParticipantId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">
+        <Modal label="Configurar hora y compromiso" onClose={() => setEditingParticipantId(null)} className="flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">
           <div className="w-full max-w-sm rounded-3xl bg-night-900 border border-indigo-500/30 p-5 space-y-4">
-            <h3 className="text-base font-black text-white">
+            <h3 className="text-base font-bold text-white">
               Configurar Hora y Compromiso
             </h3>
 
@@ -227,7 +228,7 @@ export default function CarreteResurrectionPacing({ store }: CarreteResurrection
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
