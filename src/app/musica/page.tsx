@@ -20,6 +20,7 @@ import {
 } from "@/lib/music";
 import { audioEffects } from "@/lib/audioEffects";
 import GhostTitle from "@/components/ui/GhostTitle";
+import VinylAlbumCard from "@/components/ui/vinyl-album-card";
 
 function EnergyMeter({ value }: { value: number }) {
   return (
@@ -122,6 +123,15 @@ export default function MusicaPage() {
 
         {/* El DJ sugiere */}
         <div className="space-y-3">
+          {/* Lo que suena, como disco (21st «Vinyl Album Card»): se saca de la funda al pasar o al tocar */}
+          <div className="flex justify-center pb-2 lg:justify-start">
+            <VinylAlbumCard
+              title={np.title}
+              artist={np.vibe?.name ?? (np.provider === "youtube" ? "YouTube" : "Spotify")}
+              meta={np.reason ?? "Sonando"}
+              mark={np.vibe?.emoji ?? "♪"}
+            />
+          </div>
           <div className="flex items-center justify-between">
             <p className="eyebrow">El DJ sugiere ahora</p>
             {!auto && (

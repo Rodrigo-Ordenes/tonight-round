@@ -10,6 +10,9 @@ import { useActiveCode } from "@/lib/useActiveCode";
 import { BrandMark } from "@/components/shell/AppShell";
 import SignalField from "@/components/ui/SignalField";
 import TvDepth from "@/components/live/TvDepth";
+import PartyStage from "@/components/party/PartyStage";
+import { PartyLeaderboard } from "@/components/party/PartyBoard";
+import { isPartyGame } from "@/lib/partyGames";
 import { roomEvents } from "@/lib/roomEvents";
 import ScrambleCode from "@/components/ui/ScrambleCode";
 import { CODE_RE } from "@/lib/carreteState";
@@ -25,7 +28,7 @@ import { fireConfetti } from "@/lib/confetti";
 import RoundResults from "@/components/live/RoundResults";
 import { GROUP_LABEL } from "@/components/games/SeatShuffle";
 import CheersOverlay from "@/components/live/CheersOverlay";
-import { buildRound, tally } from "@/lib/liveGames";
+import { buildRound, revealAction } from "@/lib/liveGames";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 import { useRevealMoment } from "@/lib/useRevealMoment";
@@ -72,8 +75,7 @@ function TvStage() {
     else if (r && (k === " " || k === "enter")) {
       e.preventDefault();
       if (!r.revealedAt && Object.keys(r.votes).length > 0) {
-        const t = tally(r, store.participants);
-        store.dispatch({ type: "REVEAL_ROUND", roundId: r.id, winner: t.spotlightId, guiltyIds: t.loserIds });
+        store.dispatch(revealAction(r, store.participants));
       } else if (r.revealedAt) next(r.game);
     } else if (r && k === "n") next(r.game);
     else if (r && k === "escape") store.dispatch({ type: "END_ROUND", roundId: r.id });
@@ -202,6 +204,11 @@ function TvStage() {
                 </div>
               )}
               {round.game === "impostor" && <p className="mt-6 max-w-[80vw] text-tv-sm text-slate-300">{round.prompt}</p>}
+              {isPartyGame(round.game) && (
+                <div className="mt-8">
+                  <PartyStage round={round} participants={store.participants} size="tv" />
+                </div>
+              )}
               <div className="mt-12 space-y-6">
                 <RoundTimer clock={clock} size="tv" />
                 <p className="text-tv-sm text-slate-300">
@@ -224,7 +231,15 @@ function TvStage() {
               {round.game !== "prefieres" && round.game !== "impostor" && (
                 <p className="mb-6 text-tv-sm text-slate-400">{round.game === "confesion" ? `"${round.prompt}"` : round.prompt}</p>
               )}
-              <RoundResults round={round} participants={store.participants} size="tv" />
+              {isPartyGame(round.game) && (
+                <div className="mb-8">
+                  <PartyStage round={round} participants={store.participants} size="tv" />
+                </div>
+              )}
+              <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] xl:items-start">
+                <RoundResults round={round} participants={store.participants} size="tv" />
+                <PartyLeaderboard live={store.state.live} participants={store.participants} size="tv" />
+              </div>
             </div>
           )}
         </main>
@@ -289,6 +304,7 @@ function TvStage() {
             </section>
           )}
 
+          <PartyLeaderboard live={store.state.live} participants={store.participants} size="tv" limit={5} />
           <section aria-label="Monstruómetro" className="space-y-3">
             <p className="eyebrow !text-2xl">Monstruómetro</p>
             {rows.length === 0 && <p className="text-tv-sm text-slate-400">Esperando a los primeros…</p>}

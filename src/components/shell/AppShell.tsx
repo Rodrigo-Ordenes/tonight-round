@@ -14,6 +14,7 @@ import CountrySelector from "@/components/navigation/CountrySelector";
 import LiveRoomPanel from "./LiveRoomPanel";
 import LiveNudge from "@/components/live/LiveNudge";
 import CheersOverlay from "@/components/live/CheersOverlay";
+import { useDragDismiss } from "@/lib/useDragDismiss";
 
 const NAV = [
   { key: "sala", label: "Sala", icon: Radio },
@@ -64,6 +65,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "/";
   const { code, hydrated } = useActiveCode();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const sheet = useDragDismiss(() => setSheetOpen(false));
 
   useEffect(() => setSheetOpen(false), [pathname]);
 
@@ -81,6 +83,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const sync = syncStatus({ online: room.online, pending: room.pending });
   const salaHref = `/carrete/${hydrated ? code : SOLO}`;
 
+  const isActive = (key: string, href?: string) =>
+    key === "sala" ? pathname.startsWith("/carrete/") : href ? pathname.startsWith(href) : false;
+
+  // Menú vivo (hooks antes del return de la TV: al volver de la TV cambiaba el número de hooks y React se caía): una píldora de neón viaja a la sección activa (dock del celular y barra lateral)
+  const activeKey = NAV.find((item) => isActive(item.key, "href" in item ? item.href : undefined))?.key ?? null;
+  const dockRef = useRef<HTMLDivElement>(null);
+  const sideRef = useRef<HTMLElement>(null);
+  const dockRect = useActiveRect(dockRef, '[aria-current="page"]', activeKey);
+  const sideRect = useActiveRect(sideRef, '[aria-current="page"] [data-nav-icon]', activeKey);
+
   if (isTv)
     return (
       <div className="relative z-10 min-h-[100dvh]">
@@ -89,15 +101,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
     );
 
-  const isActive = (key: string, href?: string) =>
-    key === "sala" ? pathname.startsWith("/carrete/") : href ? pathname.startsWith(href) : false;
-
-  // Menú vivo: una píldora de neón viaja a la sección activa (dock del celular y barra lateral)
-  const activeKey = NAV.find((item) => isActive(item.key, "href" in item ? item.href : undefined))?.key ?? null;
-  const dockRef = useRef<HTMLDivElement>(null);
-  const sideRef = useRef<HTMLElement>(null);
-  const dockRect = useActiveRect(dockRef, '[aria-current="page"]', activeKey);
-  const sideRect = useActiveRect(sideRef, '[aria-current="page"] [data-nav-icon]', activeKey);
 
   return (
     <div className="relative z-10 min-h-[100dvh] lg:grid lg:grid-cols-[92px_minmax(0,1fr)]">
@@ -240,8 +243,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {sheetOpen && (
         <Modal label="Sala en vivo" onClose={() => setSheetOpen(false)} className="flex items-end justify-center bg-night-950/70 backdrop-blur-sm lg:items-stretch lg:justify-end">
           <div
+            ref={sheet.panel}
             className="drawer-panel relative max-h-[86dvh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[20px] border border-white/10 bg-night-900 pb-[env(safe-area-inset-bottom,16px)] lg:h-full lg:max-h-none lg:max-w-[400px] lg:rounded-none lg:rounded-l-[24px] lg:border-y-0 lg:border-r-0 lg:shadow-[-24px_0_80px_-20px_rgba(185,62,243,0.25)]"
           >
+            {/* Manija: arrastrar hacia abajo cierra la hoja (en el celular) */}
+            <div {...sheet.handle} aria-hidden className="sticky top-0 z-10 flex h-7 cursor-grab touch-none items-center justify-center lg:hidden">
+              <span className="h-1.5 w-10 rounded-full bg-white/25" />
+            </div>
             <button
               type="button"
               onClick={() => setSheetOpen(false)}

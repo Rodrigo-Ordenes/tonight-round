@@ -234,12 +234,14 @@ export default function CarreteGatewayModal() {
         <h2 id="mods-title" className="display text-3xl sm:text-4xl lg:text-display-lg">
           De la previa al cierre<span className="text-accent">.</span>
         </h2>
-        <ul className="mt-6 divide-y lg:hidden divide-white/[0.07] border-y border-white/[0.07]">
+        {/* Celular y tablet: cartas que se apilan al bajar (21st «Scroll Stacking Cards»): cada una sube inclinada y se
+            asienta; las de abajo se asoman como un mazo */}
+        <ul className="mt-6 space-y-3 lg:hidden">
           {MODULES.map((m, i) => (
-            <li key={m.href} className="animate-rise-in" style={{ animationDelay: `${120 + i * 50}ms` }}>
+            <li key={m.href} className="stack-card sticky" style={{ top: `calc(4.25rem + ${i * 0.75}rem)`, zIndex: i + 1 }}>
               <Link
                 href={m.href}
-                className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-5 gap-y-1 py-5 transition-colors duration-200 ease-out sm:grid-cols-[3rem_14rem_minmax(0,1fr)_auto]"
+                className="stack-card-inner group grid min-h-[8.5rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-5 gap-y-1 rounded-3xl border border-white/10 bg-night-900 px-5 py-5 shadow-[0_-12px_30px_-18px_rgba(0,0,0,0.9)] transition-colors duration-200 ease-out sm:grid-cols-[3rem_14rem_minmax(0,1fr)_auto]"
               >
                 <span className="parallax-float grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-night-900 text-indigo-300 transition-colors group-hover:border-indigo-400/40" aria-hidden>
                   <m.icon className="h-5 w-5" />

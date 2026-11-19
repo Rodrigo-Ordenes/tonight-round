@@ -856,3 +856,156 @@ main .grid > * {
     }
   }
 }
+
+/* ------------------------------------------------------------------
+   Party Games: el azar se ve. Solo transform y opacity; con movimiento reducido, el resultado directo.
+   ------------------------------------------------------------------ */
+.party-range {
+  accent-color: var(--blue);
+  height: 2.5rem;
+}
+.party-wheel {
+  transition: transform 3.2s cubic-bezier(0.12, 0.8, 0.12, 1);
+}
+@keyframes party-die {
+  0% { transform: translateY(-40px) rotate(-200deg) scale(0.7); opacity: 0; }
+  60% { transform: translateY(6px) rotate(18deg) scale(1.04); opacity: 1; }
+  80% { transform: translateY(-4px) rotate(-6deg); }
+  100% { transform: none; }
+}
+@keyframes party-die-wobble {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes party-flip {
+  from { transform: rotateY(90deg) scale(0.9); opacity: 0.2; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes party-open {
+  0% { transform: rotateX(-80deg) translateY(-8px); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes party-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.12); opacity: 1; }
+  100% { transform: none; }
+}
+@keyframes party-shake {
+  0%, 100% { transform: none; }
+  25% { transform: translateX(-6px) rotate(-3deg); }
+  75% { transform: translateX(6px) rotate(3deg); }
+}
+@keyframes party-fuse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .party-die-roll { animation: party-die 900ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .party-die-idle { animation: party-die-wobble 1.6s ease-in-out infinite; }
+  .party-card-flip > * { animation: party-flip 700ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .party-box-open { animation: party-open 600ms cubic-bezier(0.23, 1, 0.32, 1) both; transform-origin: 50% 0%; }
+  .party-reveal-cell { animation: party-pop 420ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .party-cursed { animation: party-pop 420ms cubic-bezier(0.23, 1, 0.32, 1) both, party-shake 380ms ease-in-out 700ms 2; }
+  .party-bomb-on { animation: party-fuse 0.9s ease-in-out infinite; }
+  .party-boom { animation: party-pop 520ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .party-outcome { animation: party-pop 600ms cubic-bezier(0.23, 1, 0.32, 1) 300ms both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .party-wheel { transition: none; }
+}
+
+/* Impresora de boletas (21st «Receipt Printer»): dientes de la barra, luz ocupada y aviso que aparece */
+.receipt-teeth {
+  -webkit-mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / 6px 100%;
+  mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / 6px 100%;
+}
+.receipt-torn {
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%;
+  mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%;
+}
+@keyframes receipt-led {
+  0%, 100% { background-color: #E4B853; box-shadow: 0 0 8px #E4B853; }
+  50% { background-color: #6b5520; box-shadow: 0 0 0 #E4B853; }
+}
+.receipt-led-busy { background-color: #E4B853; }
+@keyframes receipt-hint {
+  from { opacity: 0; transform: translateY(4px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .receipt-led-busy { animation: receipt-led 0.5s linear infinite; }
+  .receipt-hint { animation: receipt-hint 300ms var(--ease-out) both; }
+}
+
+/* Cifras de paleta: cada dígito en dos mitades; la de arriba cae y la de abajo aterriza */
+.flip-digit .flip-half {
+  position: absolute;
+  inset-inline: 0;
+  height: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  backface-visibility: hidden;
+}
+.flip-digit .flip-top { top: 0; border-radius: 0.12em 0.12em 0 0; border-bottom: 1px solid rgba(0, 0, 0, 0.6); }
+.flip-digit .flip-bottom { bottom: 0; border-radius: 0 0 0.12em 0.12em; }
+.flip-digit .flip-glyph {
+  position: absolute;
+  inset-inline: 0;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flip-digit .flip-top .flip-glyph { top: 0; }
+.flip-digit .flip-bottom .flip-glyph { bottom: 0; }
+@keyframes flip-fall {
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(-90deg); }
+}
+@keyframes flip-land {
+  from { transform: rotateX(90deg); }
+  to { transform: rotateX(0deg); }
+}
+.flip-digit .flip-fall { transform-origin: 50% 100%; z-index: 2; }
+.flip-digit .flip-land { transform-origin: 50% 0%; z-index: 2; transform: rotateX(0deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .flip-digit .flip-fall { animation: flip-fall 240ms cubic-bezier(0.55, 0, 0.9, 0.5) both; }
+  .flip-digit .flip-land { animation: flip-land 240ms cubic-bezier(0.1, 0.5, 0.45, 1) 240ms both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flip-digit .flip-fall { display: none; }
+}
+
+/* Mazo en abanico (21st «Card Shuffle Deck»): la carta sale abajo a la izquierda y se mete detrás */
+@keyframes shuffle-fling {
+  0% { transform: none; opacity: 1; z-index: 3; }
+  45% { transform: translate(-58%, 34%) rotate(-24deg); opacity: 1; z-index: 3; }
+  46% { z-index: 0; }
+  100% { transform: translate(-6px, 8px) rotate(-5deg) scale(0.94); opacity: 0; z-index: 0; }
+}
+@keyframes shuffle-in {
+  from { transform: translate(6px, 4px) rotate(4deg) scale(0.97); }
+  to { transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .shuffle-fling { animation: shuffle-fling 620ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .shuffle-front { animation: shuffle-in 420ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shuffle-fling { display: none; }
+}
+
+/* Cartas que se apilan (21st «Scroll Stacking Cards»): suben inclinadas y fuera de foco y se asientan al llegar */
+@keyframes stack-rise {
+  from { transform: perspective(900px) translateY(40px) rotateX(18deg) scale(0.94); opacity: 0.5; }
+  to { transform: none; opacity: 1; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .stack-card-inner {
+      animation: stack-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+      transform-origin: 50% 0%;
+    }
+  }
+}

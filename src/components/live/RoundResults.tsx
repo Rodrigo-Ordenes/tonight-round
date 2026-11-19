@@ -4,6 +4,7 @@ import React from "react";
 import CountUp from "@/components/ui/CountUp";
 import type { LiveRound, Participant } from "@/lib/carreteState";
 import { penaltyFor, tally } from "@/lib/liveGames";
+import { PartyRoundTable } from "@/components/party/PartyBoard";
 
 /** Resultados de una ronda revelada. `size="tv"` usa la escala 10-foot para la Smart TV. */
 export default function RoundResults({
@@ -28,6 +29,9 @@ export default function RoundResults({
       <p className={`display ${tv ? "text-tv-lg" : "text-2xl"} animate-rise-in`}>{t.headline}</p>
       {round.explain && <p className={`${tv ? "text-tv-sm" : "text-sm"} max-w-3xl text-slate-300`}>{round.explain}</p>}
 
+      {t.party ? (
+        <PartyRoundTable result={t.party} size={size} meId={meId} />
+      ) : (
       <ul className={tv ? "space-y-4" : "space-y-2"}>
         {t.rows
           .filter((r) => r.count > 0 || t.rows.length <= 4)
@@ -58,6 +62,7 @@ export default function RoundResults({
             );
           })}
       </ul>
+      )}
 
       {losers.length > 0 && (
         <div

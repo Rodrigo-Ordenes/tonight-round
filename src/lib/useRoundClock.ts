@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { LiveRound, Participant } from "./carreteState";
-import { roundRemaining, shouldAutoReveal, tally } from "./liveGames";
+import { revealAction, roundRemaining, shouldAutoReveal } from "./liveGames";
 import { audioEffects } from "./audioEffects";
 import type { CarreteAction } from "./carreteState";
 
@@ -38,8 +38,7 @@ export function useRoundClock(
   useEffect(() => {
     if (!driver || !round || round.revealedAt) return;
     if (shouldAutoReveal(round, driver.participants.length, now)) {
-      const t = tally(round, driver.participants);
-      driver.dispatch({ type: "REVEAL_ROUND", roundId: round.id, winner: t.spotlightId, guiltyIds: t.loserIds });
+      driver.dispatch(revealAction(round, driver.participants));
       return;
     }
     if (driver.sound && remainingMs !== null && remainingMs > 0 && remainingMs <= 10_000) {

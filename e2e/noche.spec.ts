@@ -239,3 +239,60 @@ test.describe("portada en escritorio", () => {
     await expect(drawer).toHaveCount(0);
   });
 });
+
+test.describe("Party Games", () => {
+  test("la casilla maldita: eligen en secreto, la mesa revela y suma al ranking", async ({ page, browser }, info) => {
+    test.skip(info.project.name !== "escritorio", "La mesa usa escritorio; los celulares se crean aparte");
+    await page.addInitScript(SEEN);
+    await page.goto("/");
+    await page.getByRole("button", { name: /Crear sala/ }).click();
+    await page.waitForURL(/\/carrete\/[A-Z0-9]{6}\?invitar=1/);
+    const code = new URL(page.url()).pathname.split("/").pop()!;
+    await page.getByRole("button", { name: "Ahora no" }).click();
+    const url = `/carrete/${code}?modo=celular`;
+    const ana = await phone(browser, url, "Ana");
+    const beto = await phone(browser, url, "Beto");
+
+    await page.goto("/juegos");
+    await expect(page.getByRole("heading", { name: /Azar, predicción y faroles/ })).toBeVisible();
+    const card = page.locator("article", { has: page.getByRole("heading", { name: "La casilla maldita" }) });
+    await card.getByRole("button", { name: "Jugar" }).click();
+
+    for (const [p, cell] of [
+      [ana, "Casilla 1"],
+      [beto, "Casilla 2"],
+    ] as const) {
+      const btn = p.getByRole("button", { name: cell, exact: true });
+      await expect(btn).toBeVisible({ timeout: 15_000 });
+      await btn.click();
+      await expect(btn).toHaveAttribute("aria-pressed", "true");
+    }
+
+    // Votaron los dos: la mesa revela; el resultado y el ranking aparecen en la mesa y en los celulares
+    await expect(page.getByText("Votaron 2 de 2")).toBeVisible({ timeout: 15_000 });
+    await page.getByRole("button", { name: "Revelar" }).click();
+    await expect(page.getByText(/La casilla maldita era la \d/).first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("region", { name: "Ranking de la noche" }).first()).toBeVisible();
+    await expect(ana.getByText(/La casilla maldita era la \d/).first()).toBeVisible({ timeout: 15_000 });
+
+    await ana.context().close();
+    await beto.context().close();
+  });
+});
+
+test.describe("TV", () => {
+  test("volver de la TV a la sala no rompe la app", async ({ page }, info) => {
+    test.skip(info.project.name !== "escritorio", "La TV se abre en escritorio");
+    await page.addInitScript(SEEN);
+    await page.goto("/");
+    await page.getByRole("button", { name: /Crear sala/ }).click();
+    await page.waitForURL(/\/carrete\/[A-Z0-9]{6}\?invitar=1/);
+    const code = new URL(page.url()).pathname.split("/").pop()!;
+    await page.getByRole("button", { name: "Ahora no" }).click();
+    await page.goto(`/carrete/tv?code=${code}`);
+    await page.getByRole("link", { name: "Volver a la sala" }).click();
+    await page.waitForURL(new RegExp(`/carrete/${code}`));
+    await expect(page.getByText("Se nos cayó el vaso")).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Navegación principal" }).first()).toBeVisible();
+  });
+});

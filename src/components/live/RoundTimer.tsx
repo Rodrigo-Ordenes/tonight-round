@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { RoundClock } from "@/lib/useRoundClock";
+import FlipDigits from "@/components/ui/flip-digits";
 
 /** Barra de tiempo de la ronda: lineal (es un progreso constante), ámbar en los últimos 10 s. */
 export default function RoundTimer({ clock, size = "md" }: { clock: RoundClock; size?: "md" | "tv" }) {
@@ -16,7 +17,15 @@ export default function RoundTimer({ clock, size = "md" }: { clock: RoundClock; 
           style={{ transform: `scaleX(${1 - clock.progress})`, transition: "transform 250ms linear" }}
         />
       </div>
-      <span className={`font-mono tabular ${urgent ? "text-amber-300" : "text-slate-400"} ${size === "tv" ? "text-tv-sm" : "text-xs"}`}>{secs}s</span>
+      {size === "tv" ? (
+        // En la TV, cifras de paleta (21st «FlipCountdown»): cae solo el dígito que cambia
+        <span className={`flex items-baseline gap-1 font-mono font-bold ${urgent ? "text-amber-300" : "text-slate-200"} text-tv-md`}>
+          <FlipDigits value={String(secs).padStart(2, "0")} />
+          <span className="text-tv-sm text-slate-400">s</span>
+        </span>
+      ) : (
+        <span className={`font-mono tabular ${urgent ? "text-amber-300" : "text-slate-400"} text-xs`}>{secs}s</span>
+      )}
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore } from "@/store/useCarreteStore";
 import { pantryFromBasket } from "@/lib/basket";
 import GhostTitle from "@/components/ui/GhostTitle";
+import CintaTragos from "@/components/bar/CintaTragos";
 
 type BarTab = "preparar" | "recetario" | "diccionario" | "piscolometro";
 
@@ -153,7 +154,13 @@ export default function BarPage() {
         />
       )}
 
-      {tab === "recetario" && <Recetario pantry={pantry} onPick={pickRecipe} />}
+      {tab === "recetario" && (
+        <>
+          {/* Cinta de tragos (21st «Sushi Conveyor Belt Menu» adaptada): la vitrina antes de la lista completa */}
+          <CintaTragos onPick={pickRecipe} driver={me?.role === "driver"} />
+          <Recetario pantry={pantry} onPick={pickRecipe} />
+        </>
+      )}
 
       {tab === "diccionario" && <Diccionario onPick={pickRecipe} />}
 

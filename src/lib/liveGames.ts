@@ -1,4 +1,5 @@
-import type { Confession, LiveGame, LiveRound, Participant } from "./carreteState";
+import type { CarreteAction, Confession, LiveGame, LiveRound, Participant } from "./carreteState";
+import { PARTY_BY_ID, PARTY_GAMES, buildPartyRound, isPartyGame, probablePoints, resolveParty, type PartyResult } from "./partyGames";
 import { bacFor } from "./alcohol";
 import { BOMBA_CATEGORIAS, CASTIGOS, DUELOS, IMPOSTOR_WORDS, MIMICA, PREFIERES, PROBABLE, VERDAD_O_MITO, YO_NUNCA } from "@/data/party_prompts";
 
@@ -30,7 +31,11 @@ export function judgedIds(round: Pick<LiveRound, "game" | "answer" | "options">)
   return [];
 }
 
-export const LIVE_GAME_BY_ID = new Map(LIVE_GAMES.map((g) => [g.id, g]));
+/** Todos los juegos en vivo, también los de Party Games (para nombres y mínimos en la TV y el celular) */
+export const LIVE_GAME_BY_ID = new Map<LiveGame, LiveGameDef>([
+  ...PARTY_GAMES.map((g) => [g.id, { id: g.id, name: g.name, emoji: g.emoji, blurb: g.blurb, minPlayers: g.minPlayers }] as const),
+  ...LIVE_GAMES.map((g) => [g.id, g] as const),
+]);
 
 const pick = <T,>(xs: T[]): T => xs[Math.floor(Math.random() * xs.length)];
 
@@ -51,7 +56,8 @@ export function buildRound(
     return pick(unused.length ? unused : xs);
   };
   const seconds: Partial<Record<LiveGame, number>> = { impostor: 45, mimica: 60, duelo: 45, verdadreto: 45, categorias: 45 };
-  const base = { id: rid(), game, startedAt: Date.now(), durationMs: (seconds[game] ?? 30) * 1000 };
+  const base = { id: rid(), game, startedAt: Date.now(), durationMs: (PARTY_BY_ID.get(game)?.seconds ?? seconds[game] ?? 30) * 1000 };
+  if (isPartyGame(game)) return buildPartyRound(game, base, people, fresh);
   const peopleOptions = people.map((p) => ({ id: p.id, label: p.name }));
 
   switch (game) {
@@ -136,6 +142,8 @@ export function buildRound(
       const c = pick(available);
       return { ...base, prompt: c.text, options: peopleOptions, answer: c.authorId };
     }
+    default:
+      return { error: "Juego desconocido" };
   }
 }
 
@@ -154,9 +162,18 @@ export interface Tally {
   /** Persona destacada (más votada, autor de la confesión, impostor) */
   spotlightId?: string;
   headline: string;
+  /** Puntos de la ronda (Party Games y ¿Quién es más probable?) */
+  points?: Record<string, number>;
+  /** Detalle de Party Games: qué eligió cada uno y el resultado del azar */
+  party?: PartyResult;
 }
 
 export function tally(round: LiveRound, participants: Participant[]): Tally {
+  if (isPartyGame(round.game)) {
+    const r = resolveParty(round, participants);
+    const rows: TallyRow[] = r.rows.map((x) => ({ id: x.id, label: x.name, count: x.points, voterIds: [x.id] }));
+    return { rows, total: r.rows.length, loserIds: r.loserIds, spotlightId: r.spotlightId ?? (r.winnerIds.length === 1 ? r.winnerIds[0] : undefined), headline: r.headline, points: r.points, party: r };
+  }
   const name = (id?: string) => participants.find((p) => p.id === id)?.name ?? "alguien";
   const rows: TallyRow[] = round.options.map((o) => ({ id: o.id, label: o.label, count: 0, voterIds: [] }));
   Object.entries(round.votes).forEach(([pid, v]) => {
@@ -180,6 +197,7 @@ export function tally(round: LiveRound, participants: Participant[]): Tally {
       return {
         rows,
         total,
+        points: probablePoints(round, top.map((r) => r.id)),
         loserIds: top.map((r) => r.id),
         spotlightId: top.length === 1 ? top[0].id : undefined,
         headline: top.length === 0 ? "Nadie votó" : top.length === 1 ? `La sala eligió a ${top[0].label}` : `Empate: ${top.map((t) => t.label).join(" y ")}`,
@@ -246,7 +264,15 @@ export function tally(round: LiveRound, participants: Participant[]): Tally {
         headline: fooled ? `Era de ${name(round.answer)} y nadie lo vio venir.` : `Era de ${name(round.answer)}. ¡Lo pillaron!`,
       };
     }
+    default:
+      return { rows, total, loserIds: [], headline: "" };
   }
+}
+
+/** Acción de revelado con su resultado: la usan la TV, el anfitrión y el revelado automático (todos igual) */
+export function revealAction(round: LiveRound, participants: Participant[]): Extract<CarreteAction, { type: "REVEAL_ROUND" }> {
+  const t = tally(round, participants);
+  return { type: "REVEAL_ROUND", roundId: round.id, winner: t.spotlightId, guiltyIds: t.loserIds, points: t.points };
 }
 
 /**
