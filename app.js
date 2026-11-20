@@ -12,10 +12,11 @@ process.env.HOSTNAME = "127.0.0.1";
 // Fuera de la carpeta de la app: las salas sobreviven a reinicios y a subir una versión nueva.
 process.env.CARRETE_DATA_DIR = process.env.CARRETE_DATA_DIR || path.join(os.homedir(), "tonight-data");
 
-// Versión nueva sin reinicio: "Update from Remote" cambia los archivos, pero el proceso viejo seguía sirviendo páginas
-// que piden archivos ya borrados (la página salía sin estilos). Cada 30 s se compara el BUILD_ID del disco con el
-// que arrancó; si cambió, el proceso termina y el hosting levanta la versión nueva en la siguiente visita.
+// Versión nueva o archivo de reinicio: cada 15 s compara BUILD_ID y tmp/restart.txt con los valores al arrancar.
+// Si cambia BUILD_ID, si se borra la carpeta (now === null) o si se toca tmp/restart.txt, el proceso termina solo
+// para que LiteSpeed levante la instancia nueva en la siguiente visita.
 const BUILD_ID_FILE = path.join(__dirname, "server", ".next", "BUILD_ID");
+const RESTART_FILE = path.join(__dirname, "tmp", "restart.txt");
 const readBuildId = () => {
   try {
     return fs.readFileSync(BUILD_ID_FILE, "utf8").trim();
@@ -23,14 +24,23 @@ const readBuildId = () => {
     return null;
   }
 };
+const readRestartMtime = () => {
+  try {
+    return fs.statSync(RESTART_FILE).mtimeMs;
+  } catch {
+    return 0;
+  }
+};
 const startedWith = readBuildId();
+const startedRestartMtime = readRestartMtime();
 setInterval(() => {
   const now = readBuildId();
-  if (startedWith && now && now !== startedWith) {
-    console.log(`Tonight: versión nueva (${startedWith} → ${now}), reiniciando`);
+  const restartMtime = readRestartMtime();
+  if ((startedWith && now !== startedWith) || (restartMtime > 0 && restartMtime !== startedRestartMtime)) {
+    console.log(`Tonight: cambio detectado (${startedWith} → ${now ?? "eliminado"}), reiniciando`);
     process.exit(0);
   }
-}, 30_000).unref();
+}, 15_000).unref();
 
 // El servidor va en una subcarpeta: el selector de Node de CloudLinux no admite node_modules real en la raíz.
 require("./server/server.js");
