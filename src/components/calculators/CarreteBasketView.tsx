@@ -237,6 +237,7 @@ export default function CarreteBasketView() {
         eyebrow={code !== "SOLO" ? `Armar · sala ${code}` : "Armar · modo planificador"}
         title="La lista de compras"
         scene="armar"
+        photo="bar"
         aside={
           <button type="button" onClick={() => setModalOpen(true)} className="btn-primary">
             <Plus className="w-4 h-4" /> Sumar producto

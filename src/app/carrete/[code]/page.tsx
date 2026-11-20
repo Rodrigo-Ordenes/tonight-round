@@ -16,6 +16,7 @@ import CarreteResurrectionPacing from "@/components/carrete/CarreteResurrectionP
 import CarreteClientController from "@/components/carrete/CarreteClientController";
 import LiveGameHost from "@/components/live/LiveGameHost";
 import TonightWrapped from "@/components/wrapped/TonightWrapped";
+import AmbientPhoto from "@/components/ui/AmbientPhoto";
 import { audioEffects } from "@/lib/audioEffects";
 import { useLocale } from "@/lib/useLocale";
 
@@ -85,7 +86,9 @@ export default function CarretePage() {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="relative isolate space-y-8 animate-fade-in">
+      {/* El club de fondo, como en la bienvenida y la TV */}
+      <AmbientPhoto name="club" className="-inset-x-4 -top-24 h-[22rem] rounded-b-3xl [mask-image:linear-gradient(to_bottom,#000_55%,transparent)] sm:-inset-x-6" />
       {inviting && !isSolo && (
         <InviteSheet
           code={codeParam}

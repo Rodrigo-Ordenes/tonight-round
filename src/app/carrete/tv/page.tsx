@@ -9,6 +9,8 @@ import { ArrowLeft, Maximize2, Minimize2 } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { BrandMark } from "@/components/shell/AppShell";
 import SignalField from "@/components/ui/SignalField";
+import AmbientPhoto from "@/components/ui/AmbientPhoto";
+import { FOTO_HOST } from "@/data/fotosEscena";
 import TvDepth from "@/components/live/TvDepth";
 import PartyStage from "@/components/party/PartyStage";
 import { PartyLeaderboard } from "@/components/party/PartyBoard";
@@ -157,6 +159,8 @@ function TvStage() {
 
   return (
     <div className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-[4vw] py-[3vh]">
+      {/* El club de fondo (foto real): la sala se siente en el mismo lugar que la bienvenida */}
+      <AmbientPhoto name="club" className="inset-0" veil="full" />
       <TvDepth scene={round ? `${round.id}-${round.revealedAt ? "revelado" : "votacion"}` : "lobby"} />
       {!round && <SignalField people={people} events={events} seed={11} className="inset-0 h-full w-full" />}
       <CheersOverlay code={code} big />
@@ -247,6 +251,16 @@ function TvStage() {
         /* ---------------- Lobby ---------------- */
         <main className="grid flex-1 grid-cols-1 items-center gap-[4vw] py-[4vh] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
           <section>
+            {/* El host recibe a la sala */}
+            <div className="mb-8 flex items-center gap-6">
+              {FOTO_HOST && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={FOTO_HOST.src} alt="" className="h-[13vh] w-[13vh] rounded-full border-2 border-indigo-300/60 bg-night-900 object-cover object-top" />
+              )}
+              <p className="text-tv-sm text-slate-200">
+                Bienvenidos a la sala <span className="font-mono font-bold text-white">{code}</span>. Pasen, la barra está lista.
+              </p>
+            </div>
             <h1 className="display text-tv-hero">
               Escanea
               <br />y <span className="text-accent">juega.</span>

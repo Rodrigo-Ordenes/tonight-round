@@ -74,7 +74,7 @@ export default function MitosPage() {
   return (
     <div className="space-y-6">
       {/* Intro Header */}
-      <PageHeader title="Mitos y verdades">
+      <PageHeader title="Mitos y verdades" photo="bar">
         Desmitificando {locale.slang?.party ? `el ${locale.slang.party}` : "la fiesta"} y {locale.slang?.hangover ? `la ${locale.slang.hangover}` : "la resaca"} con evidencia médica y científica ({locale.countryName})
       </PageHeader>
 
