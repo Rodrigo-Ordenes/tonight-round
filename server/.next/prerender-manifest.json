@@ -30,8 +30,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/_not-found": {
-      "initialStatus": 404,
+    "/carrete": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -44,32 +43,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/_not-found",
-      "dataRoute": "/_not-found.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/dividir": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/dividir",
-      "dataRoute": "/dividir.rsc",
+      "srcRoute": "/carrete",
+      "dataRoute": "/carrete.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -108,7 +83,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/grupo": {
+    "/mitos": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -121,8 +96,32 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/grupo",
-      "dataRoute": "/grupo.rsc",
+      "srcRoute": "/mitos",
+      "dataRoute": "/mitos.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/dividir": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/dividir",
+      "dataRoute": "/dividir.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -156,7 +155,8 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/": {
+    "/_not-found": {
+      "initialStatus": 404,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -169,8 +169,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/",
-      "dataRoute": "/index.rsc",
+      "srcRoute": "/_not-found",
+      "dataRoute": "/_not-found.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -204,6 +204,30 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/musica": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/musica",
+      "dataRoute": "/musica.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/sala": {
       "experimentalBypassFor": [
         {
@@ -228,7 +252,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/carrete": {
+    "/armar": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -241,8 +265,32 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/carrete",
-      "dataRoute": "/carrete.rsc",
+      "srcRoute": "/armar",
+      "dataRoute": "/armar.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/juegos": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/juegos",
+      "dataRoute": "/juegos.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -300,7 +348,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/armar": {
+    "/grupo": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -313,8 +361,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/armar",
-      "dataRoute": "/armar.rsc",
+      "srcRoute": "/grupo",
+      "dataRoute": "/grupo.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -324,7 +372,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/mitos": {
+    "/": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -337,32 +385,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/mitos",
-      "dataRoute": "/mitos.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/musica": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/musica",
-      "dataRoute": "/musica.rsc",
+      "srcRoute": "/",
+      "dataRoute": "/index.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -395,37 +419,13 @@
         "x-next-revalidated-tags",
         "x-next-revalidate-tag-token"
       ]
-    },
-    "/juegos": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/juegos",
-      "dataRoute": "/juegos.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
     }
   },
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "87959d9b63a78f8278909df4d07d34d5",
-    "previewModeSigningKey": "9bc2155c01058cb152ab10e4cdddb7ba4b4cdf42b1cf2deacff6ff8e3237fe65",
-    "previewModeEncryptionKey": "fabb7bfae27efe973d58ce3b32da377ad89a7009fd751bb1ae674067822590af"
+    "previewModeId": "77eae5c2f31c8a00ce73137902229984",
+    "previewModeSigningKey": "c8614bc6c1f92440e27497afc45f3d823b0d5e0b88fc02d4ff9c8d4d38e847cc",
+    "previewModeEncryptionKey": "70b8a1e9355627474bb04ec8cce5bfa197ef3b6d95510472915bcb8ee7c42d82"
   }
 }
