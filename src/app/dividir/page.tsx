@@ -20,6 +20,8 @@ export default function DividirPage() {
       <PageHeader
         eyebrow="Cuentas"
         title="Cuentas claras"
+        scene="dividir"
+        photo="club"
         aside={
           <div ref={splitTabs} className="relative flex rounded-2xl bg-white/[0.04] p-1" role="tablist" aria-label="Tipo de división">
             <SlidingIndicator rect={splitTabsRect} className="rounded-xl bg-white" />

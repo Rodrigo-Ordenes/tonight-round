@@ -3,6 +3,8 @@
 import SignalField from "@/components/ui/SignalField";
 import PourIntro from "./PourIntro";
 import { useHomeMotion, useTrackNav } from "./useHomeMotion";
+import ModuleDiorama, { type ModuleKey } from "./ModuleDiorama";
+import HostWelcome from "./HostWelcome";
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,12 +15,20 @@ import { useLocale } from "@/lib/useLocale";
 import { nightMoment, type NightMoment } from "@/lib/nightMoment";
 import { INTRO_REPLAY_EVENT } from "@/lib/introGate";
 
-const MODULES = [
-  { href: "/armar", title: "Armar", desc: "Lista de compras multi-licor, presupuesto y precios por tienda.", icon: ShoppingBasket },
-  { href: "/bar", title: "Bar", desc: "Tu barra, el trago que preparas y la receta exacta, sin confusiones.", icon: GlassWater },
-  { href: "/juegos", title: "Juegos", desc: "La TV es el escenario, los celulares votan en vivo.", icon: Gamepad2 },
-  { href: "/musica", title: "Música", desc: "DJ automático con Spotify según la hora y el ritmo de la sala.", icon: Disc3 },
-  { href: "/dividir", title: "Cuentas", desc: "Varios pagadores, conductor exento y transferencias mínimas.", icon: Receipt },
+/** Los módulos de la noche en orden; `tag` resume en una línea lo que trae cada uno (recorrido de escritorio) */
+const MODULES: {
+  id: ModuleKey;
+  href: string;
+  title: string;
+  tag: string;
+  desc: string;
+  icon: typeof ShoppingBasket;
+}[] = [
+  { id: "armar", href: "/armar", title: "Armar", tag: "Canasta · Precios CL", desc: "Lista de compras multi-licor, presupuesto y precios por tienda.", icon: ShoppingBasket },
+  { id: "bar", href: "/bar", title: "Bar", tag: "Cinta · Vaso en vivo", desc: "Tu barra, el trago que preparas y la receta exacta, sin confusiones.", icon: GlassWater },
+  { id: "juegos", href: "/juegos", title: "Juegos", tag: "TV + Celulares · 13 Party Games", desc: "La TV es el escenario, los celulares votan en vivo.", icon: Gamepad2 },
+  { id: "musica", href: "/musica", title: "Música", tag: "Vinilo · Cola por votos", desc: "DJ automático con Spotify según la hora y el ritmo de la sala.", icon: Disc3 },
+  { id: "dividir", href: "/dividir", title: "Cuentas", tag: "Boleta · Conductor exento", desc: "Varios pagadores, conductor exento y transferencias mínimas.", icon: Receipt },
 ];
 
 /** Portada: crear sala, unirse con código o planificar solo. */
@@ -124,7 +134,11 @@ export default function CarreteGatewayModal() {
       <PourIntro onCreate={() => void create()} onCode={focusCode} busy={busy === "create"} />
 
       {/* ---------- Hero ---------- */}
-      <section id="inicio" aria-labelledby="hero-title" className="relative grid scroll-mt-20 gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-end">
+      <section id="inicio" aria-labelledby="host-title" className="relative grid scroll-mt-20 gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-end">
+        {/* La bienvenida: el host recibe con su carta (lo primero al terminar o saltar la intro) */}
+        <div className="lg:col-span-2">
+          <HostWelcome onCreate={() => void create()} onCode={focusCode} busy={busy === "create"} />
+        </div>
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hidden sm:block">
           <svg data-depth="0.9" viewBox="0 0 40 40" className="float-a absolute left-[46%] top-[6%] h-10 w-10 text-indigo-300/60" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="6" y="6" width="28" height="28" rx="6" /><path d="M12 13 L18 13" strokeLinecap="round" /></svg>
           <svg data-depth="1.3" viewBox="0 0 40 40" className="float-b absolute right-[6%] top-[58%] h-7 w-7 text-purple-300/60" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="20" cy="20" r="14" /></svg>
@@ -137,11 +151,11 @@ export default function CarreteGatewayModal() {
           <SignalField count={14} burst={burst} className="-inset-x-4 -top-6 bottom-0 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] sm:-inset-x-6 sm:w-[calc(100%+3rem)] lg:-inset-x-10 lg:w-[calc(100%+5rem)]" />
         </div>
         <div className="relative animate-rise-in">
-          <h1 id="hero-title" data-split data-depth="-0.2" className="display text-display-xl">
+          <h2 id="hero-title" data-split data-depth="-0.2" className="display text-display-xl">
             La noche
             <br />
             se arma <span className="neon-violet">acá.</span>
-          </h1>
+          </h2>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
             {moment && <p className="meta">{moment.eyebrow}</p>}
             {/* Repetir la intro «La ronda» (se muestra una vez por navegador) */}
@@ -234,25 +248,29 @@ export default function CarreteGatewayModal() {
         <h2 id="mods-title" className="display text-3xl sm:text-4xl lg:text-display-lg">
           De la previa al cierre<span className="text-accent">.</span>
         </h2>
-        <ul className="mt-6 divide-y lg:hidden divide-white/[0.07] border-y border-white/[0.07]">
+        {/* Celular y tablet: cartas que se apilan al bajar (21st «Scroll Stacking Cards»): cada una sube inclinada y se
+            asienta; las de abajo se asoman como un mazo. Su diorama se arma por capas mientras sube. */}
+        <ul className="mt-6 space-y-3 lg:hidden">
           {MODULES.map((m, i) => (
-            <li key={m.href} className="animate-rise-in" style={{ animationDelay: `${120 + i * 50}ms` }}>
+            <li key={m.href} className="stack-card sticky" style={{ top: `calc(4.25rem + ${i * 0.75}rem)`, zIndex: i + 1 }}>
               <Link
                 href={m.href}
-                className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-5 gap-y-1 py-5 transition-colors duration-200 ease-out sm:grid-cols-[3rem_14rem_minmax(0,1fr)_auto]"
+                className="stack-card-inner group relative grid min-h-[8.5rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-5 gap-y-1 overflow-hidden rounded-3xl border border-white/10 bg-night-900 px-5 py-5 shadow-[0_-12px_30px_-18px_rgba(0,0,0,0.9)] transition-colors duration-200 ease-out sm:grid-cols-[3rem_14rem_minmax(0,1fr)_auto]"
               >
-                <span className="parallax-float grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-night-900 text-indigo-300 transition-colors group-hover:border-indigo-400/40" aria-hidden>
+                <ModuleDiorama id={m.id} variant="stack" />
+                <span className="parallax-float relative z-10 grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-night-900 text-indigo-300 transition-colors group-hover:border-indigo-400/40" aria-hidden>
                   <m.icon className="h-5 w-5" />
                 </span>
-                <span className="font-display text-2xl font-extrabold text-white transition-colors group-hover:text-indigo-300 sm:text-3xl">{m.title}</span>
-                <span className="col-span-2 col-start-2 row-start-2 text-sm leading-snug text-slate-400 sm:col-span-1 sm:col-start-3 sm:row-start-1">{m.desc}</span>
-                <ArrowUpRight className="col-start-3 row-start-1 w-5 h-5 text-slate-500 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white sm:col-start-4" />
+                <span className="relative z-10 font-display text-2xl font-extrabold text-white transition-colors group-hover:text-indigo-300 sm:text-3xl">{m.title}</span>
+                <span className="relative z-10 col-span-2 col-start-2 row-start-2 text-sm leading-snug text-slate-400 sm:col-span-1 sm:col-start-3 sm:row-start-1">{m.desc}</span>
+                <ArrowUpRight className="relative z-10 col-start-3 row-start-1 w-5 h-5 text-slate-500 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white sm:col-start-4" />
               </Link>
             </li>
           ))}
         </ul>
         {/* Recorrido de escritorio. Con GSAP queda fijado y avanza al bajar (o al deslizar de lado); sin él (táctil
-            grande o movimiento reducido) es una fila con scroll horizontal propio y encaje por tarjeta */}
+            grande o movimiento reducido) es una fila con scroll horizontal propio y encaje por tarjeta. Cada tarjeta trae
+            un diorama en tres planos y se inclina hacia el puntero (useHomeMotion). */}
         <div data-track-nav className="mt-6 hidden items-center gap-3 lg:flex">
           <button type="button" data-track-go="prev" aria-label="Módulo anterior" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-slate-200 transition-colors hover:border-indigo-400/50 hover:text-white">
             <ArrowRight className="h-5 w-5 rotate-180" aria-hidden />
@@ -270,18 +288,28 @@ export default function CarreteGatewayModal() {
             <li key={m.href} className="w-[min(58vw,560px)] shrink-0 snap-start">
               <Link
                 href={m.href}
-                className="group relative flex h-[58vh] max-h-[560px] min-h-[380px] flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-night-900/80 p-8 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-1 hover:border-indigo-400/50"
+                data-tilt-card
+                className="group relative flex h-[58vh] max-h-[560px] min-h-[380px] flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-night-900/85 p-8 transition-[border-color] duration-300 ease-out hover:border-indigo-400/50"
               >
-                <m.icon data-panel-art aria-hidden className="pointer-events-none absolute -bottom-12 -right-10 h-80 w-80 text-indigo-400/[0.07]" strokeWidth={1} />
-                <span className="neon-blue font-led text-3xl font-black tracking-[0.12em]">{String(i + 1).padStart(2, "0")}</span>
-                <div className="relative">
-                  <span className="grid h-14 w-14 place-items-center rounded-2xl border border-indigo-400/30 bg-indigo-500/10 text-indigo-200 shadow-neon" aria-hidden>
+                <span aria-hidden data-tilt-glare className="tilt-glare pointer-events-none absolute left-0 top-0 z-0 aspect-square w-[70%] rounded-full opacity-0" />
+                <ModuleDiorama id={m.id} />
+
+                <div className="relative z-10 flex items-center justify-between gap-3">
+                  <span className="neon-blue font-led text-3xl font-black tracking-[0.12em]">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="rounded-full border border-white/10 bg-night-950/75 px-3 py-1 font-mono text-xs font-semibold text-slate-300 backdrop-blur-md">
+                    {m.tag}
+                  </span>
+                </div>
+
+                <div className="relative z-10">
+                  <span className="grid h-14 w-14 place-items-center rounded-2xl border border-indigo-400/30 bg-indigo-500/10 text-indigo-200 shadow-neon transition-transform duration-300 ease-out group-hover:scale-105" aria-hidden>
                     <m.icon className="h-7 w-7" />
                   </span>
                   <p className="display mt-6 text-5xl">{m.title}</p>
                   <p className="mt-3 max-w-sm text-lg leading-relaxed text-slate-300">{m.desc}</p>
                 </div>
-                <span className="relative inline-flex items-center gap-2 text-sm font-bold text-indigo-200">
+
+                <span className="relative z-10 inline-flex items-center gap-2 text-sm font-bold text-indigo-200">
                   Entrar <ArrowUpRight className="h-4 w-4 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
                 </span>
               </Link>

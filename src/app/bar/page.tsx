@@ -12,6 +12,10 @@ import { useActiveCode } from "@/lib/useActiveCode";
 import { useCarreteStore } from "@/store/useCarreteStore";
 import { pantryFromBasket } from "@/lib/basket";
 import GhostTitle from "@/components/ui/GhostTitle";
+import ModuleDiorama from "@/components/gateway/ModuleDiorama";
+import BarAmbience from "@/components/bar/BarAmbience";
+import AmbientPhoto from "@/components/ui/AmbientPhoto";
+import CintaTragos from "@/components/bar/CintaTragos";
 
 type BarTab = "preparar" | "recetario" | "diccionario" | "piscolometro";
 
@@ -105,7 +109,10 @@ export default function BarPage() {
   return (
     <div className="space-y-8 animate-fade-in">
       <header className="relative isolate flex flex-wrap items-end justify-between gap-6">
+        <AmbientPhoto name="bar" className="-inset-x-4 -top-24 h-[26rem] rounded-b-3xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)] sm:-inset-x-6" />
+        <BarAmbience />
         <GhostTitle text="Arma el trago" />
+        <ModuleDiorama id="bar" variant="header" />
         <div className="max-w-2xl">
           <h1 className="display text-display-lg">
             Arma el trago<span className="text-accent">.</span>
@@ -153,7 +160,13 @@ export default function BarPage() {
         />
       )}
 
-      {tab === "recetario" && <Recetario pantry={pantry} onPick={pickRecipe} />}
+      {tab === "recetario" && (
+        <>
+          {/* Cinta de tragos (21st «Sushi Conveyor Belt Menu» adaptada): la vitrina antes de la lista completa */}
+          <CintaTragos onPick={pickRecipe} driver={me?.role === "driver"} />
+          <Recetario pantry={pantry} onPick={pickRecipe} />
+        </>
+      )}
 
       {tab === "diccionario" && <Diccionario onPick={pickRecipe} />}
 

@@ -52,15 +52,17 @@ Prueba en este orden y revisa `/version.txt` después de cada paso:
    - Si no existe la carpeta `tmp`, créala. Dentro, crea el archivo `restart.txt` (o ábrelo, escribe una letra y
      **Guardar**: lo que cuenta es la fecha de guardado).
    - Abre la página una vez, espera 10 s y recarga.
-3. **Recrear el entorno de Node:** en Setup Node.js App → lápiz (editar) → cambia **Node.js version** a otra (por
+3. **Recrear la app** (lo más seguro si el proceso viejo no muere): en Setup Node.js App, borra la app (basurero) y
+   créala de nuevo con los valores de la tabla «Configuración que no se toca». Los archivos y las salas no se borran.
+4. **Recrear el entorno de Node:** en Setup Node.js App → lápiz (editar) → cambia **Node.js version** a otra (por
    ejemplo 22.x) → **Save**; luego vuelve a **20.x** → **Save** → **Restart**. Esto corta todos los procesos.
-4. **Con Terminal de cPanel** (si tu plan la muestra; es una sola línea):
+5. **Con Terminal de cPanel** (si tu plan la muestra; es una sola línea):
 
    ```bash
    pkill -u "$USER" -f "server/server.js"; mkdir -p ~/tonight-app/tmp && touch ~/tonight-app/tmp/restart.txt
    ```
 
-5. **Si nada funciona:** revisa `tonight-app/stderr.log` en el Administrador de archivos y escribe a soporte de
+6. **Si nada funciona:** revisa `tonight-app/stderr.log` en el Administrador de archivos y escribe a soporte de
    V2 Networks: «Tengo una app Node.js en `tonight-app` que no se reinicia; ¿pueden terminar sus procesos lsnode?».
 
 ---
@@ -73,6 +75,9 @@ Prueba en este orden y revisa `/version.txt` después de cada paso:
 - [ ] La intro «La ronda» aparece la primera vez; «Ver la ronda» en el inicio la repite.
 - [ ] Crea una sala, únete desde otro celular y abre el Modo TV: el QR apunta a `https://tonight.misitio.cl`.
 - [ ] En Música, pega un link de YouTube: se reproduce (por el dominio sí; por una IP, YouTube lo bloquea).
+- [ ] En Juegos aparece «Party Games»; con dos celulares en la sala, juega una «Ruleta de proximidad» y revisa que la
+      TV muestre la ruleta, el resultado y el «Ranking de la noche».
+- [ ] En Bar → Recetario gira la «Cinta de tragos»; en Cuentas, con un gasto, aparece la impresora de la boleta.
 
 ---
 

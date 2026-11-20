@@ -20,6 +20,9 @@ import {
 } from "@/lib/music";
 import { audioEffects } from "@/lib/audioEffects";
 import GhostTitle from "@/components/ui/GhostTitle";
+import ModuleDiorama from "@/components/gateway/ModuleDiorama";
+import AmbientPhoto from "@/components/ui/AmbientPhoto";
+import VinylAlbumCard from "@/components/ui/vinyl-album-card";
 
 function EnergyMeter({ value }: { value: number }) {
   return (
@@ -83,18 +86,22 @@ export default function MusicaPage() {
   return (
     <div className="space-y-10 animate-fade-in">
       {/* Cabecera editorial */}
-      <header className="relative isolate max-w-3xl">
+      <header className="relative isolate">
+        <AmbientPhoto name="club" className="-inset-x-4 -top-24 h-[25rem] rounded-b-3xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)] sm:-inset-x-6" />
         <GhostTitle text="DJ" />
-        <h1 className="display text-display-lg">
-          DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-accent">.</span>
-        </h1>
-        <p className="meta mt-3">{moment.eyebrow}</p>
-        <p className="mt-3 text-base text-slate-300">
-          {isSolo
-            ? "Elige el ambiente o deja que el DJ lo cambie solo según la hora."
-            : `Lo que elijas suena en la TV y en todos los celulares de la sala ${code}.`}{" "}
-          El DJ automático lee la hora, tu país y el ritmo de la sala ({pulse.toFixed(1)} tragos por persona en la última hora).
-        </p>
+        <ModuleDiorama id="musica" variant="header" />
+        <div className="max-w-3xl">
+          <h1 className="display text-display-lg">
+            DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-accent">.</span>
+          </h1>
+          <p className="meta mt-3">{moment.eyebrow}</p>
+          <p className="mt-3 text-base text-slate-300">
+            {isSolo
+              ? "Elige el ambiente o deja que el DJ lo cambie solo según la hora."
+              : `Lo que elijas suena en la TV y en todos los celulares de la sala ${code}.`}{" "}
+            El DJ automático lee la hora, tu país y el ritmo de la sala ({pulse.toFixed(1)} tragos por persona en la última hora).
+          </p>
+        </div>
       </header>
 
       {/* Reproductor principal */}
@@ -122,6 +129,15 @@ export default function MusicaPage() {
 
         {/* El DJ sugiere */}
         <div className="space-y-3">
+          {/* Lo que suena, como disco (21st «Vinyl Album Card»): se saca de la funda al pasar o al tocar */}
+          <div className="flex justify-center pb-2 lg:justify-start">
+            <VinylAlbumCard
+              title={np.title}
+              artist={np.vibe?.name ?? (np.provider === "youtube" ? "YouTube" : "Spotify")}
+              meta={np.reason ?? "Sonando"}
+              mark={np.vibe?.emoji ?? "♪"}
+            />
+          </div>
           <div className="flex items-center justify-between">
             <p className="eyebrow">El DJ sugiere ahora</p>
             {!auto && (

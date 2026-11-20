@@ -36,9 +36,9 @@ export interface Drink {
 /** La ronda: piscola (60 ml de pisco de 35° y 140 de bebida), lata de cerveza, copa de vino y un vaso de agua. */
 export const ROUND: Drink[] = [
   { name: "Piscola", person: "Tú", kind: "highball", ml: 200, abv: 0.105 },
-  { name: "Cerveza", person: "Cami", kind: "pint", ml: 350, abv: 0.05 },
-  { name: "Vino", person: "Benja", kind: "wine", ml: 150, abv: 0.13 },
-  { name: "Agua", person: "Fran", kind: "tumbler", ml: 250, abv: 0 },
+  { name: "Cerveza", person: "Nacho", kind: "pint", ml: 350, abv: 0.05 },
+  { name: "Vino", person: "Coté", kind: "wine", ml: 150, abv: 0.13 },
+  { name: "Agua", person: "Pancho", kind: "tumbler", ml: 250, abv: 0 },
 ];
 
 export const COUNTER_Y = 300;

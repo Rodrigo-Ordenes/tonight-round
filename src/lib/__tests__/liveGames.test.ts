@@ -137,11 +137,17 @@ describe("juegos nuevos", () => {
     expect(tally(round({ game: "categorias", options: all, votes: { a: { value: "c", at: 1 }, b: { value: "c", at: 1 } } }), people).loserIds).toEqual(["c"]);
   });
 
-  it("piden gente suficiente", () => {
-    const two = { ...ctx, participants: people.slice(0, 2) };
-    expect("error" in buildRound("duelo", two)).toBe(true);
-    expect("error" in buildRound("mimica", two)).toBe(true);
-    expect("error" in buildRound("verdadreto", two)).toBe(false);
+  it("se pueden jugar desde una persona y rechazan salas vacías", () => {
+    const one = { ...ctx, participants: people.slice(0, 1) };
+    const empty = { ...ctx, participants: [] };
+    const duelo = buildRound("duelo", one);
+    expect("error" in duelo).toBe(false);
+    if (!("error" in duelo)) expect(duelo.options).toHaveLength(2);
+    expect("error" in buildRound("mimica", one)).toBe(false);
+    expect("error" in buildRound("verdadreto", one)).toBe(false);
+    expect("error" in buildRound("ruleta", one)).toBe(false);
+    expect("error" in buildRound("duelo", empty)).toBe(true);
+    expect("error" in buildRound("ruleta", empty)).toBe(true);
   });
 });
 

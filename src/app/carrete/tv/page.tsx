@@ -9,7 +9,12 @@ import { ArrowLeft, Maximize2, Minimize2 } from "lucide-react";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { BrandMark } from "@/components/shell/AppShell";
 import SignalField from "@/components/ui/SignalField";
+import AmbientPhoto from "@/components/ui/AmbientPhoto";
+import { FOTO_HOST } from "@/data/fotosEscena";
 import TvDepth from "@/components/live/TvDepth";
+import PartyStage from "@/components/party/PartyStage";
+import { PartyLeaderboard } from "@/components/party/PartyBoard";
+import { isPartyGame } from "@/lib/partyGames";
 import { roomEvents } from "@/lib/roomEvents";
 import ScrambleCode from "@/components/ui/ScrambleCode";
 import { CODE_RE } from "@/lib/carreteState";
@@ -25,7 +30,7 @@ import { fireConfetti } from "@/lib/confetti";
 import RoundResults from "@/components/live/RoundResults";
 import { GROUP_LABEL } from "@/components/games/SeatShuffle";
 import CheersOverlay from "@/components/live/CheersOverlay";
-import { buildRound, tally } from "@/lib/liveGames";
+import { buildRound, revealAction } from "@/lib/liveGames";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { TONE_CLASS, bacTone } from "@/lib/bacTone";
 import { useRevealMoment } from "@/lib/useRevealMoment";
@@ -72,8 +77,7 @@ function TvStage() {
     else if (r && (k === " " || k === "enter")) {
       e.preventDefault();
       if (!r.revealedAt && Object.keys(r.votes).length > 0) {
-        const t = tally(r, store.participants);
-        store.dispatch({ type: "REVEAL_ROUND", roundId: r.id, winner: t.spotlightId, guiltyIds: t.loserIds });
+        store.dispatch(revealAction(r, store.participants));
       } else if (r.revealedAt) next(r.game);
     } else if (r && k === "n") next(r.game);
     else if (r && k === "escape") store.dispatch({ type: "END_ROUND", roundId: r.id });
@@ -155,6 +159,8 @@ function TvStage() {
 
   return (
     <div className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-[4vw] py-[3vh]">
+      {/* El club de fondo (foto real): la sala se siente en el mismo lugar que la bienvenida */}
+      <AmbientPhoto name="club" className="inset-0" veil="full" />
       <TvDepth scene={round ? `${round.id}-${round.revealedAt ? "revelado" : "votacion"}` : "lobby"} />
       {!round && <SignalField people={people} events={events} seed={11} className="inset-0 h-full w-full" />}
       <CheersOverlay code={code} big />
@@ -202,6 +208,11 @@ function TvStage() {
                 </div>
               )}
               {round.game === "impostor" && <p className="mt-6 max-w-[80vw] text-tv-sm text-slate-300">{round.prompt}</p>}
+              {isPartyGame(round.game) && (
+                <div className="mt-8">
+                  <PartyStage round={round} participants={store.participants} size="tv" />
+                </div>
+              )}
               <div className="mt-12 space-y-6">
                 <RoundTimer clock={clock} size="tv" />
                 <p className="text-tv-sm text-slate-300">
@@ -224,7 +235,15 @@ function TvStage() {
               {round.game !== "prefieres" && round.game !== "impostor" && (
                 <p className="mb-6 text-tv-sm text-slate-400">{round.game === "confesion" ? `"${round.prompt}"` : round.prompt}</p>
               )}
-              <RoundResults round={round} participants={store.participants} size="tv" />
+              {isPartyGame(round.game) && (
+                <div className="mb-8">
+                  <PartyStage round={round} participants={store.participants} size="tv" />
+                </div>
+              )}
+              <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] xl:items-start">
+                <RoundResults round={round} participants={store.participants} size="tv" />
+                <PartyLeaderboard live={store.state.live} participants={store.participants} size="tv" />
+              </div>
             </div>
           )}
         </main>
@@ -232,6 +251,16 @@ function TvStage() {
         /* ---------------- Lobby ---------------- */
         <main className="grid flex-1 grid-cols-1 items-center gap-[4vw] py-[4vh] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
           <section>
+            {/* El host recibe a la sala */}
+            <div className="mb-8 flex items-center gap-6">
+              {FOTO_HOST && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={FOTO_HOST.src} alt="" className="h-[13vh] w-[13vh] rounded-full border-2 border-indigo-300/60 bg-night-900 object-cover object-top" />
+              )}
+              <p className="text-tv-sm text-slate-200">
+                Bienvenidos a la sala <span className="font-mono font-bold text-white">{code}</span>. Pasen, la barra está lista.
+              </p>
+            </div>
             <h1 className="display text-tv-hero">
               Escanea
               <br />y <span className="text-accent">juega.</span>
@@ -289,6 +318,7 @@ function TvStage() {
             </section>
           )}
 
+          <PartyLeaderboard live={store.state.live} participants={store.participants} size="tv" limit={5} />
           <section aria-label="Monstruómetro" className="space-y-3">
             <p className="eyebrow !text-2xl">Monstruómetro</p>
             {rows.length === 0 && <p className="text-tv-sm text-slate-400">Esperando a los primeros…</p>}

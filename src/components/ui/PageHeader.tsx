@@ -1,9 +1,12 @@
 import React from "react";
 import GhostTitle from "./GhostTitle";
+import ModuleDiorama, { type ModuleKey } from "@/components/gateway/ModuleDiorama";
+import AmbientPhoto, { type Ambiente } from "./AmbientPhoto";
 
 /**
  * Cabecera común a todas las secciones. El título habla solo; el contexto (sala, modo, hora)
- * va debajo como línea de apoyo, nunca como etiqueta sobre el título.
+ * va debajo como línea de apoyo, nunca como etiqueta sobre el título. Con `scene`, el diorama del módulo (el mismo de
+ * su tarjeta en la portada) queda detrás, en tres planos que se separan al bajar.
  */
 export default function PageHeader({
   eyebrow,
@@ -11,6 +14,8 @@ export default function PageHeader({
   accent = ".",
   children,
   aside,
+  scene,
+  photo,
 }: {
   /** Contexto breve (ej. "Sala 5DCS"). Se muestra bajo el título. */
   eyebrow?: string;
@@ -18,20 +23,28 @@ export default function PageHeader({
   accent?: string;
   children?: React.ReactNode;
   aside?: React.ReactNode;
+  /** Módulo cuyo diorama acompaña la cabecera */
+  scene?: ModuleKey;
+  /** Foto real de ambiente detrás de la cabecera (bar, club o casino) */
+  photo?: Ambiente;
 }) {
   return (
     <header className="relative isolate mb-8 flex flex-wrap items-end justify-between gap-6 animate-fade-in">
+      {photo && <AmbientPhoto name={photo} className="-inset-x-4 -top-24 h-[25rem] rounded-b-3xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)] sm:-inset-x-6" />}
       <GhostTitle text={title} />
+      {scene && <ModuleDiorama id={scene} variant="header" />}
       <div className="max-w-2xl">
         <h1 className="display parallax-near text-display-lg" aria-label={`${title}${accent}`}>
           {/* Entrada por palabras con máscara (CSS); el texto completo queda en aria-label */}
           {title.split(" ").map((word, i) => (
-            <span key={i} aria-hidden className="word-mask">
+            <React.Fragment key={i}>
+            <span aria-hidden className="word-mask">
               <span className="word-in" style={{ animationDelay: `${60 + i * 70}ms` }}>
                 {word}
                 {i === title.split(" ").length - 1 && <span className="text-accent">{accent}</span>}
-              </span>{" "}
-            </span>
+              </span>
+            </span>{" "}
+            </React.Fragment>
           ))}
         </h1>
         {eyebrow && <p className="meta mt-3">{eyebrow}</p>}

@@ -12,6 +12,7 @@ import { ROUND_UNIT, computeSplit, normalizePayLink } from "@/lib/split";
 import { useLocale } from "@/lib/useLocale";
 import { audioEffects } from "@/lib/audioEffects";
 import { addMine } from "@/lib/myPeople";
+import ReceiptPrinter from "@/components/ui/receipt-printer";
 
 const MODES: { id: SplitMode; label: string; desc: string }[] = [
   { id: "justo", label: "Justo", desc: "Lo común entre todos; el alcohol solo entre quienes toman." },
@@ -322,6 +323,23 @@ export default function SplitStudio({ store }: { store: CarreteStore }) {
             <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" className="btn-primary text-xs">
               WhatsApp
             </a>
+          </div>
+        )}
+        {/* La cuenta impresa (21st «Receipt Printer»): sale de la ranura y se corta tirando */}
+        {result.total > 0 && (
+          <div className="mt-8">
+            <p className="eyebrow mb-3">Imprime la cuenta</p>
+            <ReceiptPrinter
+              title="Tonight"
+              subtitle={isSolo ? "Cuenta del carrete" : `Sala ${store.code}`}
+              rows={[
+                ...split.expenses.slice(-8).map((e) => ({ left: `${name(e.payerId)} · ${e.description}`, right: formatCurrency(e.amount) })),
+                { left: "—" },
+                { left: "Total", right: formatCurrency(result.total), strong: true },
+                ...result.people.map((p) => ({ left: `${p.name} paga`, right: formatCurrency(p.share) })),
+                ...(result.transfers.length ? [{ left: "—" }, ...result.transfers.map((t) => ({ left: `${name(t.from)} → ${name(t.to)}`, right: formatCurrency(t.amount) }))] : []),
+              ]}
+            />
           </div>
         )}
         {meIsCreditor && !bankText && (

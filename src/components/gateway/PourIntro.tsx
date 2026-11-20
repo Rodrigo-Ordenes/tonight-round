@@ -6,6 +6,7 @@ import { INTRO_REPLAY_EVENT, INTRO_SEEN_KEY } from "@/lib/introGate";
 import { BrandMark } from "@/components/shell/AppShell";
 import { useIntroParallax } from "./useHomeMotion";
 import BackBar from "@/components/ui/BackBar";
+import { FOTOS_INTRO } from "@/data/fotosEscena";
 import { approach, springStep, surfacePath } from "@/lib/pourPhysics";
 import { pulseProgress, scrambleFrame } from "@/lib/signalField";
 import {
@@ -57,6 +58,25 @@ const LIQUID: Record<Liquid, { fill: string; opacity: number; stream: string; st
 };
 /** Líquido base de cada vaso de la ronda (la piscola suma la bebida encima) */
 const BASE: Liquid[] = ["pisco", "beer", "wine", "water"];
+/**
+ * Fotos reales de la ronda (scripts/procesar-escena.py): el vaso vacío con el lleno encima, que se descubre desde la
+ * base hasta el nivel del líquido según el llenado de la escena. Sin foto, el vaso sigue dibujado.
+ */
+const PHOTO = (["piscola", "cerveza", "vino", "agua"] as const).map((k) => FOTOS_INTRO[k] ?? null);
+/** Caja de la foto en coordenadas del vaso: base en 0 y hacia arriba hasta su alto */
+const photoBox = (i: number) => {
+  const f = PHOTO[i];
+  if (!f) return null;
+  const h = SHAPES[ROUND[i].kind].height * 1.06;
+  const w = (h * f.w) / f.h;
+  return { x: -w / 2, y: -h, w, h };
+};
+/** Altura local del líquido en la foto para un llenado 0–1 (top/bottom: tramo del líquido en la foto) */
+const photoLevel = (i: number, fill: number) => {
+  const f = PHOTO[i]!;
+  const b = photoBox(i)!;
+  return b.y + b.h * (f.bottom - (f.bottom - f.top) * Math.min(1, Math.max(0, fill)));
+};
 /** Color de cada persona: el mismo en su nodo y en su barra de la tele */
 const PERSON = ["var(--blue)", "var(--violet)", "var(--signal)", "var(--amber)"];
 const BAR_H = [24, 36, 16, 30];
@@ -195,6 +215,15 @@ export default function PourIntro({ onCreate, onCode, busy = false }: { onCreate
         prevV[i] = vx;
         slosh[i] = springStep(slosh[i], Math.max(-0.25, Math.min(0.25, -ax * 60)), dt);
         const tilt = Math.max(-0.3, Math.min(0.3, slosh[i].x));
+
+        // Foto real: el lleno se descubre desde la base hasta el nivel actual
+        const box = photoBox(i);
+        if (box) {
+          const top = g.fill > 0.002 ? photoLevel(i, g.fill) : 0;
+          set(`photoClip${i}`, "y", top.toFixed(2));
+          set(`photoClip${i}`, "height", Math.max(0, -top).toFixed(2));
+          set(`photo${i}`, "opacity", g.outline);
+        }
 
         const visibleLiquid = g.fill > 0.002 && g.outline > 0.01;
         css(`liquidWrap${i}`, "display", visibleLiquid ? "" : "none");
@@ -494,7 +523,22 @@ export default function PourIntro({ onCreate, onCode, busy = false }: { onCreate
             {/* La cinta trae los vasos (CSS, una vez) */}
             <g className="ronda-belt">
               <g id="ronda-glasses">
-                {ROUND.map((d, i) => (
+                {ROUND.map((d, i) => {
+                  const box = photoBox(i);
+                  const f = PHOTO[i];
+                  if (box && f)
+                    return (
+                      <g key={i} ref={reg(`glass${i}`)} transform={glassTransform(initial.glasses[i], d.kind)}>
+                        <g ref={reg(`photo${i}`)}>
+                          <clipPath id={`ronda-photo-${i}`}>
+                            <rect ref={reg(`photoClip${i}`)} x={box.x - 4} y="0" width={box.w + 8} height="0" />
+                          </clipPath>
+                          <image href={f.vacio} x={box.x} y={box.y} width={box.w} height={box.h} preserveAspectRatio="xMidYMax meet" />
+                          <image href={f.lleno} x={box.x} y={box.y} width={box.w} height={box.h} preserveAspectRatio="xMidYMax meet" clipPath={`url(#ronda-photo-${i})`} />
+                        </g>
+                      </g>
+                    );
+                  return (
                   <g key={i}>
                     <g ref={reg(`liquidWrap${i}`)} clipPath={`url(#ronda-clip-${i})`} style={{ display: "none" }}>
                       <path ref={reg(`liquid${i}`)} d="" style={{ fill: LIQUID[BASE[i]].fill }} fillOpacity={LIQUID[BASE[i]].opacity} />
@@ -534,7 +578,8 @@ export default function PourIntro({ onCreate, onCode, busy = false }: { onCreate
                       <path d={OUTLINE[d.kind]} fill="none" stroke="currentColor" strokeOpacity={0.82} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
                     </g>
                   </g>
-                ))}
+                  );
+                })}
               </g>
               {/* Reflejo en la barra */}
               <g ref={reg("reflection")}>

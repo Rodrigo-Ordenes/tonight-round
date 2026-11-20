@@ -41,6 +41,61 @@ class SoundEngine {
     }
   }
 
+  /** Nota corta programada en el reloj de audio (para secuencias exactas sin temporizadores) */
+  private note(ctx: AudioContext, at: number, freq: number, dur: number, type: OscillatorType = "triangle", vol = 0.1) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, at);
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.exponentialRampToValueAtTime(vol, at + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(at);
+    osc.stop(at + dur + 0.02);
+  }
+
+  /** Rodillos de tragamonedas: tic-tic mecánico que se va frenando (para el revelado de los juegos) */
+  playReels(ms: number = 1300) {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      let t = 0;
+      let k = 0;
+      while (t < ms / 1000) {
+        const p = t / (ms / 1000);
+        this.note(ctx, ctx.currentTime + t, k % 2 ? 1180 : 940, 0.03, "square", 0.035);
+        t += 0.045 + p * p * 0.16;
+        k++;
+      }
+      // El golpe del rodillo al detenerse
+      this.note(ctx, ctx.currentTime + t, 330, 0.09, "square", 0.06);
+    } catch {}
+  }
+
+  /** Premio: arpegio ascendente con brillo final, como cuando la tragamonedas paga (solo puntos) */
+  playJackpot() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const t0 = ctx.currentTime;
+      [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => this.note(ctx, t0 + i * 0.085, f, 0.16, "triangle", 0.09));
+      [1046.5, 1318.5, 1568].forEach((f) => this.note(ctx, t0 + 0.47, f, 0.55, "sine", 0.05));
+    } catch {}
+  }
+
+  /** Moneda: dos notas rápidas al sumar puntos */
+  playCoin() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const t0 = ctx.currentTime;
+      this.note(ctx, t0, 987.77, 0.07, "square", 0.05);
+      this.note(ctx, t0 + 0.07, 1318.5, 0.22, "square", 0.05);
+    } catch {}
+  }
+
   // Tick click sound (Roulette, countdown step)
   playTick(frequency: number = 750, duration: number = 0.04) {
     const ctx = this.getContext();

@@ -1,4 +1,5 @@
-import type { Confession, LiveGame, LiveRound, Participant } from "./carreteState";
+import type { CarreteAction, Confession, LiveGame, LiveRound, Participant } from "./carreteState";
+import { PARTY_BY_ID, PARTY_GAMES, buildPartyRound, isPartyGame, probablePoints, resolveParty, type PartyResult } from "./partyGames";
 import { bacFor } from "./alcohol";
 import { BOMBA_CATEGORIAS, CASTIGOS, DUELOS, IMPOSTOR_WORDS, MIMICA, PREFIERES, PROBABLE, VERDAD_O_MITO, YO_NUNCA } from "@/data/party_prompts";
 
@@ -11,16 +12,16 @@ export interface LiveGameDef {
 }
 
 export const LIVE_GAMES: LiveGameDef[] = [
-  { id: "yonunca", name: "Yo nunca", emoji: "😳", blurb: "La TV lanza la frase, cada uno confiesa en secreto desde su celular.", minPlayers: 2 },
-  { id: "probable", name: "¿Quién es más probable?", emoji: "👉", blurb: "Todos votan a alguien de la sala. El más votado cumple.", minPlayers: 3 },
-  { id: "prefieres", name: "¿Qué prefieres?", emoji: "⚖️", blurb: "Dos opciones imposibles. La minoría pierde.", minPlayers: 2 },
-  { id: "impostor", name: "El Impostor", emoji: "🕵️", blurb: "Todos ven la palabra secreta menos uno. Descríbanla y descubran quién miente.", minPlayers: 3 },
-  { id: "confesion", name: "Confesiones anónimas", emoji: "🤫", blurb: "Mandan confesiones desde el celular y adivinan de quién es cada una.", minPlayers: 3 },
-  { id: "mito", name: "¿Verdad o mito?", emoji: "🧠", blurb: "Trivia del carrete: los que fallan, cumplen. Se aprende algo.", minPlayers: 2 },
-  { id: "duelo", name: "Duelo", emoji: "🥊", blurb: "Dos al centro con un desafío. La sala vota quién ganó y el otro cumple.", minPlayers: 3 },
-  { id: "mimica", name: "Mímica", emoji: "🎭", blurb: "Solo quien actúa ve la palabra en su celular. Si no la sacan a tiempo, cumple.", minPlayers: 3 },
-  { id: "verdadreto", name: "Verdad o reto", emoji: "🎯", blurb: "La TV elige a alguien y su desafío. Si se arruga, cumple: hay alternativas.", minPlayers: 2 },
-  { id: "categorias", name: "Cultura chupística", emoji: "🔥", blurb: "Una categoría y por turnos hacia la derecha. Quien se queda pegado, cumple.", minPlayers: 3 },
+  { id: "yonunca", name: "Yo nunca", emoji: "😳", blurb: "La TV lanza la frase, cada uno confiesa en secreto desde su celular.", minPlayers: 1 },
+  { id: "probable", name: "¿Quién es más probable?", emoji: "👉", blurb: "Todos votan a alguien de la sala. El más votado cumple.", minPlayers: 1 },
+  { id: "prefieres", name: "¿Qué prefieres?", emoji: "⚖️", blurb: "Dos opciones imposibles. La minoría pierde.", minPlayers: 1 },
+  { id: "impostor", name: "El Impostor", emoji: "🕵️", blurb: "Todos ven la palabra secreta menos uno. Descríbanla y descubran quién miente.", minPlayers: 1 },
+  { id: "confesion", name: "Confesiones anónimas", emoji: "🤫", blurb: "Mandan confesiones desde el celular y adivinan de quién es cada una.", minPlayers: 1 },
+  { id: "mito", name: "¿Verdad o mito?", emoji: "🧠", blurb: "Trivia del carrete: los que fallan, cumplen. Se aprende algo.", minPlayers: 1 },
+  { id: "duelo", name: "Duelo", emoji: "🥊", blurb: "Dos al centro con un desafío. La sala vota quién ganó y el otro cumple.", minPlayers: 1 },
+  { id: "mimica", name: "Mímica", emoji: "🎭", blurb: "Solo quien actúa ve la palabra en su celular. Si no la sacan a tiempo, cumple.", minPlayers: 1 },
+  { id: "verdadreto", name: "Verdad o reto", emoji: "🎯", blurb: "La TV elige a alguien y su desafío. Si se arruga, cumple: hay alternativas.", minPlayers: 1 },
+  { id: "categorias", name: "Cultura chupística", emoji: "🔥", blurb: "Una categoría y por turnos hacia la derecha. Quien se queda pegado, cumple.", minPlayers: 1 },
 ];
 
 /** Quienes están al centro de la ronda no se juzgan a sí mismos: no votan y la ronda no espera su voto. */
@@ -30,7 +31,11 @@ export function judgedIds(round: Pick<LiveRound, "game" | "answer" | "options">)
   return [];
 }
 
-export const LIVE_GAME_BY_ID = new Map(LIVE_GAMES.map((g) => [g.id, g]));
+/** Todos los juegos en vivo, también los de Party Games (para nombres y mínimos en la TV y el celular) */
+export const LIVE_GAME_BY_ID = new Map<LiveGame, LiveGameDef>([
+  ...PARTY_GAMES.map((g) => [g.id, { id: g.id, name: g.name, emoji: g.emoji, blurb: g.blurb, minPlayers: g.minPlayers }] as const),
+  ...LIVE_GAMES.map((g) => [g.id, g] as const),
+]);
 
 const pick = <T,>(xs: T[]): T => xs[Math.floor(Math.random() * xs.length)];
 
@@ -45,13 +50,15 @@ export function buildRound(
 ): NewRound | { error: string } {
   const people = ctx.participants.filter((p) => !p.deleted);
   const def = LIVE_GAME_BY_ID.get(game)!;
-  if (people.length < def.minPlayers) return { error: `Este juego necesita al menos ${def.minPlayers} personas en la sala.` };
+  if (people.length < def.minPlayers)
+    return { error: def.minPlayers === 1 ? "Únete a la sala desde un celular para jugar." : `Este juego necesita al menos ${def.minPlayers} personas en la sala.` };
   const fresh = <T,>(xs: T[], key: (x: T) => string) => {
     const unused = xs.filter((x) => !ctx.usedPrompts.has(key(x)));
     return pick(unused.length ? unused : xs);
   };
   const seconds: Partial<Record<LiveGame, number>> = { impostor: 45, mimica: 60, duelo: 45, verdadreto: 45, categorias: 45 };
-  const base = { id: rid(), game, startedAt: Date.now(), durationMs: (seconds[game] ?? 30) * 1000 };
+  const base = { id: rid(), game, startedAt: Date.now(), durationMs: (PARTY_BY_ID.get(game)?.seconds ?? seconds[game] ?? 30) * 1000 };
+  if (isPartyGame(game)) return buildPartyRound(game, base, people, fresh);
   const peopleOptions = people.map((p) => ({ id: p.id, label: p.name }));
 
   switch (game) {
@@ -88,7 +95,8 @@ export function buildRound(
     }
     case "duelo": {
       const a = pick(people);
-      const b = pick(people.filter((p) => p.id !== a.id));
+      const others = people.filter((p) => p.id !== a.id);
+      const b = others.length ? pick(others) : { id: "host", name: "El host" };
       return {
         ...base,
         prompt: `${a.name} vs ${b.name}: ${fresh(DUELOS, (x) => x)}`,
@@ -136,6 +144,8 @@ export function buildRound(
       const c = pick(available);
       return { ...base, prompt: c.text, options: peopleOptions, answer: c.authorId };
     }
+    default:
+      return { error: "Juego desconocido" };
   }
 }
 
@@ -154,9 +164,18 @@ export interface Tally {
   /** Persona destacada (más votada, autor de la confesión, impostor) */
   spotlightId?: string;
   headline: string;
+  /** Puntos de la ronda (Party Games y ¿Quién es más probable?) */
+  points?: Record<string, number>;
+  /** Detalle de Party Games: qué eligió cada uno y el resultado del azar */
+  party?: PartyResult;
 }
 
 export function tally(round: LiveRound, participants: Participant[]): Tally {
+  if (isPartyGame(round.game)) {
+    const r = resolveParty(round, participants);
+    const rows: TallyRow[] = r.rows.map((x) => ({ id: x.id, label: x.name, count: x.points, voterIds: [x.id] }));
+    return { rows, total: r.rows.length, loserIds: r.loserIds, spotlightId: r.spotlightId ?? (r.winnerIds.length === 1 ? r.winnerIds[0] : undefined), headline: r.headline, points: r.points, party: r };
+  }
   const name = (id?: string) => participants.find((p) => p.id === id)?.name ?? "alguien";
   const rows: TallyRow[] = round.options.map((o) => ({ id: o.id, label: o.label, count: 0, voterIds: [] }));
   Object.entries(round.votes).forEach(([pid, v]) => {
@@ -180,6 +199,7 @@ export function tally(round: LiveRound, participants: Participant[]): Tally {
       return {
         rows,
         total,
+        points: probablePoints(round, top.map((r) => r.id)),
         loserIds: top.map((r) => r.id),
         spotlightId: top.length === 1 ? top[0].id : undefined,
         headline: top.length === 0 ? "Nadie votó" : top.length === 1 ? `La sala eligió a ${top[0].label}` : `Empate: ${top.map((t) => t.label).join(" y ")}`,
@@ -246,7 +266,15 @@ export function tally(round: LiveRound, participants: Participant[]): Tally {
         headline: fooled ? `Era de ${name(round.answer)} y nadie lo vio venir.` : `Era de ${name(round.answer)}. ¡Lo pillaron!`,
       };
     }
+    default:
+      return { rows, total, loserIds: [], headline: "" };
   }
+}
+
+/** Acción de revelado con su resultado: la usan la TV, el anfitrión y el revelado automático (todos igual) */
+export function revealAction(round: LiveRound, participants: Participant[]): Extract<CarreteAction, { type: "REVEAL_ROUND" }> {
+  const t = tally(round, participants);
+  return { type: "REVEAL_ROUND", roundId: round.id, winner: t.spotlightId, guiltyIds: t.loserIds, points: t.points };
 }
 
 /**

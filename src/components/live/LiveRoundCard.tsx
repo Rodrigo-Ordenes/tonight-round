@@ -11,6 +11,10 @@ import RoundResults from "./RoundResults";
 import { useRevealMoment } from "@/lib/useRevealMoment";
 import { useRoundClock } from "@/lib/useRoundClock";
 import RoundTimer from "./RoundTimer";
+import PartyControls from "@/components/party/PartyControls";
+import PartyStage from "@/components/party/PartyStage";
+import { PartyLeaderboard } from "@/components/party/PartyBoard";
+import { isPartyGame, mayorMenorCards, cardLabel } from "@/lib/partyGames";
 
 /**
  * Mando del celular: vota en la ronda activa (en secreto) y manda confesiones anónimas.
@@ -47,8 +51,8 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
 
   const myVote = round?.votes[me.id]?.value;
   const isImpostor = round?.game === "impostor" && round.answer === me.id;
-  // Quien actúa, se juzga o se bate a duelo no vota: la sala decide
-  const judged = !!round && judgedIds(round).includes(me.id);
+  // Quien actúa, se juzga o se bate a duelo no vota cuando hay más personas en la sala
+  const judged = !!round && participants.length > 1 && judgedIds(round).includes(me.id);
 
   const vote = (value: string) => {
     if (!round || round.revealedAt) return;
@@ -87,6 +91,30 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
             </div>
           )}
 
+          {(round.game === "mentiroso" || round.game === "infiltrado") && !round.revealedAt && (
+            <div
+              className={`relative mt-3 rounded-2xl border p-4 text-center ${
+                round.game === "mentiroso" && round.answer === me.id ? "border-purple-400/50 bg-purple-500/10" : "border-indigo-400/40 bg-indigo-500/10"
+              }`}
+            >
+              {round.game === "mentiroso" ? (
+                <>
+                  <p className="eyebrow">Tu rol</p>
+                  <p className="display mt-1 text-3xl">{round.answer === me.id ? "Tú mientes 🤥" : "Di la verdad"}</p>
+                  <p className="mt-1 text-xs text-slate-300">
+                    {round.answer === me.id ? "Inventa tu respuesta y que suene creíble." : "Responde con algo real y busca a quien inventa."}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="eyebrow">Tu palabra</p>
+                  <p className="display mt-1 text-3xl">{round.answer === me.id ? round.secretAlt : round.secret}</p>
+                  <p className="mt-1 text-xs text-slate-300">Uno de la sala tiene otra palabra parecida. Da pistas sin decirla.</p>
+                </>
+              )}
+            </div>
+          )}
+
           {round.game === "mimica" && !round.revealedAt && (
             <div className={`relative mt-3 rounded-2xl border p-4 text-center ${judged ? "border-purple-400/50 bg-purple-500/10" : "border-white/10 bg-white/[0.04]"}`}>
               <p className="eyebrow">{judged ? "Te toca actuar, sin hablar" : "Adivina en voz alta"}</p>
@@ -104,15 +132,23 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
             </div>
           )}
 
-          {!round.revealedAt && judged ? (
+          {round.game === "mayormenor" && !round.revealedAt && round.seed !== undefined && (
+            <p className="relative mt-3 text-center font-led text-5xl font-black text-indigo-100">{cardLabel(mayorMenorCards(round.seed).first)}</p>
+          )}
+
+          {!round.revealedAt && isPartyGame(round.game) ? (
+            <div className="relative mt-4">
+              <PartyControls round={round} me={me} people={participants} vote={vote} />
+            </div>
+          ) : !round.revealedAt && judged ? (
             <p className="relative mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-center text-sm font-semibold text-slate-200">
               Estás al centro: la sala vota.
             </p>
           ) : !round.revealedAt ? (
             <div className={`relative mt-4 grid gap-2 ${round.options.length <= 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2"}`}>
               {round.options
-                // En El Impostor y Confesiones no puedes votarte a ti mismo
-                .filter((o) => !((round.game === "impostor" || round.game === "confesion") && o.id === me.id))
+                // En El Impostor y Confesiones no puedes votarte a ti mismo cuando hay más personas
+                .filter((o) => !(participants.length > 1 && (round.game === "impostor" || round.game === "confesion") && o.id === me.id))
                 .map((o) => {
                   const on = myVote === o.id;
                   return (
@@ -143,7 +179,9 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
               ) : (
                 <p className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-center text-sm font-bold text-emerald-100">Te salvaste esta ronda 😎</p>
               )}
+              {isPartyGame(round.game) && <PartyStage round={round} participants={participants} />}
               {!compact && <RoundResults round={round} participants={participants} meId={me.id} />}
+              <PartyLeaderboard live={state.live} participants={participants} meId={me.id} limit={5} />
             </div>
           )}
         </section>

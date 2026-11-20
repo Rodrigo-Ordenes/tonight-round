@@ -111,7 +111,36 @@ export interface SongRequest {
 
 /* ---------------- Rondas en vivo (TV = escenario, celulares = control) ---------------- */
 
-export type LiveGame = "yonunca" | "probable" | "mito" | "confesion" | "prefieres" | "impostor" | "duelo" | "mimica" | "verdadreto" | "categorias";
+export type LiveGame =
+  | "yonunca"
+  | "probable"
+  | "mito"
+  | "confesion"
+  | "prefieres"
+  | "impostor"
+  | "duelo"
+  | "mimica"
+  | "verdadreto"
+  | "categorias"
+  // Party Games: azar, predicción, psicología y reflejos con puntos (src/lib/partyGames.ts)
+  | "proximidad"
+  | "dados"
+  | "mayormenor"
+  | "cronometro"
+  | "casilla"
+  | "mentiroso"
+  | "mayoria"
+  | "infiltrado"
+  | "porcentaje"
+  | "reflejos"
+  | "cajas"
+  | "ultimo"
+  // Casino de puntos (src/lib/casinoGames.ts): sin dinero ni apuestas reales
+  | "tragamonedas"
+  | "tragabar"
+  | "jackpot"
+  | "ruleta"
+  | "blackjack";
 
 export interface LiveVote {
   value: string;
@@ -130,6 +159,10 @@ export interface LiveRound {
   explain?: string;
   /** Palabra secreta (El Impostor): todos la ven menos quien es `answer`. */
   secret?: string;
+  /** Palabra distinta que recibe quien es `answer` (El infiltrado) */
+  secretAlt?: string;
+  /** Semilla del azar de la ronda (Party Games): la TV y cada celular calculan el mismo resultado */
+  seed?: number;
   startedAt: number;
   /** Participante que inició la ronda: entre los celulares, solo él maneja el reloj */
   hostId?: string;
@@ -151,7 +184,7 @@ export interface Confession {
 export interface LiveState {
   round: LiveRound | null;
   /** Historial corto para el Wrapped (sin votos individuales). */
-  history: { id: string; game: LiveGame; prompt: string; winner?: string; guiltyIds?: string[]; at: number }[];
+  history: { id: string; game: LiveGame; prompt: string; winner?: string; guiltyIds?: string[]; points?: Record<string, number>; at: number }[];
   confessions: Confession[];
   /** Último "¡Salud!" lanzado: la TV y los celulares muestran la animación unos segundos */
   cheers?: { id: string; by: string; at: number } | null;
@@ -282,7 +315,7 @@ export type CarreteAction =
   | { type: "SET_MUSIC"; patch: Partial<Omit<MusicState, "updatedAt">> }
   | { type: "START_ROUND"; round: Omit<LiveRound, "votes" | "revealedAt" | "endedAt"> }
   | { type: "VOTE"; roundId: string; participantId: string; value: string }
-  | { type: "REVEAL_ROUND"; roundId: string; winner?: string; guiltyIds?: string[] }
+  | { type: "REVEAL_ROUND"; roundId: string; winner?: string; guiltyIds?: string[]; points?: Record<string, number> }
   | { type: "END_ROUND"; roundId: string }
   | { type: "SUBMIT_CONFESSION"; confession: Confession }
   | { type: "CHEERS"; id: string; by: string }
@@ -385,6 +418,17 @@ const mapParticipant = (s: CarreteState, id: string, fn: (p: Participant) => Par
   participants: s.participants.map((p) => (p.id === id ? normalizeParticipant(fn(p)) : p)),
 });
 
+/** Juegos donde el primer intento es el que vale (tiempo, reflejos, secuencia) */
+const FIRST_VOTE_WINS = new Set<LiveGame>(["cronometro", "reflejos", "ultimo"]);
+
+/** Puntos de una ronda: solo números enteros acotados y como mucho 30 personas */
+const clipPoints = (p?: Record<string, number>): Record<string, number> | undefined => {
+  if (!p) return undefined;
+  const out: Record<string, number> = {};
+  for (const [id, v] of Object.entries(p).slice(0, 30)) if (Number.isFinite(v)) out[id.slice(0, 40)] = Math.max(-100, Math.min(100, Math.round(v)));
+  return out;
+};
+
 const clipExpense = (e: Expense): Expense => ({ ...e, description: clip(e.description, LIMITS.label), amount: clipAmount(e.amount) });
 const clipSong = <T extends { text: string }>(r: T): T => ({ ...r, text: clip(r.text, LIMITS.text) });
 const clipConfession = (c: Confession): Confession => ({ ...c, text: clip(c.text, LIMITS.text) });
@@ -461,9 +505,12 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
       const live = s.live ?? DEFAULT_LIVE;
       const r = live.round;
       if (!r || r.id !== a.roundId || r.revealedAt) return s;
+      // En los juegos de tiempo y reflejos vale el primer intento: no se puede corregir
+      if (FIRST_VOTE_WINS.has(r.game) && r.votes[a.participantId]) return s;
+      const value = clip(String(a.value ?? ""), 40);
       return {
         ...s,
-        live: { ...live, round: { ...r, votes: { ...r.votes, [a.participantId]: { value: a.value, at } } }, updatedAt: Math.max(live.updatedAt, at) },
+        live: { ...live, round: { ...r, votes: { ...r.votes, [a.participantId]: { value, at } } }, updatedAt: Math.max(live.updatedAt, at) },
       };
     }
     case "REVEAL_ROUND": {
@@ -475,7 +522,7 @@ function reduce(s: CarreteState, a: CarreteAction, at: number): CarreteState {
         live: {
           ...live,
           round: { ...r, revealedAt: at },
-          history: [...live.history, { id: r.id, game: r.game, prompt: r.prompt, winner: a.winner, guiltyIds: a.guiltyIds, at }].slice(-60),
+          history: [...live.history, { id: r.id, game: r.game, prompt: r.prompt, winner: a.winner, guiltyIds: a.guiltyIds, points: clipPoints(a.points), at }].slice(-60),
           updatedAt: Math.max(live.updatedAt, at),
         },
       };
@@ -687,8 +734,9 @@ function mergeLive(a: LiveState, b: LiveState): LiveState {
   const rb = b.round;
   if (ra && rb && ra.id === rb.id) {
     const votes: Record<string, LiveVote> = { ...ra.votes };
+    const first = FIRST_VOTE_WINS.has(ra.game);
     Object.entries(rb.votes).forEach(([pid, v]) => {
-      if (!votes[pid] || v.at > votes[pid].at) votes[pid] = v;
+      if (!votes[pid] || (first ? v.at < votes[pid].at : v.at > votes[pid].at)) votes[pid] = v;
     });
     round = { ...ra, votes, revealedAt: ra.revealedAt ?? rb.revealedAt, endedAt: ra.endedAt ?? rb.endedAt };
   } else {

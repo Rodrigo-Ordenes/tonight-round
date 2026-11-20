@@ -79,11 +79,9 @@ export default function RandomPicanteGame({ store }: { store: CarreteStore }) {
         ))}
       </div>
 
-      <div className="rounded-2xl border border-pink-500/40 bg-pink-950/20 p-5 min-h-[120px] flex items-center justify-center">
-        <p className="text-xl font-bold text-white leading-snug">
-          {current ? `Yo nunca nunca… ${current}` : "Toca el botón para sacar la primera frase."}
-        </p>
-      </div>
+      {/* Mazo en abanico (21st «Card Shuffle Deck»): la carta de adelante sale volando abajo a la izquierda y se
+          mete detrás del mazo; también se puede lanzar arrastrándola */}
+      <ShuffleDeck text={current ? `Yo nunca nunca… ${current}` : "Toca el botón para sacar la primera frase."} onFlick={draw} />
 
       <p className="text-xs text-slate-500">
         {games.neverDeck.length > 0 ? `Frase ${games.neverIdx} de ${games.neverDeck.length}` : `${pool.length} frases en el mazo`}
@@ -92,6 +90,66 @@ export default function RandomPicanteGame({ store }: { store: CarreteStore }) {
       <button onClick={draw} className="w-full min-h-[56px] rounded-2xl bg-pink-600 text-white font-bold flex items-center justify-center gap-2">
         <Shuffle className="w-5 h-5" /> 🎲 Frase Aleatoria
       </button>
+    </div>
+  );
+}
+
+function ShuffleDeck({ text, onFlick }: { text: string; onFlick: () => void }) {
+  const [gone, setGone] = useState<{ text: string; n: number } | null>(null);
+  const prev = React.useRef(text);
+  const drag = React.useRef<{ x: number; y: number } | null>(null);
+  const front = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    if (prev.current !== text) {
+      setGone((g) => ({ text: prev.current, n: (g?.n ?? 0) + 1 }));
+      prev.current = text;
+    }
+  }, [text]);
+  const reset = () => {
+    if (front.current) {
+      front.current.style.transition = "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)";
+      front.current.style.transform = "";
+    }
+  };
+  return (
+    <div className="shuffle-deck relative mx-auto h-48 w-full max-w-sm" style={{ perspective: "900px" }}>
+      <div aria-hidden className="absolute inset-0 rotate-[-5deg] translate-x-[-6px] translate-y-[8px] scale-[0.94] rounded-2xl border border-pink-500/30 bg-night-900" />
+      <div aria-hidden className="absolute inset-0 rotate-[4deg] translate-x-[6px] translate-y-[4px] scale-[0.97] rounded-2xl border border-pink-500/30 bg-night-900" />
+      <div
+        ref={front}
+        key={`front-${gone?.n ?? 0}`}
+        className="shuffle-front absolute inset-0 flex cursor-grab touch-pan-y items-center justify-center rounded-2xl border border-pink-500/40 bg-[linear-gradient(160deg,rgba(185,62,243,0.18),rgba(13,14,20,0.95))] p-5 active:cursor-grabbing"
+        onPointerDown={(e) => {
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+          drag.current = { x: e.clientX, y: e.clientY };
+          if (front.current) front.current.style.transition = "none";
+        }}
+        onPointerMove={(e) => {
+          if (!drag.current || !front.current) return;
+          const dx = e.clientX - drag.current.x;
+          const dy = e.clientY - drag.current.y;
+          front.current.style.transform = `translate(${dx}px, ${dy * 0.4}px) rotate(${dx * 0.06}deg)`;
+        }}
+        onPointerUp={(e) => {
+          const d = drag.current;
+          drag.current = null;
+          if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 80) onFlick();
+          else reset();
+        }}
+        onPointerCancel={() => {
+          drag.current = null;
+          reset();
+        }}
+      >
+        <p className="text-xl font-bold leading-snug text-white" aria-live="polite">
+          {text}
+        </p>
+      </div>
+      {gone && (
+        <div key={`gone-${gone.n}`} aria-hidden className="shuffle-fling pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl border border-pink-500/40 bg-night-900 p-5">
+          <p className="text-xl font-bold leading-snug text-white/80">{gone.text}</p>
+        </div>
+      )}
     </div>
   );
 }

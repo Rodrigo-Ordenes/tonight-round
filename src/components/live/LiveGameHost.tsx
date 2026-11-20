@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Eye, Play, SkipForward, Square, Tv, Users } from "lucide-react";
 import type { CarreteStore } from "@/store/useCarreteStore";
-import { LIVE_GAMES, LIVE_GAME_BY_ID, buildRound, tally, isRoundDriver } from "@/lib/liveGames";
+import { LIVE_GAMES, LIVE_GAME_BY_ID, buildRound, revealAction, isRoundDriver } from "@/lib/liveGames";
 import type { LiveGame } from "@/lib/carreteState";
 import { audioEffects } from "@/lib/audioEffects";
 import { fireConfetti } from "@/lib/confetti";
@@ -12,6 +12,11 @@ import RoundResults from "./RoundResults";
 import { useRevealMoment } from "@/lib/useRevealMoment";
 import { useRoundClock } from "@/lib/useRoundClock";
 import RoundTimer from "./RoundTimer";
+import PartyCatalog from "@/components/party/PartyCatalog";
+import PartyStage from "@/components/party/PartyStage";
+import { PartyLeaderboard } from "@/components/party/PartyBoard";
+import { isPartyGame } from "@/lib/partyGames";
+import { FOTO_HOST_SALUDO } from "@/data/fotosEscena";
 
 /**
  * Control del anfitrión: elige el juego, lanza la ronda, ve quién votó y revela.
@@ -36,14 +41,35 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
 
   if (isSolo) {
     return (
-      <div className="surface p-6">
-        <h2 className="display text-2xl">Los juegos en vivo necesitan una sala</h2>
-        <p className="mt-2 max-w-lg text-sm text-slate-400">
-          En los juegos en vivo cada persona vota en secreto desde su celular y la TV revela los resultados. Crea una sala y compartan el código.
-        </p>
-        <Link href="/" className="btn-primary mt-4">
-          Crear sala
-        </Link>
+      <div className="space-y-6">
+        <div className="surface flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="display text-2xl">Los juegos en vivo necesitan una sala</h2>
+            <p className="mt-2 max-w-lg text-sm text-slate-400">
+              En los juegos en vivo cada persona vota en secreto desde su celular y la TV revela los resultados. Crea una sala y compartan el código.
+            </p>
+            <Link href="/" className="btn-primary mt-4">
+              Crear sala
+            </Link>
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={FOTO_HOST_SALUDO.src}
+            alt=""
+            aria-hidden
+            width={FOTO_HOST_SALUDO.w}
+            height={FOTO_HOST_SALUDO.h}
+            decoding="async"
+            className="h-32 w-auto shrink-0 self-center select-none object-contain sm:h-36"
+          />
+        </div>
+        <PartyCatalog
+          noRoom={
+            <Link href="/" className="btn-ghost mt-3 w-full !min-h-[44px]">
+              Crear sala para jugar
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -63,8 +89,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
 
   const reveal = () => {
     if (!round) return;
-    const t = tally(round, participants);
-    dispatch({ type: "REVEAL_ROUND", roundId: round.id, winner: t.spotlightId, guiltyIds: t.loserIds });
+    dispatch(revealAction(round, participants));
   };
 
   const voters = round ? Object.keys(round.votes) : [];
@@ -83,12 +108,18 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
         </Link>
       </div>
 
-      {participants.length < 2 && (
+      {participants.length < 1 && (
         <p className="flex items-center gap-2 rounded-2xl border border-amber-400/30 bg-amber-400/[0.07] p-3 text-sm text-amber-100">
-          <Users className="w-4 h-4 shrink-0" /> Pídanle a la sala que se una con el código {code} desde sus celulares para votar.
+          <Users className="w-4 h-4 shrink-0" /> Únete a la sala con el código {code} desde un celular para jugar.
         </p>
       )}
 
+      {/* El aviso va arriba de los catálogos: así se ve justo después de tocar «Jugar» */}
+      <div aria-live="polite">{error && <p className="rounded-2xl border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-100">{error}</p>}</div>
+
+      <PartyCatalog onPlay={start} playing={round && !round.revealedAt ? round.game : null} />
+
+      <h3 className="display pt-4 text-xl sm:text-2xl">Clásicos en vivo</h3>
       {/* Selector de juego */}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3">
         {LIVE_GAMES.map((g, i) => {
@@ -113,7 +144,6 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
         })}
       </div>
 
-      {error && <p className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-100">{error}</p>}
 
       {/* Ronda actual */}
       {round && (
@@ -130,6 +160,11 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
             </p>
           )}
 
+          {isPartyGame(round.game) && (
+            <div className="relative mt-4">
+              <PartyStage round={round} participants={participants} />
+            </div>
+          )}
           {!round.revealedAt ? (
             <>
               <div className="relative mt-6 space-y-4">
@@ -166,6 +201,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
           ) : (
             <div className="relative mt-6 space-y-6">
               <RoundResults round={round} participants={participants} />
+              <PartyLeaderboard live={live} participants={participants} />
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => start(round.game)} className="btn-primary">
                   <SkipForward className="w-4 h-4" /> Otra ronda
