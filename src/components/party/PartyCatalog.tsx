@@ -6,10 +6,22 @@ import { PARTY_CATEGORIES, PARTY_GAMES, type PartyCategory } from "@/lib/partyGa
 import type { LiveGame } from "@/lib/carreteState";
 
 /**
- * Juegos destacados: ocupan dos columnas en la vista «Todos». Son seis para que la grilla de cuatro columnas cierre
- * sin huecos (6 × 2 + 12 = 24 celdas).
+ * Los imperdibles: seis juegos bien distintos (uno por tipo) para aprovechar los primeros segundos de atención. Dos
+ * ocupan doble ancho: 2 × 2 + 4 = 8 celdas, la grilla de cuatro columnas cierra en dos filas sin huecos.
  */
-const BENTO_WIDE = new Set<LiveGame>(["ruleta", "blackjack", "tragamonedas", "proximidad", "cronometro", "infiltrado"]);
+const FEATURED: LiveGame[] = ["ruleta", "blackjack", "cronometro", "infiltrado", "proximidad", "mayoria"];
+const FEATURED_WIDE = new Set<LiveGame>(["ruleta", "blackjack"]);
+
+/** El resto, agrupado por tipo para que no se vean iguales uno tras otro */
+const SECTIONS: { cat: PartyCategory; title: string; desc: string }[] = [
+  { cat: "Casino", title: "Más casino", desc: "Tragamonedas y el pozo de la sala. Solo puntos." },
+  { cat: "Azar", title: "Pura suerte", desc: "Dados, cajas y la casilla maldita." },
+  { cat: "Predicción", title: "Adivina qué pasa", desc: "Cartas y porcentajes de la sala." },
+  { cat: "Reflejos", title: "Dedos rápidos", desc: "Atentos a la señal." },
+  { cat: "Deducción", title: "¿Quién miente?", desc: "Para descubrir al que inventa." },
+  { cat: "Psicología", title: "La sala opina", desc: "Votos sobre los presentes." },
+  { cat: "Desafíos", title: "Desafíos", desc: "Hasta que alguien falle." },
+];
 
 /**
  * Micro-escena SVG de cada Party Game: entra con el scroll y se anima al pasar o enfocar la tarjeta (en táctil, solo
@@ -244,6 +256,77 @@ function spotlight(e: React.PointerEvent<HTMLElement>) {
   el.style.setProperty("--spot-y", `${(e.clientY - r.top).toFixed(0)}px`);
 }
 
+/** Tarjeta de un juego: grande (bento, con micro-escena) o compacta (en las secciones que se deslizan) */
+function GameCard({ g, wide, live, compact, onPlay, noRoom }: { g: (typeof PARTY_GAMES)[number]; wide: boolean; live: boolean; compact?: boolean; onPlay?: (id: LiveGame) => void; noRoom?: React.ReactNode }) {
+  if (compact)
+    return (
+      <article onPointerMove={spotlight} className={`magic-card surface group relative flex h-full flex-col justify-between p-4 ${live ? "ring-1 ring-indigo-400/60" : ""}`}>
+        {live && <span aria-hidden className="border-beam" />}
+        <div className="relative z-10">
+          <span className="text-2xl" aria-hidden>
+            {g.emoji}
+          </span>
+          <h3 className="mt-2 font-display text-base font-bold text-white">{g.name}</h3>
+          <p className="mt-1 line-clamp-2 text-xs leading-snug text-slate-400">{g.blurb}</p>
+        </div>
+        <div className="relative z-10 mt-3">
+          {onPlay ? (
+            <button type="button" onClick={() => onPlay(g.id)} className="btn-primary w-full !min-h-[44px]">
+              <Play className="h-4 w-4" aria-hidden /> Jugar
+            </button>
+          ) : (
+            noRoom
+          )}
+        </div>
+      </article>
+    );
+  return (
+    <article
+      onPointerMove={spotlight}
+      data-featured={wide ? "" : undefined}
+      className={`magic-card surface group relative flex h-full flex-col justify-between overflow-hidden p-5 ${live ? "ring-1 ring-indigo-400/60" : ""}`}
+    >
+      {live && <span aria-hidden className="border-beam" />}
+      <PartyMicroScene id={g.id} wide={wide} />
+
+      <div className="relative z-10">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-11 w-11 place-items-center rounded-2xl border border-white/10 bg-night-950/80 text-2xl" aria-hidden>
+            {g.emoji}
+          </span>
+          {wide && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-purple-400/30 bg-purple-500/15 px-2.5 py-0.5 text-xs font-bold text-purple-200">
+              <Sparkles className="h-3 w-3" aria-hidden /> Destacado
+            </span>
+          )}
+          {live && <span className="chip !min-h-0 !py-0.5 text-xs !text-emerald-200">En juego</span>}
+        </div>
+        <h3 className={`mt-3.5 font-display font-bold text-white ${wide ? "text-xl sm:text-2xl" : "text-lg"}`}>{g.name}</h3>
+        <p className={`mt-1.5 ${wide ? "max-w-md text-sm leading-relaxed text-slate-300" : "text-xs leading-snug text-slate-400"}`}>{g.blurb}</p>
+      </div>
+
+      <div className="relative z-10 mt-4 space-y-3">
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
+          <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-2.5 py-0.5 font-semibold text-indigo-200">{g.category}</span>
+          <span className="inline-flex items-center gap-1">
+            <Users className="h-3.5 w-3.5" aria-hidden /> {g.minPlayers}+
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Clock className="h-3.5 w-3.5" aria-hidden /> {g.duration}
+          </span>
+        </p>
+        {onPlay ? (
+          <button type="button" onClick={() => onPlay(g.id)} className="btn-primary w-full !min-h-[44px]">
+            <Play className="h-4 w-4" aria-hidden /> Jugar
+          </button>
+        ) : (
+          noRoom
+        )}
+      </div>
+    </article>
+  );
+}
+
 /**
  * Catálogo de Party Games en bento (Magic UI «Bento Grid»): los destacados ocupan dos columnas, cada tarjeta tiene su
  * micro-escena y, con puntero fino, un borde que se ilumina donde está el puntero. El juego en curso lleva un destello
@@ -275,59 +358,51 @@ export default function PartyCatalog({ onPlay, playing, noRoom }: { onPlay?: (id
         ))}
       </div>
 
-      <ul className="grid grid-flow-row-dense grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-        {games.map((g) => {
-          const wide = cat === "Todos" && BENTO_WIDE.has(g.id);
-          const live = playing === g.id;
-          return (
-            <li key={g.id} className={wide ? "sm:col-span-2" : ""}>
-              <article
-                onPointerMove={spotlight}
-                data-featured={wide ? "" : undefined}
-                className={`magic-card surface group relative flex h-full flex-col justify-between overflow-hidden p-5 ${live ? "ring-1 ring-indigo-400/60" : ""}`}
-              >
-                {live && <span aria-hidden className="border-beam" />}
-                <PartyMicroScene id={g.id} wide={wide} />
-
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2.5">
-                    <span className="grid h-11 w-11 place-items-center rounded-2xl border border-white/10 bg-night-950/80 text-2xl" aria-hidden>
-                      {g.emoji}
-                    </span>
-                    {wide && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-purple-400/30 bg-purple-500/15 px-2.5 py-0.5 text-xs font-bold text-purple-200">
-                        <Sparkles className="h-3 w-3" aria-hidden /> Destacado
-                      </span>
-                    )}
-                    {live && <span className="chip !min-h-0 !py-0.5 text-xs !text-emerald-200">En juego</span>}
+      {cat === "Todos" ? (
+        <>
+          {/* Los imperdibles: uno distinto de cada tipo, lo primero que se ve */}
+          <ul className="grid grid-flow-row-dense grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4" aria-label="Los imperdibles">
+            {FEATURED.map((id) => PARTY_GAMES.find((x) => x.id === id)!).map((g) => (
+              <li key={g.id} className={FEATURED_WIDE.has(g.id) ? "sm:col-span-2" : ""}>
+                <GameCard g={g} wide={FEATURED_WIDE.has(g.id)} live={playing === g.id} onPlay={onPlay} noRoom={noRoom} />
+              </li>
+            ))}
+          </ul>
+          {/* El resto, por tipo, en filas cortas que se deslizan de lado */}
+          {SECTIONS.map((sec) => {
+            const list = PARTY_GAMES.filter((x) => x.category === sec.cat && !FEATURED.includes(x.id));
+            if (!list.length) return null;
+            return (
+              <section key={sec.cat} aria-label={sec.title} className="space-y-2.5">
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <h3 className="font-display text-lg font-bold text-white">{sec.title}</h3>
+                    <p className="text-xs text-slate-400">{sec.desc}</p>
                   </div>
-                  <h3 className={`mt-3.5 font-display font-bold text-white ${wide ? "text-xl sm:text-2xl" : "text-lg"}`}>{g.name}</h3>
-                  <p className={`mt-1.5 ${wide ? "max-w-md text-sm leading-relaxed text-slate-300" : "text-xs leading-snug text-slate-400"}`}>{g.blurb}</p>
+                  <button type="button" onClick={() => setCat(sec.cat)} className="chip shrink-0 text-xs">
+                    Ver {sec.cat.toLowerCase()}
+                  </button>
                 </div>
-
-                <div className="relative z-10 mt-4 space-y-3">
-                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
-                    <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-2.5 py-0.5 font-semibold text-indigo-200">{g.category}</span>
-                    <span className="inline-flex items-center gap-1">
-                      <Users className="h-3.5 w-3.5" aria-hidden /> {g.minPlayers}+
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5" aria-hidden /> {g.duration}
-                    </span>
-                  </p>
-                  {onPlay ? (
-                    <button type="button" onClick={() => onPlay(g.id)} className="btn-primary w-full !min-h-[44px]">
-                      <Play className="h-4 w-4" aria-hidden /> Jugar
-                    </button>
-                  ) : (
-                    noRoom
-                  )}
-                </div>
-              </article>
+                <ul className="no-scrollbar -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+                  {list.map((g) => (
+                    <li key={g.id} className="w-[15.5rem] shrink-0 snap-start">
+                      <GameCard g={g} wide={false} compact live={playing === g.id} onPlay={onPlay} noRoom={noRoom} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </>
+      ) : (
+        <ul className="grid grid-flow-row-dense grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          {games.map((g) => (
+            <li key={g.id}>
+              <GameCard g={g} wide={false} live={playing === g.id} onPlay={onPlay} noRoom={noRoom} />
             </li>
-          );
-        })}
-      </ul>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

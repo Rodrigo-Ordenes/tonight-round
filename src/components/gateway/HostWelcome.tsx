@@ -6,13 +6,13 @@ import { ArrowUpRight, Disc3, Gamepad2, GlassWater, KeyRound, Receipt, ShoppingB
 import { FOTO_HOST, FOTOS_INTRO } from "@/data/fotosEscena";
 import AmbientPhoto from "@/components/ui/AmbientPhoto";
 
-/** La carta del host: los módulos de la noche, en orden */
+/** La carta del host: los módulos de la noche, por importancia (lo que más se usa, primero) */
 const CARTA = [
-  { href: "/armar", n: "01", title: "La previa", desc: "La lista de compras con precios reales por tienda.", icon: ShoppingBasket },
+  { href: "/juegos", n: "01", title: "Los juegos", desc: "Casino de puntos y Party Games: la TV de escenario.", icon: Gamepad2 },
   { href: "/bar", n: "02", title: "El bar", desc: "Tu trago con la medida exacta, también sin alcohol.", icon: GlassWater },
-  { href: "/juegos", n: "03", title: "Los juegos", desc: "La TV de escenario y los celulares votando.", icon: Gamepad2 },
-  { href: "/musica", n: "04", title: "La música", desc: "Un DJ que lee la hora y el ritmo de la sala.", icon: Disc3 },
-  { href: "/dividir", n: "05", title: "La cuenta", desc: "Cuentas claras: quien maneja no paga el alcohol.", icon: Receipt },
+  { href: "/musica", n: "03", title: "La música", desc: "Un DJ que lee la hora y el ritmo de la sala.", icon: Disc3 },
+  { href: "/dividir", n: "04", title: "La cuenta", desc: "Cuentas claras: quien maneja no paga el alcohol.", icon: Receipt },
+  { href: "/armar", n: "05", title: "La previa", desc: "La lista de compras con precios reales por tienda.", icon: ShoppingBasket },
 ];
 
 /** La ronda de la intro, servida en la barra frente al host */
@@ -119,6 +119,19 @@ export default function HostWelcome({ onCreate, onCode, busy }: { onCreate: () =
             <p className="mt-4 max-w-md text-lg leading-relaxed text-slate-300">Pasa, la barra está lista. ¿Qué hacemos hoy?</p>
           </div>
 
+          {/* Lo principal primero: armar la mesa o entrar con un código */}
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={onCreate} disabled={busy} className="btn-primary !min-h-[48px] px-6">
+              Armar la mesa
+            </button>
+            <button type="button" onClick={onCode} className="btn-ghost !min-h-[48px]">
+              <KeyRound className="h-4 w-4" aria-hidden /> Tengo un código
+            </button>
+            <Link href="/bar" className="text-sm font-semibold text-emerald-200 underline-offset-4 hover:underline">
+              ¿Te toca manejar? Te preparo algo sin alcohol
+            </Link>
+          </div>
+
           {/* La carta: cada módulo como un plato de la casa */}
           <nav aria-label="La carta de la noche">
             <ol className="divide-y divide-white/[0.08] border-y border-white/[0.08]">
@@ -139,17 +152,6 @@ export default function HostWelcome({ onCreate, onCode, busy }: { onCreate: () =
             </ol>
           </nav>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button type="button" onClick={onCreate} disabled={busy} className="btn-primary !min-h-[48px] px-6">
-              Armar la mesa
-            </button>
-            <button type="button" onClick={onCode} className="btn-ghost !min-h-[48px]">
-              <KeyRound className="h-4 w-4" aria-hidden /> Tengo un código
-            </button>
-            <Link href="/bar" className="text-sm font-semibold text-emerald-200 underline-offset-4 hover:underline">
-              ¿Te toca manejar? Te preparo algo sin alcohol
-            </Link>
-          </div>
         </div>
 
         {/* El host detrás de la barra, invitando hacia la carta */}
