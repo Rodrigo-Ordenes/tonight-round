@@ -20,6 +20,7 @@ import {
 } from "@/lib/music";
 import { audioEffects } from "@/lib/audioEffects";
 import GhostTitle from "@/components/ui/GhostTitle";
+import ModuleDiorama from "@/components/gateway/ModuleDiorama";
 import VinylAlbumCard from "@/components/ui/vinyl-album-card";
 
 function EnergyMeter({ value }: { value: number }) {
@@ -84,18 +85,21 @@ export default function MusicaPage() {
   return (
     <div className="space-y-10 animate-fade-in">
       {/* Cabecera editorial */}
-      <header className="relative isolate max-w-3xl">
+      <header className="relative isolate">
         <GhostTitle text="DJ" />
-        <h1 className="display text-display-lg">
-          DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-accent">.</span>
-        </h1>
-        <p className="meta mt-3">{moment.eyebrow}</p>
-        <p className="mt-3 text-base text-slate-300">
-          {isSolo
-            ? "Elige el ambiente o deja que el DJ lo cambie solo según la hora."
-            : `Lo que elijas suena en la TV y en todos los celulares de la sala ${code}.`}{" "}
-          El DJ automático lee la hora, tu país y el ritmo de la sala ({pulse.toFixed(1)} tragos por persona en la última hora).
-        </p>
+        <ModuleDiorama id="musica" variant="header" />
+        <div className="max-w-3xl">
+          <h1 className="display text-display-lg">
+            DJ del {locale.terminology.partyName.toLowerCase()}<span className="text-accent">.</span>
+          </h1>
+          <p className="meta mt-3">{moment.eyebrow}</p>
+          <p className="mt-3 text-base text-slate-300">
+            {isSolo
+              ? "Elige el ambiente o deja que el DJ lo cambie solo según la hora."
+              : `Lo que elijas suena en la TV y en todos los celulares de la sala ${code}.`}{" "}
+            El DJ automático lee la hora, tu país y el ritmo de la sala ({pulse.toFixed(1)} tragos por persona en la última hora).
+          </p>
+        </div>
       </header>
 
       {/* Reproductor principal */}

@@ -48,7 +48,7 @@ export default function GameDeck() {
 
   return (
     <div className="space-y-16 pb-12">
-      <PageHeader eyebrow="Juegos" title="Que empiece el juego">
+      <PageHeader eyebrow="Juegos" title="Que empiece el juego" scene="juegos">
         La TV hace de escenario y cada celular vota en secreto. Si no hay TV, también hay juegos para un solo celular y un catálogo de clásicos.
       </PageHeader>
 

@@ -15,6 +15,10 @@ const EASE_OUT = "power4.out";
 const DEPTH_TRAVEL = 30; // yPercent por unidad de profundidad al recorrer el hero
 const POINTER_TRAVEL = 18; // px por unidad de profundidad al mover el puntero
 const MAX_SKEW = 4; // grados máximos de inclinación de las tarjetas según la velocidad del scroll
+const MAX_TILT = 6.5; // grados máximos de inclinación 3D de una tarjeta del recorrido hacia el puntero
+const DIORAMA_TRAVEL = 24; // xPercent por unidad de profundidad de un plano del diorama a lo largo del recorrido
+const LAYER_POINTER = 26; // px por unidad de profundidad de un plano del diorama al mover el puntero
+const TILT_EASE = { duration: 0.5, ease: "power3.out" } as const;
 
 /**
  * Movimiento de la portada (escenas tipo Awwwards), solo en el navegador y solo aquí, así GSAP y Lenis no pesan en
@@ -22,7 +26,8 @@ const MAX_SKEW = 4; // grados máximos de inclinación de las tarjetas según la
  * - Scroll con inercia (Lenis) con puntero fino de escritorio; en táctil queda el gesto nativo.
  * - Hero en capas `[data-depth]`: se desplazan con el scroll (scrub suavizado) y, en escritorio, siguen al puntero.
  * - Título por palabras con máscara (SplitText deja el texto accesible).
- * - Módulos `[data-track]`: recorrido horizontal fijado en escritorio.
+ * - Módulos `[data-track]`: recorrido horizontal fijado en escritorio, con dioramas en tres planos que lo cruzan a
+ *   distinto ritmo y tarjetas que se inclinan hacia el puntero.
  * - Color de la noche `[data-night]`: se enciende a medida que se baja.
  * Con prefers-reduced-motion no se crea nada: la página queda quieta y completa.
  */
@@ -227,9 +232,70 @@ export function useHomeMotion(scope: RefObject<HTMLElement | null>) {
                 section.removeEventListener("track:go", onGo);
                 track.removeEventListener("focusin", onFocus);
               });
-              // Cada panel trae su ícono gigante a otra profundidad dentro del recorrido
-              for (const art of gsap.utils.toArray<HTMLElement>("[data-panel-art]")) {
-                gsap.fromTo(art, { xPercent: 18 }, { xPercent: -18, ease: "none", scrollTrigger: { trigger: section, start: "top top", end: () => `+=${distance()}`, scrub: SCRUB } });
+              // Dioramas en tres planos: a lo largo del recorrido cada plano cruza su tarjeta a su ritmo (lo cercano viaja
+              // más y se inclina un poco). Una sola línea de tiempo para los quince planos, atada al mismo tramo fijado.
+              const dioramas = gsap.timeline({
+                scrollTrigger: { trigger: section, start: "top top", end: () => `+=${distance()}`, scrub: SCRUB, invalidateOnRefresh: true },
+              });
+              for (const layer of gsap.utils.toArray<HTMLElement>("[data-panel-depth]")) {
+                const d = Number(layer.dataset.panelDepth ?? 0.5);
+                dioramas.fromTo(
+                  layer,
+                  { xPercent: DIORAMA_TRAVEL * d, yPercent: -8 * d, rotation: -4 * d },
+                  { xPercent: -DIORAMA_TRAVEL * d, yPercent: 8 * d, rotation: 4 * d, ease: "none" },
+                  0
+                );
+              }
+
+              // Tarjeta que se inclina hacia el puntero (21st «3D Glare Card»): rota con perspectiva, sus planos se separan
+              // según la profundidad y un reflejo llega hasta el puntero. Todo con transform vía quickTo.
+              for (const card of gsap.utils.toArray<HTMLElement>("[data-tilt-card]")) {
+                gsap.set(card, { transformPerspective: 1100 });
+                const rotX = gsap.quickTo(card, "rotationX", TILT_EASE);
+                const rotY = gsap.quickTo(card, "rotationY", TILT_EASE);
+                const glare = card.querySelector<HTMLElement>("[data-tilt-glare]");
+                const glareX = glare && gsap.quickTo(glare, "x", TILT_EASE);
+                const glareY = glare && gsap.quickTo(glare, "y", TILT_EASE);
+                const planes = Array.from(card.querySelectorAll<HTMLElement>("[data-diorama-layer]")).map((el) => ({
+                  depth: Number(el.dataset.dioramaLayer ?? 1),
+                  x: gsap.quickTo(el, "x", TILT_EASE),
+                  y: gsap.quickTo(el, "y", TILT_EASE),
+                }));
+                const onCardMove = (e: PointerEvent) => {
+                  if (e.pointerType === "touch") return;
+                  const r = card.getBoundingClientRect();
+                  if (!r.width || !r.height) return;
+                  const nx = (e.clientX - r.left) / r.width - 0.5;
+                  const ny = (e.clientY - r.top) / r.height - 0.5;
+                  rotX(-ny * MAX_TILT * 2);
+                  rotY(nx * MAX_TILT * 2);
+                  if (glare && glareX && glareY) {
+                    glareX(e.clientX - r.left - glare.offsetWidth / 2);
+                    glareY(e.clientY - r.top - glare.offsetHeight / 2);
+                  }
+                  for (const p of planes) {
+                    p.x(nx * LAYER_POINTER * p.depth);
+                    p.y(ny * LAYER_POINTER * 0.8 * p.depth);
+                  }
+                };
+                const onCardEnter = () => glare && gsap.to(glare, { opacity: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+                const onCardLeave = () => {
+                  rotX(0);
+                  rotY(0);
+                  for (const p of planes) {
+                    p.x(0);
+                    p.y(0);
+                  }
+                  if (glare) gsap.to(glare, { opacity: 0, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+                };
+                card.addEventListener("pointermove", onCardMove, { passive: true });
+                card.addEventListener("pointerenter", onCardEnter, { passive: true });
+                card.addEventListener("pointerleave", onCardLeave, { passive: true });
+                cleanups.push(() => {
+                  card.removeEventListener("pointermove", onCardMove);
+                  card.removeEventListener("pointerenter", onCardEnter);
+                  card.removeEventListener("pointerleave", onCardLeave);
+                });
               }
             }
           }

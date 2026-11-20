@@ -1009,3 +1009,372 @@ main .grid > * {
     }
   }
 }
+
+/* ==================================================================================================================
+   V13 · Profundidad y piezas de 21st.dev / Magic UI
+   Lo que se mueve va con transform y opacity. Los halos que siguen al puntero (borde de Magic Card, reflejo de la
+   lámina) son puntuales y solo con puntero fino. Con movimiento reducido todo queda quieto y completo.
+   ================================================================================================================== */
+
+/* --- Dioramas de los módulos -------------------------------------------------------------------------------------
+   Escritorio: GSAP mueve las capas [data-panel-depth] con el recorrido fijado y [data-diorama-layer] con el puntero;
+   el reflejo [data-tilt-glare] es un círculo que GSAP lleva hasta el puntero. */
+.tilt-glare {
+  background: radial-gradient(circle, rgba(137, 189, 255, 0.2) 0%, rgba(185, 62, 243, 0.1) 40%, transparent 70%);
+}
+
+/* Celular: el diorama de cada carta apilada se arma por capas mientras la carta sube; el plano medio viaja más */
+@keyframes diorama-far {
+  from { transform: translate3d(0, 14%, 0); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes diorama-mid {
+  from { transform: translate3d(6%, 34%, 0) rotate(-5deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .diorama-rise-far,
+    .diorama-rise-mid {
+      animation-duration: 1ms;
+      animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+    .diorama-rise-far { animation-name: diorama-far; }
+    .diorama-rise-mid { animation-name: diorama-mid; }
+  }
+}
+
+/* --- Party Games en bento (Magic UI «Bento Grid» + «Magic Card») -------------------------------------------------
+   Borde que se ilumina donde está el puntero: dos fondos, la tarjeta en padding-box y el degradado en border-box. */
+@media (hover: hover) and (pointer: fine) {
+  .magic-card {
+    --spot-x: -480px;
+    --spot-y: -480px;
+    border-color: transparent;
+    background:
+      linear-gradient(#131318, #131318) padding-box,
+      radial-gradient(240px circle at var(--spot-x) var(--spot-y), rgba(137, 189, 255, 0.9), rgba(185, 62, 243, 0.55) 45%, rgba(236, 236, 241, 0.1) 100%) border-box;
+  }
+  .magic-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(280px circle at var(--spot-x) var(--spot-y), rgba(103, 170, 255, 0.11), transparent 70%);
+    opacity: 0;
+    transition: opacity 300ms ease;
+    pointer-events: none;
+  }
+  .magic-card:hover::before {
+    opacity: 1;
+  }
+}
+
+/* Micro-escenas: se arman al entrar a la vista y se animan solo al pasar o enfocar la tarjeta (en táctil, las
+   destacadas). Una escena que se mueve sin parar en trece tarjetas compite con el texto. */
+@keyframes bento-spin { to { transform: rotate(360deg); } }
+@keyframes bento-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes bento-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@keyframes scene-rise {
+  from { transform: translate3d(0, 22px, 0) scale(0.94); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @media (hover: hover) and (pointer: fine) {
+    .group:is(:hover, :focus-within) .bento-spin { animation: bento-spin 22s linear infinite; }
+    .group:is(:hover, :focus-within) .bento-float { animation: bento-float 3.4s ease-in-out infinite; }
+    .group:is(:hover, :focus-within) .bento-pulse { animation: bento-pulse 2s ease-in-out infinite; }
+  }
+  @media (hover: none) {
+    [data-featured] .bento-spin { animation: bento-spin 22s linear infinite; }
+    [data-featured] .bento-float { animation: bento-float 3.4s ease-in-out infinite; }
+    [data-featured] .bento-pulse { animation: bento-pulse 2s ease-in-out infinite; }
+  }
+  @supports (animation-timeline: view()) {
+    .scene-rise {
+      animation: scene-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+  }
+}
+
+/* Magic UI «Border Beam»: un destello recorre el borde del juego que se está jugando (indica estado, no decora) */
+.border-beam {
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.border-beam::after {
+  content: "";
+  position: absolute;
+  width: 84px;
+  aspect-ratio: 1;
+  background: linear-gradient(to left, #a9cfff, #b93ef3 45%, transparent);
+  offset-path: rect(0 auto auto 0 round 16px);
+  offset-anchor: 90% 50%;
+  animation: border-beam 5.5s linear infinite;
+}
+@keyframes border-beam {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .border-beam::after { display: none; }
+}
+
+/* --- Lámina holográfica (21st «Iridescent Foil», @dqnamo) en la penumbra Neón -------------------------------------
+   Capas más grandes que la tarjeta; IridescentFoil las mueve con transform según la luz (puntero, scroll, teléfono). */
+.foil {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.foil-sheet,
+.foil-film,
+.foil-pearl,
+.foil-shine,
+.foil-glare {
+  position: absolute;
+  pointer-events: none;
+}
+.foil-sheet {
+  z-index: 0;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 320%;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+  background: linear-gradient(
+    112deg,
+    transparent 0%,
+    transparent 28%,
+    rgba(103, 170, 255, 0.18) 33%,
+    rgba(140, 227, 190, 0.16) 37%,
+    rgba(228, 184, 83, 0.1) 41%,
+    transparent 46%,
+    rgba(202, 104, 255, 0.16) 52%,
+    rgba(185, 62, 243, 0.18) 58%,
+    rgba(103, 170, 255, 0.16) 65%,
+    transparent 72%,
+    transparent 100%
+  );
+  transform: translate3d(-34%, 0, 0);
+}
+.foil-film {
+  z-index: 1;
+  inset: -25%;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  background:
+    radial-gradient(ellipse at 18% 26%, rgba(185, 62, 243, 0.24), transparent 46%),
+    radial-gradient(ellipse at 70% 16%, rgba(103, 170, 255, 0.22), transparent 50%),
+    radial-gradient(ellipse at 80% 72%, rgba(140, 227, 190, 0.16), transparent 54%),
+    radial-gradient(ellipse at 34% 84%, rgba(202, 104, 255, 0.18), transparent 50%);
+}
+.foil-pearl {
+  z-index: 2;
+  top: -20%;
+  bottom: -20%;
+  left: -60%;
+  right: -60%;
+  mix-blend-mode: soft-light;
+  opacity: 0.6;
+  background: linear-gradient(112deg, rgba(236, 236, 241, 0.3) 0%, transparent 26%, rgba(84, 108, 128, 0.22) 48%, rgba(236, 236, 241, 0.26) 72%, transparent 100%);
+}
+.foil-content {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+}
+.foil-shine {
+  z-index: 4;
+  inset: -60%;
+  mix-blend-mode: screen;
+  opacity: 0.3;
+  background: linear-gradient(90deg, transparent 32%, rgba(236, 236, 241, 0.2) 45%, rgba(103, 170, 255, 0.12) 50%, rgba(185, 62, 243, 0.12) 55%, transparent 68%);
+  transform: rotate(-8deg);
+}
+.foil-glare {
+  z-index: 5;
+  left: 0;
+  top: 0;
+  width: 90%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  mix-blend-mode: screen;
+  opacity: 0.4;
+  background: radial-gradient(circle, rgba(236, 236, 241, 0.42) 0%, rgba(236, 236, 241, 0.12) 24%, transparent 62%);
+  transform: translate3d(5%, 8%, 0);
+}
+
+/* Tarjeta del Wrapped: dos caras que se voltean en 3D (con movimiento reducido, se cruzan con un fundido) */
+.holo-flip {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 760ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+.holo-flip[data-flipped="true"] {
+  transform: rotateY(180deg);
+}
+.holo-face {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.holo-back {
+  transform: rotateY(180deg);
+}
+
+/* Premios de la noche: cartas boca abajo que se voltean al tocarlas, con un destello que cruza el frente */
+.award-flip {
+  display: grid;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 640ms cubic-bezier(0.77, 0, 0.175, 1);
+  transition-delay: var(--delay, 0ms);
+}
+.award-flip[data-open="true"] {
+  transform: rotateY(180deg);
+}
+.award-face {
+  grid-area: 1 / 1;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.award-back {
+  transform: rotateY(180deg);
+}
+.award-sheen {
+  background: linear-gradient(115deg, transparent 30%, rgba(137, 189, 255, 0.22) 46%, rgba(185, 62, 243, 0.22) 54%, transparent 70%);
+  transform: translateX(-120%);
+}
+@keyframes award-sheen {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .award-flip[data-open="true"] .award-sheen {
+    animation: award-sheen 1s cubic-bezier(0.23, 1, 0.32, 1) calc(var(--delay, 0ms) + 380ms) both;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .award-flip[data-open="false"]:hover {
+      transform: rotateY(-10deg);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holo-flip,
+  .holo-flip[data-flipped="true"],
+  .award-flip,
+  .award-flip[data-open="true"] {
+    transform: none;
+    transition: none;
+  }
+  .holo-face,
+  .award-face {
+    transition: opacity 200ms ease;
+  }
+  .holo-back,
+  .award-back {
+    transform: none;
+    opacity: 0;
+  }
+  .holo-flip[data-flipped="true"] .holo-front,
+  .award-flip[data-open="true"] .award-front {
+    opacity: 0;
+  }
+  .holo-flip[data-flipped="true"] .holo-back,
+  .award-flip[data-open="true"] .award-back {
+    opacity: 1;
+  }
+}
+
+/* Servir el trago (Preparar): el líquido sube desde el fondo, el hielo cae con un rebote y la guarnición llega al
+   final. Corre al elegir otro trago o vaso, no al ajustar los ml. Las cifras de al lado no se animan. */
+@keyframes pour-fill {
+  from { transform: scaleY(0.03); }
+  to { transform: none; }
+}
+@keyframes ice-drop {
+  0% { transform: translate3d(0, -160px, 0) rotate(-28deg); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  14% { opacity: 1; }
+  64% { transform: translate3d(0, 5px, 0) rotate(3deg); animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+  82% { transform: translate3d(0, -4px, 0) rotate(-1deg); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes garnish-pop {
+  from { transform: translate3d(0, -14px, 0) scale(0.7); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+/* Luces del bar desenfocadas: derivan y titilan lento detrás de la cabecera */
+@keyframes bokeh-drift {
+  from { transform: translate3d(0, 0, 0); opacity: 0.5; }
+  to { transform: translate3d(12px, -9px, 0); opacity: 0.95; }
+}
+.bokeh {
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pour-fill { animation: pour-fill 1150ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .ice-drop { animation: ice-drop 820ms both; animation-delay: calc(var(--i, 0) * 110ms + 180ms); }
+  .garnish-pop {
+    animation: garnish-pop 460ms cubic-bezier(0.23, 1, 0.32, 1) 1050ms both;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .bokeh { animation: bokeh-drift 7s ease-in-out infinite alternate; }
+}
+
+/* Bienvenida del host: la foto llega una vez (sin rebote) y el saludo se revela al entrar a la vista */
+@keyframes host-arrive {
+  from { opacity: 0; transform: translate3d(0, 28px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .host-photo { animation: host-arrive 1100ms cubic-bezier(0.23, 1, 0.32, 1) 150ms both; }
+  @supports (animation-timeline: view()) {
+    .host-scene .word-in {
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+      animation-delay: 0ms !important;
+    }
+  }
+}
+
+/* La carta del host flota en profundidad: cada plato a su distancia se desplaza a su ritmo al bajar; con puntero
+   fino, además siguen al puntero (HostWelcome). Sin rebotes; con movimiento reducido, quietos. */
+@keyframes carta-float {
+  from { transform: translate3d(0, calc(var(--d, 1) * 18px), 0); }
+  to { transform: translate3d(0, calc(var(--d, 1) * -18px), 0); }
+}
+.carta-tilt {
+  transition: transform 700ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .carta-float {
+      animation: carta-float linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}

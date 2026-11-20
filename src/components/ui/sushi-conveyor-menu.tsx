@@ -23,6 +23,11 @@ export interface ConveyorDish {
   tier?: DishTier;
   /** Imagen del plato vista desde arriba, centrada en un cuadrado transparente */
   image: string;
+  /**
+   * Foto real del trago (vaso recortado con fondo transparente, de lado). Si está, el plato hace de posavasos y el vaso
+   * se para encima; si no carga, vuelve la imagen desde arriba.
+   */
+  photo?: { src: string; w: number; h: number };
   details?: string[];
 }
 
@@ -828,6 +833,13 @@ export function SushiConveyorMenu({
         const isActive = active === i;
         const broken = !!failed[item.id];
         const mask = `url("${item.image}") 0 0 / 100% 100% no-repeat`;
+        // Vaso de pie sobre el plato: alto según la foto (las copas anchas se limitan por el ancho) y la base al centro
+        const photo = item.photo && !failed[`${item.id}:foto`] ? item.photo : null;
+        const glassH = photo ? Math.min(g.d * 1.5, (g.d * 1.05 * photo.h) / photo.w) : 0;
+        const glassW = photo ? (glassH * photo.w) / photo.h : 0;
+        const glassBottom = g.d * TILT * 0.42;
+        const glassBox = { width: glassW, height: glassH, bottom: glassBottom, marginLeft: -glassW / 2 };
+        const photoMask = photo ? `url("${photo.src}") 0 0 / 100% 100% no-repeat` : "";
         return (
           <button
             key={item.id}
@@ -849,6 +861,26 @@ export function SushiConveyorMenu({
               <span ref={(node) => { shadows.current[i] = node; }} className="absolute inset-x-[5%] bottom-[-9%] top-[16%] rounded-[50%] bg-black" style={{ filter: `blur(${Math.max(2, g.d * 0.045).toFixed(1)}px)` }} />
             </span>
             <span ref={(node) => { lifts.current[i] = node; }} data-lift className="absolute inset-0">
+              {photo ? (
+                <>
+                  {/* Posavasos: plato oscuro con filo de luz, la sombra de contacto y el vaso real de pie */}
+                  <span aria-hidden="true" className="absolute inset-[5%] rounded-[50%] border border-white/15 bg-[radial-gradient(ellipse_at_50%_35%,#2F3037_0%,#131318_70%)]" />
+                  <span aria-hidden="true" className="pointer-events-none absolute left-1/2 rounded-[50%] bg-black/70 blur-[3px]" style={{ width: glassW * 0.92, height: glassW * 0.26, bottom: glassBottom - glassW * 0.09, marginLeft: -glassW * 0.46 }} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.src}
+                    alt=""
+                    width={photo.w}
+                    height={photo.h}
+                    draggable={false}
+                    onError={() => setFailed((old) => ({ ...old, [`${item.id}:foto`]: true }))}
+                    className="pointer-events-none absolute left-1/2 max-w-none select-none"
+                    style={glassBox}
+                  />
+                  <span ref={(node) => { shades.current[i] = node; }} aria-hidden="true" className="pointer-events-none absolute left-1/2 bg-black" style={{ ...glassBox, opacity: 0, WebkitMask: photoMask, mask: photoMask }} />
+                </>
+              ) : (
+              <>
               <span aria-hidden="true" data-placeholder className={`absolute rounded-[50%] border border-white/10 bg-night-900 ${broken ? "inset-[3%] shadow-sm" : "inset-[6%]"}`}>
                 <span className="absolute inset-[30%] rounded-[50%] bg-white/20" />
               </span>
@@ -863,8 +895,11 @@ export function SushiConveyorMenu({
                 />
               )}
               {!broken && <span ref={(node) => { shades.current[i] = node; }} aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black" style={{ opacity: 0, WebkitMask: mask, mask }} />}
+              </>
+              )}
               <span aria-hidden="true" data-ring className={`pointer-events-none absolute -inset-[2%] rounded-[50%] border-2 ${tier.ring}`} />
-              <span ref={(node) => { anchors.current[i] = node; }} aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 size-0">
+              {/* La etiqueta del plato activo va sobre el borde del vaso cuando hay foto */}
+              <span ref={(node) => { anchors.current[i] = node; }} aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 size-0" style={photo ? { top: g.d * TILT - glassBottom - glassH - 2 } : undefined}>
                 <span data-chip className={`absolute bottom-[7px] left-0 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-white/10 bg-night-900 py-1 pl-2 pr-2.5 text-[11px] font-semibold leading-none text-slate-100 shadow-[0_6px_16px_-6px_rgba(0,0,0,0.6)] transition-[opacity,transform] duration-300 motion-reduce:transition-none ${isActive && lifted !== i ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"}`}>
                   <span className={`size-1.5 rounded-full ${tier.dot}`} />
                   {item.name}
@@ -878,6 +913,8 @@ export function SushiConveyorMenu({
     </div>
   );
 
+  // Con fotos de pie, los vasos de la fila de atrás suben sobre el escenario: se les deja aire arriba
+  const standing = items.some((d) => d.photo);
   return (
     <section
       {...rest}
@@ -898,7 +935,7 @@ export function SushiConveyorMenu({
             {captionNode}
             {action}
           </div>
-          <div className="min-w-0">
+          <div className={`min-w-0 ${standing ? "pt-16" : ""}`}>
             {stage}
             {controls}
           </div>
@@ -906,7 +943,7 @@ export function SushiConveyorMenu({
       ) : (
         <div className="flex w-full flex-col items-center px-0 pb-6 pt-4">
           {header}
-          <div className="mt-2 w-full min-w-0">{stage}</div>
+          <div className={`mt-2 w-full min-w-0 ${standing ? "pt-16 sm:pt-20" : ""}`}>{stage}</div>
           {controls}
           {captionNode}
           {action && <div className="mt-3 flex justify-center">{action}</div>}
@@ -952,6 +989,9 @@ function DishDialog({ uid, item, index, total, labels, reduced, broken, source, 
   const [shown, setShown] = React.useState(false);
   const [added, setAdded] = React.useState(false);
   const titleId = `${uid}-dish-title`;
+  // La foto real del trago, si la hay y cargó (si falla, vuelve la imagen desde arriba)
+  const [photoOk, setPhotoOk] = React.useState(true);
+  const photo = item.photo && photoOk ? item.photo : null;
   const tier = tierStyle(item.tier);
 
   React.useLayoutEffect(() => {
@@ -1048,7 +1088,10 @@ function DishDialog({ uid, item, index, total, labels, reduced, broken, source, 
         </button>
         <div ref={figureRef} data-dish-figure className="relative mx-auto aspect-square w-full max-w-[min(42vh,22rem)]">
           <span aria-hidden="true" className="absolute inset-x-[8%] bottom-[-4%] top-[14%] rounded-full bg-black opacity-70 blur-2xl" />
-          {broken ? (
+          {photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photo.src} alt={item.name} width={photo.w} height={photo.h} draggable={false} onError={() => setPhotoOk(false)} className="relative mx-auto h-full w-auto max-w-full select-none object-contain" />
+          ) : broken ? (
             <span aria-hidden="true" className="absolute inset-[3%] rounded-full border border-white/10 bg-white/[0.06]">
               <span className="absolute inset-[30%] rounded-full bg-white/25" />
             </span>
@@ -1056,7 +1099,7 @@ function DishDialog({ uid, item, index, total, labels, reduced, broken, source, 
             // eslint-disable-next-line @next/next/no-img-element
             <img src={item.image} alt={item.name} draggable={false} className="relative size-full select-none object-contain" />
           )}
-          <span aria-hidden="true" className={`absolute -inset-[1.5%] rounded-full border-[3px] ${tier.ring}`} />
+          {!photo && <span aria-hidden="true" className={`absolute -inset-[1.5%] rounded-full border-[3px] ${tier.ring}`} />}
         </div>
         <div className={`relative flex flex-col gap-3 text-center transition-[opacity,transform] delay-150 duration-500 motion-reduce:transition-none sm:text-left ${shown ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}>
           <p className="flex items-center justify-center gap-2 font-mono text-[11px] tracking-[0.2em] text-slate-400 sm:justify-start">

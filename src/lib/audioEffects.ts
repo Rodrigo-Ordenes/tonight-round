@@ -57,6 +57,19 @@ class ExtendedAudioEffects {
     return baseAudioEffects.isMuted();
   }
 
+  playReels(ms?: number) {
+    baseAudioEffects.playReels(ms);
+  }
+
+  playJackpot() {
+    baseAudioEffects.playJackpot();
+    baseAudioEffects.triggerHaptic([30, 40, 30, 40, 60]);
+  }
+
+  playCoin() {
+    baseAudioEffects.playCoin();
+  }
+
   setMuted(m: boolean) {
     baseAudioEffects.setMuted(m);
   }
