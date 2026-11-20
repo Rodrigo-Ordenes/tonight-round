@@ -1,4 +1,5 @@
 import type { LiveGame, LiveRound, Participant } from "./carreteState";
+import { BLACKJACK_PLANS, ROULETTE_BETS, blackjackDeal, blackjackOutcome, handValue, jackpotMachines, rouletteColor, rouletteNumber, rouletteWins, slotPayout, slotSpin, type SlotKind } from "@/lib/casinoGames";
 import { INFILTRADO, MAYORIA, MENTIROSO, PORCENTAJE, ULTIMO_COLORES, ULTIMO_FIGURAS } from "@/data/party_games";
 
 /**
@@ -13,7 +14,7 @@ import { INFILTRADO, MAYORIA, MENTIROSO, PORCENTAJE, ULTIMO_COLORES, ULTIMO_FIGU
  * tomar y no escala por perder varias rondas.
  */
 
-export type PartyCategory = "Azar" | "Predicción" | "Psicología" | "Deducción" | "Reflejos" | "Desafíos";
+export type PartyCategory = "Azar" | "Predicción" | "Psicología" | "Deducción" | "Reflejos" | "Desafíos" | "Casino";
 
 export interface PartyGameDef {
   id: LiveGame;
@@ -42,9 +43,15 @@ export const PARTY_GAMES: PartyGameDef[] = [
   { id: "porcentaje", name: "Predice el porcentaje", emoji: "📊", category: "Predicción", blurb: "¿Qué porcentaje de la sala dirá que sí? Predice y responde.", minPlayers: 3, duration: "1 min", seconds: 40 },
   { id: "reflejos", name: "No te adelantes", emoji: "⚡", category: "Reflejos", blurb: "Espera la señal y toca lo más rápido que puedas. Quien se adelanta, queda fuera.", minPlayers: 2, duration: "30 s", seconds: 30 },
   { id: "ultimo", name: "Último en pie", emoji: "🏁", category: "Desafíos", blurb: "Instrucciones cada vez más rápidas. Gana quien llegue más lejos sin fallar.", minPlayers: 2, duration: "1 min", seconds: 60 },
+  // Casino de puntos: nadie apuesta plata y perder no obliga a tomar
+  { id: "tragamonedas", name: "Tragamonedas Tonight", emoji: "🎰", category: "Casino", blurb: "Cada uno tira su palanca. Tres logos de Tonight pagan el premio mayor.", minPlayers: 2, duration: "30 s", seconds: 25 },
+  { id: "tragabar", name: "Tragamonedas del bar", emoji: "🍹", category: "Casino", blurb: "Tragos reales en los rodillos y el vaso de agua como comodín.", minPlayers: 2, duration: "30 s", seconds: 25 },
+  { id: "jackpot", name: "Jackpot de la sala", emoji: "💎", category: "Casino", blurb: "Tres máquinas y una paga el pozo. Elige la tuya.", minPlayers: 2, duration: "30 s", seconds: 25 },
+  { id: "ruleta", name: "Ruleta del casino", emoji: "🎡", category: "Casino", blurb: "Pon tus fichas (sin plata) a color, par o impar, docena o al cero. Gira la ruleta.", minPlayers: 2, duration: "45 s", seconds: 40 },
+  { id: "blackjack", name: "Blackjack contra el host", emoji: "🃏", category: "Casino", blurb: "Elige hasta dónde pides cartas. El host reparte y se planta en 17.", minPlayers: 2, duration: "45 s", seconds: 40 },
 ];
 
-export const PARTY_CATEGORIES: PartyCategory[] = ["Azar", "Predicción", "Psicología", "Deducción", "Reflejos", "Desafíos"];
+export const PARTY_CATEGORIES: PartyCategory[] = ["Casino", "Azar", "Predicción", "Psicología", "Deducción", "Reflejos", "Desafíos"];
 
 /** Juegos con lógica propia de Party Games (¿Quién es más probable? usa la del juego en vivo y suma puntos aparte) */
 const PARTY_IDS = new Set<LiveGame>(PARTY_GAMES.map((g) => g.id).filter((id) => id !== "probable"));
@@ -187,6 +194,15 @@ export function buildPartyRound(
       return { ...r, prompt: "La bomba explota en un segundo secreto entre 5 y 12. Detenla lo más cerca posible.", options: [] };
     case "casilla":
       return { ...r, prompt: "Una de estas nueve casillas está maldita. Elige la tuya.", options: Array.from({ length: 9 }, (_, i) => ({ id: String(i + 1), label: String(i + 1) })) };
+    case "tragamonedas":
+    case "tragabar":
+      return { ...r, prompt: "Tira tu palanca: los rodillos giran en la TV.", options: [{ id: "tirar", label: "🎰 Tirar la palanca" }] };
+    case "jackpot":
+      return { ...r, prompt: "Una de las tres máquinas paga el pozo. Elige la tuya.", options: [1, 2, 3].map((n) => ({ id: String(n), label: `Máquina ${n}` })) };
+    case "ruleta":
+      return { ...r, prompt: "Pon tus fichas: no hay plata en juego, solo puntos.", options: ROULETTE_BETS.map((b) => ({ id: b.id, label: `${b.label} · paga ${b.pays}` })) };
+    case "blackjack":
+      return { ...r, prompt: "El host reparte. ¿Hasta dónde pides cartas?", options: BLACKJACK_PLANS };
     case "cajas":
       return { ...r, prompt: "Elige una caja. Se abren todas a la vez.", options: Array.from({ length: 6 }, (_, i) => ({ id: String(i + 1), label: `Caja ${i + 1}` })) };
     case "mentiroso": {
@@ -360,6 +376,50 @@ export function resolveParty(round: LiveRound, participants: Participant[]): Par
         push(p.id, `Casilla ${v}`, bad ? "¡Maldita!" : "A salvo", bad ? -5 : 10, !bad, bad);
       });
       return done(loserIds.length ? `La casilla maldita era la ${cursed}: ${names(loserIds)} ${loserIds.length > 1 ? "cayeron" : "cayó"}.` : `La casilla maldita era la ${cursed}. ¡Nadie cayó!`, String(cursed));
+    }
+    case "tragamonedas":
+    case "tragabar": {
+      const kind: SlotKind = round.game === "tragabar" ? "bar" : "clasica";
+      voters.forEach((p) => {
+        const reels = slotSpin(seed, p.id, kind);
+        const pay = slotPayout(reels, kind);
+        push(p.id, reels.map((x) => x.label).join(" · "), pay.label, pay.points, pay.points >= 20, false);
+      });
+      const top = rows.reduce((m, x) => Math.max(m, x.points), 0);
+      const small = rows.filter((x) => x.points > 0 && !x.win).map((x) => x.id);
+      return done(
+        winnerIds.length ? `${top >= 50 ? "¡Jackpot!" : "Pagó la máquina:"} ${names(winnerIds)}.` : small.length ? `Premios chicos para ${names(small)}.` : "Los rodillos no pagaron esta vez.",
+        "",
+        winnerIds[0] ?? small[0]
+      );
+    }
+    case "jackpot": {
+      const machines = jackpotMachines(seed);
+      const pot = machines.find((m) => m.points === 25)!.machine;
+      voters.forEach((p) => {
+        const m = machines.find((x) => x.machine === vote(p.id)) ?? machines[0];
+        push(p.id, `Máquina ${m.machine}`, m.points === 25 ? "¡Pagó el pozo!" : m.points ? "Premio chico" : "Sin premio", m.points, m.points === 25, false);
+      });
+      return done(`Pagó la máquina ${pot}${winnerIds.length ? `: ${names(winnerIds)}` : ". Nadie la eligió"}.`, pot);
+    }
+    case "ruleta": {
+      const n = rouletteNumber(seed);
+      voters.forEach((p) => {
+        const bet = ROULETTE_BETS.find((b) => b.id === vote(p.id)) ?? ROULETTE_BETS[0];
+        const won = rouletteWins(bet.id, n);
+        // En el casino perder nunca genera reto (ni sorbo): solo no suma
+        push(p.id, bet.label, won ? `Ganó ${bet.pays} fichas` : "La banca se queda las fichas", won ? bet.pays : 0, won, false);
+      });
+      return done(`Salió el ${n} ${rouletteColor(n)}. ${winnerIds.length ? `${winnerIds.length > 1 ? "Ganan" : "Gana"} ${names(winnerIds)}.` : "Nadie acertó."}`, String(n));
+    }
+    case "blackjack": {
+      const plans = voters.map((p) => ({ id: p.id, stand: Number(vote(p.id)) || 17 }));
+      const { dealer, hands } = blackjackDeal(seed, plans);
+      plans.forEach(({ id }) => {
+        const o = blackjackOutcome(hands[id], dealer);
+        push(id, hands[id].map(cardLabel).join(" "), o.label, o.points, o.win, false);
+      });
+      return done(`El host hizo ${handValue(dealer)}${handValue(dealer) > 21 ? " y se pasó" : ""}. ${winnerIds.length ? `${winnerIds.length > 1 ? "Le ganan" : "Le gana"} ${names(winnerIds)}.` : "Gana la casa."}`, dealer.map(cardLabel).join(" "));
     }
     case "cajas": {
       const prizes = cajas(seed);

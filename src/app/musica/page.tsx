@@ -21,6 +21,7 @@ import {
 import { audioEffects } from "@/lib/audioEffects";
 import GhostTitle from "@/components/ui/GhostTitle";
 import ModuleDiorama from "@/components/gateway/ModuleDiorama";
+import AmbientPhoto from "@/components/ui/AmbientPhoto";
 import VinylAlbumCard from "@/components/ui/vinyl-album-card";
 
 function EnergyMeter({ value }: { value: number }) {
@@ -86,6 +87,7 @@ export default function MusicaPage() {
     <div className="space-y-10 animate-fade-in">
       {/* Cabecera editorial */}
       <header className="relative isolate">
+        <AmbientPhoto name="club" className="-inset-x-4 -top-24 h-[25rem] rounded-b-3xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)] sm:-inset-x-6" />
         <GhostTitle text="DJ" />
         <ModuleDiorama id="musica" variant="header" />
         <div className="max-w-3xl">

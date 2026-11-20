@@ -256,7 +256,11 @@ test.describe("Party Games", () => {
     await page.goto("/juegos");
     await expect(page.getByRole("heading", { name: /Azar, predicción y faroles/ })).toBeVisible();
     const card = page.locator("article", { has: page.getByRole("heading", { name: "La casilla maldita" }) });
-    await card.getByRole("button", { name: "Jugar" }).click();
+    // La mesa puede tardar en recibir a los celulares recién unidos (rechaza la ronda si aún no los ve): se reintenta
+    await expect(async () => {
+      await card.getByRole("button", { name: "Jugar" }).click();
+      await expect(ana.getByRole("button", { name: "Casilla 1", exact: true })).toBeVisible({ timeout: 4_000 });
+    }).toPass({ timeout: 40_000 });
 
     for (const [p, cell] of [
       [ana, "Casilla 1"],

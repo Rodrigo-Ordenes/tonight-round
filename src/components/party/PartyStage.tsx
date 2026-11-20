@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import CasinoStage from "./CasinoStage";
 import type { LiveRound, Participant } from "@/lib/carreteState";
 import { cajas, cardLabel, casillaMaldita, cronometroTarget, dados, mayorMenorCards, proximidadNumber, resolveParty, type Card } from "@/lib/partyGames";
 
@@ -17,6 +18,12 @@ export default function PartyStage({ round, participants, size = "md" }: { round
   const scale = tv ? "text-tv-md" : "text-2xl";
 
   switch (round.game) {
+    case "tragamonedas":
+    case "tragabar":
+    case "jackpot":
+    case "ruleta":
+    case "blackjack":
+      return <CasinoStage round={round} participants={participants} size={size} />;
     case "proximidad":
       return <Wheel n={revealed ? proximidadNumber(seed) : null} tv={tv} />;
     case "dados": {

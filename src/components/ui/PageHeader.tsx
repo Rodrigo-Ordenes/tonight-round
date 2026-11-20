@@ -1,6 +1,7 @@
 import React from "react";
 import GhostTitle from "./GhostTitle";
 import ModuleDiorama, { type ModuleKey } from "@/components/gateway/ModuleDiorama";
+import AmbientPhoto, { type Ambiente } from "./AmbientPhoto";
 
 /**
  * Cabecera común a todas las secciones. El título habla solo; el contexto (sala, modo, hora)
@@ -14,6 +15,7 @@ export default function PageHeader({
   children,
   aside,
   scene,
+  photo,
 }: {
   /** Contexto breve (ej. "Sala 5DCS"). Se muestra bajo el título. */
   eyebrow?: string;
@@ -23,9 +25,12 @@ export default function PageHeader({
   aside?: React.ReactNode;
   /** Módulo cuyo diorama acompaña la cabecera */
   scene?: ModuleKey;
+  /** Foto real de ambiente detrás de la cabecera (bar, club o casino) */
+  photo?: Ambiente;
 }) {
   return (
     <header className="relative isolate mb-8 flex flex-wrap items-end justify-between gap-6 animate-fade-in">
+      {photo && <AmbientPhoto name={photo} className="-inset-x-4 -top-24 h-[25rem] rounded-b-3xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)] sm:-inset-x-6" />}
       <GhostTitle text={title} />
       {scene && <ModuleDiorama id={scene} variant="header" />}
       <div className="max-w-2xl">

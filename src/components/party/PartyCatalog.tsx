@@ -6,10 +6,10 @@ import { PARTY_CATEGORIES, PARTY_GAMES, type PartyCategory } from "@/lib/partyGa
 import type { LiveGame } from "@/lib/carreteState";
 
 /**
- * Juegos destacados: ocupan dos columnas en la vista «Todos». Son tres para que la grilla de cuatro columnas cierre
- * sin huecos (3 × 2 + 10 = 16 celdas).
+ * Juegos destacados: ocupan dos columnas en la vista «Todos». Son seis para que la grilla de cuatro columnas cierre
+ * sin huecos (6 × 2 + 12 = 24 celdas).
  */
-const BENTO_WIDE = new Set<LiveGame>(["proximidad", "cronometro", "infiltrado"]);
+const BENTO_WIDE = new Set<LiveGame>(["ruleta", "blackjack", "tragamonedas", "proximidad", "cronometro", "infiltrado"]);
 
 /**
  * Micro-escena SVG de cada Party Game: entra con el scroll y se anima al pasar o enfocar la tarjeta (en táctil, solo
@@ -20,6 +20,69 @@ function PartyMicroScene({ id, wide }: { id: LiveGame; wide: boolean }) {
   return (
     <div aria-hidden className={`scene-rise pointer-events-none absolute -right-2 -top-2 select-none ${sizeClass}`}>
       <div className="h-full w-full overflow-hidden opacity-90 transition-transform duration-300 ease-out [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-105">
+        {id === "tragamonedas" && (
+          <svg viewBox="0 0 180 150" className="h-full w-full" fill="none">
+            <rect x="70" y="18" width="98" height="96" rx="14" fill="rgba(19,19,24,0.92)" stroke="#67AAFF" strokeWidth="1.8" />
+            <rect x="80" y="26" width="78" height="16" rx="6" fill="rgba(103,170,255,0.18)" stroke="#89BDFF" strokeWidth="1" />
+            <text x="119" y="38" textAnchor="middle" fill="#ECECF1" fontSize="9" fontFamily="monospace" fontWeight="800">TONIGHT</text>
+            {[0, 1, 2].map((k) => (
+              <g key={k} className="bento-float" style={{ animationDelay: `${k * 0.2}s` }}>
+                <rect x={80 + k * 27} y="50" width="22" height="34" rx="5" fill="#090A0D" stroke="rgba(236,236,241,0.25)" />
+                <text x={91 + k * 27} y="73" textAnchor="middle" fill="#D793FF" fontSize="16" fontFamily="monospace" fontWeight="900">7</text>
+              </g>
+            ))}
+            <path d="M168 50 L176 40" stroke="#8B8C96" strokeWidth="3" strokeLinecap="round" />
+            <circle cx="177" cy="38" r="5" fill="#B93EF3" className="bento-pulse" />
+          </svg>
+        )}
+        {id === "tragabar" && (
+          <svg viewBox="0 0 140 130" className="h-full w-full" fill="none">
+            <rect x="40" y="24" width="88" height="70" rx="12" fill="rgba(19,19,24,0.92)" stroke="#B93EF3" strokeWidth="1.6" />
+            {[0, 1, 2].map((k) => (
+              <g key={k}>
+                <rect x={48 + k * 26} y="36" width="20" height="46" rx="5" fill="#090A0D" stroke="rgba(236,236,241,0.25)" />
+                <path d={`M${52 + k * 26} 46 L${64 + k * 26} 46 L${62 + k * 26} 74 L${54 + k * 26} 74 Z`} fill={k === 1 ? "rgba(214,238,247,0.55)" : "rgba(62,31,13,0.9)"} stroke="#89BDFF" strokeWidth="0.8" className={k === 1 ? "bento-pulse" : undefined} />
+              </g>
+            ))}
+          </svg>
+        )}
+        {id === "jackpot" && (
+          <svg viewBox="0 0 140 130" className="h-full w-full" fill="none">
+            {[0, 1, 2].map((k) => (
+              <rect key={k} x={36 + k * 32} y={k === 1 ? 30 : 42} width="26" height={k === 1 ? 56 : 44} rx="6" fill="rgba(19,19,24,0.92)" stroke={k === 1 ? "#E4B853" : "#67AAFF"} strokeWidth={k === 1 ? 2 : 1.4} />
+            ))}
+            <path d="M84 12 L92 20 L84 28 L76 20 Z" fill="rgba(228,184,83,0.35)" stroke="#E4B853" strokeWidth="1.4" className="bento-float" />
+          </svg>
+        )}
+        {id === "ruleta" && (
+          <svg viewBox="0 0 180 150" className="h-full w-full" fill="none">
+            <g className="bento-spin" style={{ transformOrigin: "124px 66px" }}>
+              <circle cx="124" cy="66" r="50" fill="#2B1B12" stroke="#E4B853" strokeOpacity="0.5" />
+              {Array.from({ length: 18 }, (_, k) => {
+                const a = (k * 20 * Math.PI) / 180;
+                const b = ((k * 20 + 20) * Math.PI) / 180;
+                return <path key={k} d={`M124 66 L${(124 + Math.cos(a) * 44).toFixed(1)} ${(66 + Math.sin(a) * 44).toFixed(1)} A44 44 0 0 1 ${(124 + Math.cos(b) * 44).toFixed(1)} ${(66 + Math.sin(b) * 44).toFixed(1)} Z`} fill={k === 0 ? "#2D8162" : k % 2 ? "#981BCD" : "#0257AB"} />;
+              })}
+              <circle cx="124" cy="66" r="22" fill="#131318" stroke="#E4B853" strokeOpacity="0.4" />
+              <circle cx="124" cy="66" r="6" fill="#89BDFF" />
+            </g>
+            <circle cx="124" cy="24" r="4" fill="#FFFFFF" />
+          </svg>
+        )}
+        {id === "blackjack" && (
+          <svg viewBox="0 0 180 150" className="h-full w-full" fill="none">
+            <g transform="translate(86 28) rotate(-10 26 38)">
+              <rect width="52" height="74" rx="8" fill="#F0F7FF" />
+              <text x="9" y="22" fill="#090A0D" fontSize="16" fontWeight="900">A♠</text>
+            </g>
+            <g transform="translate(116 32) rotate(9 26 38)" className="bento-float">
+              <rect width="52" height="74" rx="8" fill="#F0F7FF" />
+              <text x="9" y="22" fill="#C9214B" fontSize="16" fontWeight="900">K♥</text>
+            </g>
+            <circle cx="98" cy="118" r="11" fill="#0257AB" stroke="#F0F7FF" strokeWidth="2" strokeDasharray="4 3" />
+            <text x="98" y="122" textAnchor="middle" fill="#F0F7FF" fontSize="9" fontWeight="900">21</text>
+          </svg>
+        )}
         {id === "proximidad" && (
           <svg viewBox="0 0 180 150" className="h-full w-full" fill="none">
             <g className="bento-spin" style={{ transformOrigin: "122px 62px" }}>
@@ -189,7 +252,8 @@ function spotlight(e: React.PointerEvent<HTMLElement>) {
  */
 export default function PartyCatalog({ onPlay, playing, noRoom }: { onPlay?: (id: LiveGame) => void; playing?: LiveGame | null; noRoom?: React.ReactNode }) {
   const [cat, setCat] = React.useState<PartyCategory | "Todos">("Todos");
-  const games = PARTY_GAMES.filter((g) => cat === "Todos" || g.category === cat);
+  // El casino va primero: es lo que más llama en la mesa (el orden relativo de cada grupo se mantiene)
+  const games = PARTY_GAMES.filter((g) => cat === "Todos" || g.category === cat).sort((x, y) => Number(y.category === "Casino") - Number(x.category === "Casino"));
 
   return (
     <section aria-labelledby="party-title" className="space-y-5">

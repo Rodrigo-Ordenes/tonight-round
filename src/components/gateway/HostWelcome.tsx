@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Disc3, Gamepad2, GlassWater, KeyRound, Receipt, ShoppingBasket, Sparkles } from "lucide-react";
 import { FOTO_HOST, FOTOS_INTRO } from "@/data/fotosEscena";
+import AmbientPhoto from "@/components/ui/AmbientPhoto";
 
 /** La carta del host: los módulos de la noche, en orden */
 const CARTA = [
@@ -76,7 +77,8 @@ export default function HostWelcome({ onCreate, onCode, busy }: { onCreate: () =
 
   return (
     <section ref={scene} aria-labelledby="host-title" className="host-scene relative isolate overflow-hidden rounded-3xl border border-white/10 bg-night-950">
-      {/* Contrabarra: luces del bar fuera de foco, el plano más lejano */}
+      {/* El club de fondo (foto real) y, encima, luces del bar fuera de foco */}
+      <AmbientPhoto name="club" className="inset-0" />
       <div aria-hidden className="parallax-deep pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(60%_55%_at_78%_35%,rgba(185,62,243,0.22),transparent_70%),radial-gradient(45%_40%_at_95%_80%,rgba(103,170,255,0.18),transparent_70%),radial-gradient(40%_35%_at_10%_10%,rgba(103,170,255,0.08),transparent_70%)]" />
         {[

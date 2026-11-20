@@ -134,7 +134,13 @@ export type LiveGame =
   | "porcentaje"
   | "reflejos"
   | "cajas"
-  | "ultimo";
+  | "ultimo"
+  // Casino de puntos (src/lib/casinoGames.ts): sin dinero ni apuestas reales
+  | "tragamonedas"
+  | "tragabar"
+  | "jackpot"
+  | "ruleta"
+  | "blackjack";
 
 export interface LiveVote {
   value: string;
