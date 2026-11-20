@@ -17,7 +17,7 @@ import {
 } from "@/lib/casinoGames";
 import { BrandMark } from "@/components/shell/AppShell";
 import { FOTOS_TRAGOS } from "@/data/fotosTragos";
-import { FOTOS_INTRO } from "@/data/fotosEscena";
+import { FOTOS_INTRO, FOTO_HOST_AVATAR, FOTO_HOST_SALUDO } from "@/data/fotosEscena";
 
 /**
  * Escenario de los juegos de casino (solo puntos): tragamonedas con el logo de Tonight, el jackpot de la sala, la
@@ -88,9 +88,21 @@ function jackpotReels(points: number): SlotSymbol[] {
   return [s("campana", "🔔"), s("estrella", "★"), s("uva", "🍇")];
 }
 
-/** Lo que va en una ventana del rodillo: el logo dibujado, la foto real del trago o el símbolo */
+/** Lo que va en una ventana del rodillo: el emblema del host, la foto real del trago o el símbolo */
 function ReelSymbol({ s, kind, tv }: { s: SlotSymbol; kind: SlotKind; tv: boolean }) {
-  if (s.id === "logo") return <BrandMark className={`neon-electric ${tv ? "h-20 w-20" : "h-10 w-10"}`} />;
+  if (s.id === "logo") {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={FOTO_HOST_AVATAR.src}
+        alt={s.label}
+        width={FOTO_HOST_AVATAR.w}
+        height={FOTO_HOST_AVATAR.h}
+        decoding="async"
+        className={`${tv ? "h-24" : "h-12"} w-auto select-none object-contain`}
+      />
+    );
+  }
   if (kind === "bar") {
     const photo = s.id === "agua" ? FOTOS_INTRO.agua?.lleno : FOTOS_TRAGOS[s.id]?.src;
     // eslint-disable-next-line @next/next/no-img-element
@@ -235,6 +247,16 @@ function BlackjackTable({ dealer, hands, revealed, tv }: { dealer: Card[]; hands
     <div className="bj-felt relative overflow-hidden rounded-[28px] border border-emerald-300/20 p-4 sm:p-6">
       <p className={`text-center font-led tracking-[0.25em] text-emerald-200/70 ${tv ? "text-tv-sm" : "text-xs"}`}>BLACKJACK PAGA 30 · EL HOST SE PLANTA EN 17</p>
       <div className="mt-3 flex flex-col items-center gap-2">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={FOTO_HOST_SALUDO.src}
+          alt=""
+          aria-hidden
+          width={FOTO_HOST_SALUDO.w}
+          height={FOTO_HOST_SALUDO.h}
+          decoding="async"
+          className={`${tv ? "h-28" : "h-16"} w-auto select-none object-contain`}
+        />
         <span className={`${t} font-semibold text-slate-200`}>El host {revealed ? `· ${handValue(dealer)}${handValue(dealer) > 21 ? " (se pasó)" : ""}` : ""}</span>
         <div className="flex gap-2">
           {(revealed ? dealer : dealer.slice(0, 2)).map((c, i) => (

@@ -31,7 +31,7 @@ export default function PartyControls({ round, me, people, vote }: { round: Live
       return <LastStanding key={round.id} round={round} mine={mine} onDone={(n) => vote(String(n))} />;
     case "mentiroso":
     case "infiltrado":
-      return <Options round={round} mine={mine} onPick={vote} exclude={me.id} people={people} />;
+      return <Options round={round} mine={mine} onPick={vote} exclude={people.length > 1 ? me.id : undefined} people={people} />;
     default:
       return <Options round={round} mine={mine} onPick={vote} />;
   }

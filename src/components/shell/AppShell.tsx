@@ -15,6 +15,7 @@ import LiveRoomPanel from "./LiveRoomPanel";
 import LiveNudge from "@/components/live/LiveNudge";
 import CheersOverlay from "@/components/live/CheersOverlay";
 import { useDragDismiss } from "@/lib/useDragDismiss";
+import { FOTO_HOST_AVATAR } from "@/data/fotosEscena";
 
 const NAV = [
   { key: "sala", label: "Sala", icon: Radio },
@@ -196,6 +197,27 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </div>
       </nav>
+
+      {/* ---------- Botón flotante del host (solo escritorio, fuera de la portada y la TV) ---------- */}
+      {!isGateway && (
+        <Link
+          href="/"
+          aria-label="Volver al inicio con el host"
+          className="group fixed bottom-5 right-6 z-40 hidden items-center gap-2 rounded-full border border-indigo-400/35 bg-night-900/85 py-2 pl-2.5 pr-3.5 shadow-neon backdrop-blur-xl transition-[transform,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-purple-400/60 lg:inline-flex"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={FOTO_HOST_AVATAR.src}
+            alt=""
+            aria-hidden
+            width={FOTO_HOST_AVATAR.w}
+            height={FOTO_HOST_AVATAR.h}
+            decoding="async"
+            className="h-10 w-auto select-none object-contain transition-transform duration-200 ease-out group-hover:scale-105"
+          />
+          <span className="font-display text-xs font-bold tracking-[0.06em] text-indigo-100 group-hover:text-white">Host</span>
+        </Link>
+      )}
 
       {/* ---------- Sala en vivo: hoja desde abajo en el celular, cajón desde la derecha en escritorio ---------- */}
       {sheetOpen && (

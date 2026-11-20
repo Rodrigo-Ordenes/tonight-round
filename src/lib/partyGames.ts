@@ -30,25 +30,25 @@ export interface PartyGameDef {
 }
 
 export const PARTY_GAMES: PartyGameDef[] = [
-  { id: "proximidad", name: "Ruleta de proximidad", emoji: "🎯", category: "Azar", blurb: "Elige un número del 0 al 100. La ruleta gira y gana quien quede más cerca.", minPlayers: 2, duration: "1 min", seconds: 30 },
-  { id: "cronometro", name: "La bomba de tiempo", emoji: "⏱️", category: "Reflejos", blurb: "Detén la bomba en el segundo secreto. Gana quien quede más cerca.", minPlayers: 2, duration: "1 min", seconds: 40 },
-  { id: "mayoria", name: "La mayoría gana", emoji: "🗳️", category: "Predicción", blurb: "Predice qué elegirá la mayoría y después responde tú. Acertar da puntos.", minPlayers: 3, duration: "1 min", seconds: 45 },
-  { id: "cajas", name: "Las cajas", emoji: "🎁", category: "Azar", blurb: "Seis cajas cerradas: premios, un comodín y una que resta. Se abren todas juntas.", minPlayers: 2, duration: "30 s", seconds: 25 },
-  { id: "mentiroso", name: "El mentiroso", emoji: "🤥", category: "Deducción", blurb: "Todos cuentan algo verdadero menos uno, que inventa. Voten quién miente.", minPlayers: 3, duration: "2 min", seconds: 90 },
-  { id: "dados", name: "Dado misterioso", emoji: "🎲", category: "Azar", blurb: "¿La suma de dos dados será baja, media, alta o doble? Los dobles pagan más.", minPlayers: 2, duration: "30 s", seconds: 25 },
-  { id: "mayormenor", name: "Mayor o menor", emoji: "🃏", category: "Predicción", blurb: "Hay una carta a la vista. ¿La siguiente será mayor o menor?", minPlayers: 2, duration: "30 s", seconds: 20 },
-  { id: "casilla", name: "La casilla maldita", emoji: "💀", category: "Azar", blurb: "Nueve casillas y una maldita. Elige la tuya y cruza los dedos.", minPlayers: 2, duration: "30 s", seconds: 25 },
-  { id: "probable", name: "¿Quién es más probable?", emoji: "👉", category: "Psicología", blurb: "Todos votan a alguien de la sala. Quien vota con la mayoría suma puntos.", minPlayers: 3, duration: "45 s", seconds: 30 },
-  { id: "infiltrado", name: "El infiltrado", emoji: "🕶️", category: "Deducción", blurb: "Todos tienen la misma palabra menos uno. Den pistas y descubran al infiltrado.", minPlayers: 4, duration: "3 min", seconds: 150 },
-  { id: "porcentaje", name: "Predice el porcentaje", emoji: "📊", category: "Predicción", blurb: "¿Qué porcentaje de la sala dirá que sí? Predice y responde.", minPlayers: 3, duration: "1 min", seconds: 40 },
-  { id: "reflejos", name: "No te adelantes", emoji: "⚡", category: "Reflejos", blurb: "Espera la señal y toca lo más rápido que puedas. Quien se adelanta, queda fuera.", minPlayers: 2, duration: "30 s", seconds: 30 },
-  { id: "ultimo", name: "Último en pie", emoji: "🏁", category: "Desafíos", blurb: "Instrucciones cada vez más rápidas. Gana quien llegue más lejos sin fallar.", minPlayers: 2, duration: "1 min", seconds: 60 },
+  { id: "proximidad", name: "Ruleta de proximidad", emoji: "🎯", category: "Azar", blurb: "Elige un número del 0 al 100. La ruleta gira y gana quien quede más cerca.", minPlayers: 1, duration: "1 min", seconds: 30 },
+  { id: "cronometro", name: "La bomba de tiempo", emoji: "⏱️", category: "Reflejos", blurb: "Detén la bomba en el segundo secreto. Gana quien quede más cerca.", minPlayers: 1, duration: "1 min", seconds: 40 },
+  { id: "mayoria", name: "La mayoría gana", emoji: "🗳️", category: "Predicción", blurb: "Predice qué elegirá la mayoría y después responde tú. Acertar da puntos.", minPlayers: 1, duration: "1 min", seconds: 45 },
+  { id: "cajas", name: "Las cajas", emoji: "🎁", category: "Azar", blurb: "Seis cajas cerradas: premios, un comodín y una que resta. Se abren todas juntas.", minPlayers: 1, duration: "30 s", seconds: 25 },
+  { id: "mentiroso", name: "El mentiroso", emoji: "🤥", category: "Deducción", blurb: "Todos cuentan algo verdadero menos uno, que inventa. Voten quién miente.", minPlayers: 1, duration: "2 min", seconds: 90 },
+  { id: "dados", name: "Dado misterioso", emoji: "🎲", category: "Azar", blurb: "¿La suma de dos dados será baja, media, alta o doble? Los dobles pagan más.", minPlayers: 1, duration: "30 s", seconds: 25 },
+  { id: "mayormenor", name: "Mayor o menor", emoji: "🃏", category: "Predicción", blurb: "Hay una carta a la vista. ¿La siguiente será mayor o menor?", minPlayers: 1, duration: "30 s", seconds: 20 },
+  { id: "casilla", name: "La casilla maldita", emoji: "💀", category: "Azar", blurb: "Nueve casillas y una maldita. Elige la tuya y cruza los dedos.", minPlayers: 1, duration: "30 s", seconds: 25 },
+  { id: "probable", name: "¿Quién es más probable?", emoji: "👉", category: "Psicología", blurb: "Todos votan a alguien de la sala. Quien vota con la mayoría suma puntos.", minPlayers: 1, duration: "45 s", seconds: 30 },
+  { id: "infiltrado", name: "El infiltrado", emoji: "🕶️", category: "Deducción", blurb: "Todos tienen la misma palabra menos uno. Den pistas y descubran al infiltrado.", minPlayers: 1, duration: "3 min", seconds: 150 },
+  { id: "porcentaje", name: "Predice el porcentaje", emoji: "📊", category: "Predicción", blurb: "¿Qué porcentaje de la sala dirá que sí? Predice y responde.", minPlayers: 1, duration: "1 min", seconds: 40 },
+  { id: "reflejos", name: "No te adelantes", emoji: "⚡", category: "Reflejos", blurb: "Espera la señal y toca lo más rápido que puedas. Quien se adelanta, queda fuera.", minPlayers: 1, duration: "30 s", seconds: 30 },
+  { id: "ultimo", name: "Último en pie", emoji: "🏁", category: "Desafíos", blurb: "Instrucciones cada vez más rápidas. Gana quien llegue más lejos sin fallar.", minPlayers: 1, duration: "1 min", seconds: 60 },
   // Casino de puntos: nadie apuesta plata y perder no obliga a tomar
-  { id: "tragamonedas", name: "Tragamonedas Tonight", emoji: "🎰", category: "Casino", blurb: "Cada uno tira su palanca. Tres logos de Tonight pagan el premio mayor.", minPlayers: 2, duration: "30 s", seconds: 25 },
-  { id: "tragabar", name: "Tragamonedas del bar", emoji: "🍹", category: "Casino", blurb: "Tragos reales en los rodillos y el vaso de agua como comodín.", minPlayers: 2, duration: "30 s", seconds: 25 },
-  { id: "jackpot", name: "Jackpot de la sala", emoji: "💎", category: "Casino", blurb: "Tres máquinas y una paga el pozo. Elige la tuya.", minPlayers: 2, duration: "30 s", seconds: 25 },
-  { id: "ruleta", name: "Ruleta del casino", emoji: "🎡", category: "Casino", blurb: "Pon tus fichas (sin plata) a color, par o impar, docena o al cero. Gira la ruleta.", minPlayers: 2, duration: "45 s", seconds: 40 },
-  { id: "blackjack", name: "Blackjack contra el host", emoji: "🃏", category: "Casino", blurb: "Elige hasta dónde pides cartas. El host reparte y se planta en 17.", minPlayers: 2, duration: "45 s", seconds: 40 },
+  { id: "tragamonedas", name: "Tragamonedas Tonight", emoji: "🎰", category: "Casino", blurb: "Cada uno tira su palanca. Tres logos de Tonight pagan el premio mayor.", minPlayers: 1, duration: "30 s", seconds: 25 },
+  { id: "tragabar", name: "Tragamonedas del bar", emoji: "🍹", category: "Casino", blurb: "Tragos reales en los rodillos y el vaso de agua como comodín.", minPlayers: 1, duration: "30 s", seconds: 25 },
+  { id: "jackpot", name: "Jackpot de la sala", emoji: "💎", category: "Casino", blurb: "Tres máquinas y una paga el pozo. Elige la tuya.", minPlayers: 1, duration: "30 s", seconds: 25 },
+  { id: "ruleta", name: "Ruleta del casino", emoji: "🎡", category: "Casino", blurb: "Pon tus fichas (sin plata) a color, par o impar, docena o al cero. Gira la ruleta.", minPlayers: 1, duration: "45 s", seconds: 40 },
+  { id: "blackjack", name: "Blackjack contra el host", emoji: "🃏", category: "Casino", blurb: "Elige hasta dónde pides cartas. El host reparte y se planta en 17.", minPlayers: 1, duration: "45 s", seconds: 40 },
 ];
 
 export const PARTY_CATEGORIES: PartyCategory[] = ["Casino", "Azar", "Predicción", "Psicología", "Deducción", "Reflejos", "Desafíos"];

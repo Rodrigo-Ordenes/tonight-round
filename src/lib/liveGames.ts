@@ -12,16 +12,16 @@ export interface LiveGameDef {
 }
 
 export const LIVE_GAMES: LiveGameDef[] = [
-  { id: "yonunca", name: "Yo nunca", emoji: "😳", blurb: "La TV lanza la frase, cada uno confiesa en secreto desde su celular.", minPlayers: 2 },
-  { id: "probable", name: "¿Quién es más probable?", emoji: "👉", blurb: "Todos votan a alguien de la sala. El más votado cumple.", minPlayers: 3 },
-  { id: "prefieres", name: "¿Qué prefieres?", emoji: "⚖️", blurb: "Dos opciones imposibles. La minoría pierde.", minPlayers: 2 },
-  { id: "impostor", name: "El Impostor", emoji: "🕵️", blurb: "Todos ven la palabra secreta menos uno. Descríbanla y descubran quién miente.", minPlayers: 3 },
-  { id: "confesion", name: "Confesiones anónimas", emoji: "🤫", blurb: "Mandan confesiones desde el celular y adivinan de quién es cada una.", minPlayers: 3 },
-  { id: "mito", name: "¿Verdad o mito?", emoji: "🧠", blurb: "Trivia del carrete: los que fallan, cumplen. Se aprende algo.", minPlayers: 2 },
-  { id: "duelo", name: "Duelo", emoji: "🥊", blurb: "Dos al centro con un desafío. La sala vota quién ganó y el otro cumple.", minPlayers: 3 },
-  { id: "mimica", name: "Mímica", emoji: "🎭", blurb: "Solo quien actúa ve la palabra en su celular. Si no la sacan a tiempo, cumple.", minPlayers: 3 },
-  { id: "verdadreto", name: "Verdad o reto", emoji: "🎯", blurb: "La TV elige a alguien y su desafío. Si se arruga, cumple: hay alternativas.", minPlayers: 2 },
-  { id: "categorias", name: "Cultura chupística", emoji: "🔥", blurb: "Una categoría y por turnos hacia la derecha. Quien se queda pegado, cumple.", minPlayers: 3 },
+  { id: "yonunca", name: "Yo nunca", emoji: "😳", blurb: "La TV lanza la frase, cada uno confiesa en secreto desde su celular.", minPlayers: 1 },
+  { id: "probable", name: "¿Quién es más probable?", emoji: "👉", blurb: "Todos votan a alguien de la sala. El más votado cumple.", minPlayers: 1 },
+  { id: "prefieres", name: "¿Qué prefieres?", emoji: "⚖️", blurb: "Dos opciones imposibles. La minoría pierde.", minPlayers: 1 },
+  { id: "impostor", name: "El Impostor", emoji: "🕵️", blurb: "Todos ven la palabra secreta menos uno. Descríbanla y descubran quién miente.", minPlayers: 1 },
+  { id: "confesion", name: "Confesiones anónimas", emoji: "🤫", blurb: "Mandan confesiones desde el celular y adivinan de quién es cada una.", minPlayers: 1 },
+  { id: "mito", name: "¿Verdad o mito?", emoji: "🧠", blurb: "Trivia del carrete: los que fallan, cumplen. Se aprende algo.", minPlayers: 1 },
+  { id: "duelo", name: "Duelo", emoji: "🥊", blurb: "Dos al centro con un desafío. La sala vota quién ganó y el otro cumple.", minPlayers: 1 },
+  { id: "mimica", name: "Mímica", emoji: "🎭", blurb: "Solo quien actúa ve la palabra en su celular. Si no la sacan a tiempo, cumple.", minPlayers: 1 },
+  { id: "verdadreto", name: "Verdad o reto", emoji: "🎯", blurb: "La TV elige a alguien y su desafío. Si se arruga, cumple: hay alternativas.", minPlayers: 1 },
+  { id: "categorias", name: "Cultura chupística", emoji: "🔥", blurb: "Una categoría y por turnos hacia la derecha. Quien se queda pegado, cumple.", minPlayers: 1 },
 ];
 
 /** Quienes están al centro de la ronda no se juzgan a sí mismos: no votan y la ronda no espera su voto. */
@@ -50,7 +50,8 @@ export function buildRound(
 ): NewRound | { error: string } {
   const people = ctx.participants.filter((p) => !p.deleted);
   const def = LIVE_GAME_BY_ID.get(game)!;
-  if (people.length < def.minPlayers) return { error: `Este juego necesita al menos ${def.minPlayers} personas en la sala.` };
+  if (people.length < def.minPlayers)
+    return { error: def.minPlayers === 1 ? "Únete a la sala desde un celular para jugar." : `Este juego necesita al menos ${def.minPlayers} personas en la sala.` };
   const fresh = <T,>(xs: T[], key: (x: T) => string) => {
     const unused = xs.filter((x) => !ctx.usedPrompts.has(key(x)));
     return pick(unused.length ? unused : xs);
@@ -94,7 +95,8 @@ export function buildRound(
     }
     case "duelo": {
       const a = pick(people);
-      const b = pick(people.filter((p) => p.id !== a.id));
+      const others = people.filter((p) => p.id !== a.id);
+      const b = others.length ? pick(others) : { id: "host", name: "El host" };
       return {
         ...base,
         prompt: `${a.name} vs ${b.name}: ${fresh(DUELOS, (x) => x)}`,

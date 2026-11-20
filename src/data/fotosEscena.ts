@@ -35,4 +35,6 @@ export const FOTOS_INTRO: Record<string, { lleno: string; vacio: string; w: numb
   }
 };
 
-export const FOTO_HOST: { src: string; w: number; h: number } | null = {"src": "/fotos/host/barman.webp", "w": 688, "h": 1100};
+export const FOTO_HOST: { src: string; w: number; h: number } | null = {"src": "/fotos/host/barman.webp", "w": 701, "h": 1000};
+export const FOTO_HOST_SALUDO = { src: "/fotos/host/saludo.webp", w: 512, h: 560 } as const;
+export const FOTO_HOST_AVATAR = { src: "/fotos/host/avatar.webp", w: 267, h: 320 } as const;

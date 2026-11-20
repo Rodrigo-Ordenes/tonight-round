@@ -51,8 +51,8 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
 
   const myVote = round?.votes[me.id]?.value;
   const isImpostor = round?.game === "impostor" && round.answer === me.id;
-  // Quien actúa, se juzga o se bate a duelo no vota: la sala decide
-  const judged = !!round && judgedIds(round).includes(me.id);
+  // Quien actúa, se juzga o se bate a duelo no vota cuando hay más personas en la sala
+  const judged = !!round && participants.length > 1 && judgedIds(round).includes(me.id);
 
   const vote = (value: string) => {
     if (!round || round.revealedAt) return;
@@ -147,8 +147,8 @@ export default function LiveRoundCard({ store, compact = false }: { store: Carre
           ) : !round.revealedAt ? (
             <div className={`relative mt-4 grid gap-2 ${round.options.length <= 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2"}`}>
               {round.options
-                // En El Impostor y Confesiones no puedes votarte a ti mismo
-                .filter((o) => !((round.game === "impostor" || round.game === "confesion") && o.id === me.id))
+                // En El Impostor y Confesiones no puedes votarte a ti mismo cuando hay más personas
+                .filter((o) => !(participants.length > 1 && (round.game === "impostor" || round.game === "confesion") && o.id === me.id))
                 .map((o) => {
                   const on = myVote === o.id;
                   return (
