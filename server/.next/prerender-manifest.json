@@ -30,12 +30,8 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/opengraph-image": {
-      "initialHeaders": {
-        "cache-control": "public, immutable, no-transform, max-age=31536000",
-        "content-type": "image/png",
-        "x-next-cache-tags": "_N_T_/layout,_N_T_/opengraph-image/layout,_N_T_/opengraph-image/route,_N_T_/opengraph-image"
-      },
+    "/_not-found": {
+      "initialStatus": 404,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -48,32 +44,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/opengraph-image",
-      "dataRoute": null,
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/dividir": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/dividir",
-      "dataRoute": "/dividir.rsc",
+      "srcRoute": "/_not-found",
+      "dataRoute": "/_not-found.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -107,7 +79,12 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/grupo": {
+    "/opengraph-image": {
+      "initialHeaders": {
+        "cache-control": "public, immutable, no-transform, max-age=31536000",
+        "content-type": "image/png",
+        "x-next-cache-tags": "_N_T_/layout,_N_T_/opengraph-image/layout,_N_T_/opengraph-image/route,_N_T_/opengraph-image"
+      },
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -120,32 +97,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/grupo",
-      "dataRoute": "/grupo.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/musica": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/musica",
-      "dataRoute": "/musica.rsc",
+      "srcRoute": "/opengraph-image",
+      "dataRoute": null,
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -179,54 +132,6 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/carrete": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/carrete",
-      "dataRoute": "/carrete.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/ronda": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/ronda",
-      "dataRoute": "/ronda.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
     "/sala": {
       "experimentalBypassFor": [
         {
@@ -242,6 +147,30 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/sala",
       "dataRoute": "/sala.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/carrete": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/carrete",
+      "dataRoute": "/carrete.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -275,7 +204,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/": {
+    "/grupo": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -288,8 +217,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/",
-      "dataRoute": "/index.rsc",
+      "srcRoute": "/grupo",
+      "dataRoute": "/grupo.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -299,7 +228,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/tiempo": {
+    "/dividir": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -312,8 +241,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/tiempo",
-      "dataRoute": "/tiempo.rsc",
+      "srcRoute": "/dividir",
+      "dataRoute": "/dividir.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -347,6 +276,30 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/tiempo": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/tiempo",
+      "dataRoute": "/tiempo.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/juegos": {
       "experimentalBypassFor": [
         {
@@ -371,8 +324,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/_not-found": {
-      "initialStatus": 404,
+    "/ronda": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -385,8 +337,32 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/_not-found",
-      "dataRoute": "/_not-found.rsc",
+      "srcRoute": "/ronda",
+      "dataRoute": "/ronda.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/",
+      "dataRoute": "/index.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -419,13 +395,37 @@
         "x-next-revalidated-tags",
         "x-next-revalidate-tag-token"
       ]
+    },
+    "/musica": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/musica",
+      "dataRoute": "/musica.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
     }
   },
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "ef8c40da9647e9bb9e08ba9ce5607dd6",
-    "previewModeSigningKey": "3ca26ec3a39391a7cffd1a4748bbd4f70269bcf33b2834d5b08108145878541f",
-    "previewModeEncryptionKey": "ebeeb79662c2a8b1907f2fa1c85dba97c3ee0a89074588b64e81bc1189505c1e"
+    "previewModeId": "256a36a99b7f235f3403e14debbbcf03",
+    "previewModeSigningKey": "4a36172b650867dc8c1e6013635444c042aaec1b62e9cbe365bbd6fa0656f4bc",
+    "previewModeEncryptionKey": "e02a500d7350f0cefeed7652cdba1931d98a1a39222d6ab7355e4867986368e5"
   }
 }
