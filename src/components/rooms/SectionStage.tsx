@@ -126,7 +126,7 @@ export default function SectionStage({
                 );
                 const style = { animationDelay: `${90 + Math.pow(i, 0.85) * 70}ms` };
                 return o.href ? (
-                  <Link key={o.id} href={o.href} onClick={play} className={cls} style={style} aria-current={on ? "page" : undefined}>
+                  <Link key={o.id} href={o.href} onClick={play} className={cls} style={style} aria-current={on ? "page" : undefined} data-option={o.id}>
                     {inner}
                   </Link>
                 ) : (
@@ -141,6 +141,7 @@ export default function SectionStage({
                     aria-pressed={active !== undefined ? on : undefined}
                     className={cls}
                     style={style}
+                    data-option={o.id}
                   >
                     {inner}
                   </button>
