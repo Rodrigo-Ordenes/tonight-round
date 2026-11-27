@@ -206,13 +206,20 @@ test.describe("portada en escritorio", () => {
   test("la sala principal: se entra por la puerta, se mira alrededor y cada zona lleva directo a su apartado", async ({ page }) => {
     await page.goto("/");
     // La puerta se abre con «Pasar» (o bajando) y adentro cabe todo en una pantalla: saludo, sala y la zona de enfrente
-    await page.getByRole("button", { name: "Pasar" }).click({ timeout: 5_000 }).catch(() => undefined);
+    // En un equipo lento (CI dibuja por software) la puerta tarda: se espera a «Pasar» con el tiempo normal
+    await page.getByRole("button", { name: "Pasar" }).click({ timeout: 20_000 }).catch(() => undefined);
     await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
     await expect(page.getByRole("button", { name: /Crear sala/ })).toBeInViewport({ timeout: 10_000 });
     const next = page.getByRole("button", { name: "Módulo siguiente" });
+    // La barra de zonas solo se ve con la cámara adentro (visibility: hidden afuera); toBeInViewport no basta
+    await expect(next).toBeVisible({ timeout: 20_000 });
     await expect(next).toBeInViewport();
     const count = page.locator("[data-track-count]");
-    for (let i = 0; i < 5 && (await count.innerText()) !== "04"; i++) await next.click();
+    // Sin el desplazamiento previo de click(): aquí el scroll es la profundidad de la cámara y moverla oculta la barra
+    for (let i = 0; i < 5 && (await count.innerText()) !== "04"; i++) {
+      await expect(next).toBeVisible();
+      await next.dispatchEvent("click");
+    }
     await expect(count).toHaveText("04");
     const front = page.locator('[data-orbit-card][aria-current="true"]');
     await expect(front).toHaveAttribute("href", "/musica");
