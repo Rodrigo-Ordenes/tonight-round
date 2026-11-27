@@ -23,8 +23,8 @@ export default function NotFound() {
         <Link href="/" className="btn-primary">
           Ir al inicio
         </Link>
-        <Link href="/juegos" className="btn-ghost">
-          Ver juegos
+        <Link href="/casino" className="btn-ghost">
+          Ir al casino
         </Link>
       </div>
     </div>

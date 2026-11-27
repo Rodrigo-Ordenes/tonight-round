@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { Award, Trophy } from "lucide-react";
 import type { LiveState, Participant } from "@/lib/carreteState";
 import { leaderboard, type PartyResult } from "@/lib/partyGames";
-import { useFlip } from "@/lib/useFlip";
+import { motion, useReducedMotion } from "framer-motion";
 import { audioEffects } from "@/lib/audioEffects";
 
 /** Tabla de una ronda de Party Games: qué eligió cada uno, el resultado y los puntos (en cascada) */
@@ -51,8 +51,9 @@ export function PartyLeaderboard({ live, participants, size = "md", meId, limit 
   const board = leaderboard(live?.history ?? [], participants).slice(0, limit);
   const list = useRef<HTMLOListElement>(null);
   const before = useRef(new Map<string, number>());
-  // Al cambiar el orden, cada fila se desliza a su nuevo puesto (FLIP, como la «Live List» de 21st)
-  useFlip(list, board.map((b) => `${b.id}:${b.points}`).join("|"));
+  // Al cambiar el orden, cada fila se desliza a su nuevo puesto con resorte (layout de framer-motion, como la «Live
+  // List» de 21st): se puede interrumpir si llegan puntos a mitad del movimiento
+  const reduce = useReducedMotion();
   // La fila que sumó puntos destella un momento detrás del nombre (solo opacidad; la cifra no se anima)
   useEffect(() => {
     const root = list.current;
@@ -76,12 +77,17 @@ export function PartyLeaderboard({ live, participants, size = "md", meId, limit 
       </p>
       <ol ref={list} className={`mt-3 ${tv ? "space-y-2" : "space-y-1"}`}>
         {board.map((b, i) => (
-          <li key={b.id} data-flip={b.id} className={`relative isolate flex items-center gap-3 ${tv ? "text-tv-sm" : "text-sm"} ${b.id === meId ? "font-bold text-white" : "text-slate-200"}`}>
+          <motion.li
+            key={b.id}
+            data-flip={b.id}
+            layout={reduce ? false : "position"}
+            transition={{ type: "spring", stiffness: 420, damping: 34, mass: 0.8 }}
+            className={`relative isolate flex items-center gap-3 ${tv ? "text-tv-sm" : "text-sm"} ${b.id === meId ? "font-bold text-white" : "text-slate-200"}`}>
             <span aria-hidden className="rank-glow pointer-events-none absolute -inset-x-2 -inset-y-0.5 -z-10 rounded-xl bg-emerald-400/15 opacity-0" />
             <span className={`w-8 shrink-0 font-led ${i === 0 ? "text-amber-200" : "text-slate-500"}`}>{String(i + 1).padStart(2, "0")}</span>
             <span className="min-w-0 flex-1 truncate">{b.name}</span>
             <span className="font-mono tabular">{b.points}</span>
-          </li>
+          </motion.li>
         ))}
       </ol>
     </section>

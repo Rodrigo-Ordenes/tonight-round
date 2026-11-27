@@ -26,6 +26,7 @@ import UndoToast from "@/components/ui/UndoToast";
 import { acceptTap } from "@/lib/tapGuard";
 import { addMine, readMine, selectablePeople } from "@/lib/myPeople";
 import { useTiltDepth } from "@/lib/useTiltDepth";
+import { parseMusicLink } from "@/lib/musicLink";
 
 const STOMACH_ICON: Record<StomachState, string> = { empty: "🫥", normal: "🥨", full: "🍝" };
 
@@ -511,7 +512,9 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             e.preventDefault();
             const text = song.trim();
             if (text.length < 2) return;
-            dispatch({ type: "SONG_REQUEST", request: { id: uid(), by: me.id, text: text.slice(0, 80), at: Date.now() } });
+            // Un link de YouTube o Spotify se guarda limpio (sin rastreo): así cabe y suena en la fila de la pista
+            const link = parseMusicLink(text);
+            dispatch({ type: "SONG_REQUEST", request: { id: uid(), by: me.id, text: (link ? link.openUrl : text).slice(0, 80), at: Date.now() } });
             audioEffects.playPop();
             setSong("");
             setSongSent(true);
@@ -522,7 +525,7 @@ export default function CarreteClientController({ store }: { store: CarreteStore
             value={song}
             maxLength={280}
             onChange={(e) => setSong(e.target.value)}
-            placeholder="Artista o canción"
+            placeholder="Canción o link de YouTube"
             aria-label="Pedir una canción"
             className="min-h-[46px] min-w-0 flex-1 rounded-2xl border border-white/10 bg-night-950/60 px-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-400"
           />

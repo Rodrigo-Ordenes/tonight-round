@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import SlotLever from "./SlotLever";
 import { Check, Lock } from "lucide-react";
 import type { LiveRound, Participant } from "@/lib/carreteState";
 import { reflejosDelay, ultimoPasos, pairVote, type UltimoPaso } from "@/lib/partyGames";
+import { MAX_FICHAS_RULETA, bjCanDouble, bjDealerHand, bjPlayerHand, parseRouletteBets } from "@/lib/casinoGames";
+import { PlayingCard, RouletteFelt } from "@/components/party/CasinoTables";
 import { audioEffects } from "@/lib/audioEffects";
 
 /**
@@ -13,6 +16,24 @@ import { audioEffects } from "@/lib/audioEffects";
 export default function PartyControls({ round, me, people, vote }: { round: LiveRound; me: Participant; people: Participant[]; vote: (value: string) => void }) {
   const mine = round.votes[me.id]?.value;
   switch (round.game) {
+    // Tragamonedas: se agarra la palanca y se tira, como en la máquina
+    case "tragamonedas":
+    case "tragabar":
+    case "frutillita":
+      return mine ? (
+        <Locked>Palanca tirada. Mira los rodillos en la TV.</Locked>
+      ) : (
+        <div className="flex flex-col items-center gap-2 py-2">
+          <SlotLever size="lg" onPull={() => vote("tirar")} />
+          <p className="text-sm text-slate-300">Agarra la palanca y tírala hacia abajo.</p>
+        </div>
+      );
+    // Blackjack mano a mano: tu mano en el celular y, en cada momento, pedir, plantarse o doblar
+    case "blackjack":
+      return <BlackjackPhone key={round.id} round={round} me={me} mine={mine} onAct={vote} />;
+    // Ruleta: el paño en el celular; pones hasta 5 fichas y las mandas a la mesa
+    case "ruleta":
+      return <RoulettePhone key={round.id} mine={mine} onSend={vote} />;
     case "proximidad":
       return <NumberPick key={round.id} mine={mine} onLock={(n) => vote(String(n))} suffix="" />;
     case "porcentaje":
@@ -399,4 +420,106 @@ function Shape({ name }: { name: string }) {
   if (name === "triángulo") return <svg viewBox="0 0 40 40" {...common}><path d="M20 6 L35 33 H5 Z" /></svg>;
   if (name === "estrella") return <svg viewBox="0 0 40 40" {...common}><path d="M20 4 L24.5 15 L36 15.5 L27 23 L30 34.5 L20 28 L10 34.5 L13 23 L4 15.5 L15.5 15 Z" /></svg>;
   return <span>{name}</span>;
+}
+
+/**
+ * El blackjack en el celular, como sentado en la mesa: ves tu mano y la carta visible del host, y decides jugada a
+ * jugada. Cada decisión se suma a tu voto («ppm» = pidió, pidió y se plantó), así la TV va mostrando tu mano en vivo.
+ */
+function BlackjackPhone({ round, me, mine, onAct }: { round: LiveRound; me: Participant; mine?: string; onAct: (v: string) => void }) {
+  const seed = round.seed ?? 0;
+  const actions = mine ?? "";
+  const h = bjPlayerHand(seed, me.id, actions);
+  const up = bjDealerHand(seed)[0];
+  const act = (a: "p" | "m" | "d") => {
+    confirm();
+    onAct(actions + a);
+  };
+  const done = h.status !== "jugando";
+  return (
+    <div className="space-y-4">
+      <div className="flex items-end justify-between gap-3 rounded-2xl bg-[#0c3328] p-3 shadow-[inset_0_0_0_1px_rgba(228,184,83,0.45)]">
+        <div className="flex flex-col items-center gap-1">
+          <span className="font-led text-[0.65rem] tracking-[0.16em] text-amber-100/80">HOST</span>
+          <div className="flex -space-x-4">
+            <PlayingCard card={up} faceUp size="sm" />
+            <PlayingCard card={up} faceUp={false} startDown size="sm" />
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-1">
+          <span className="font-led text-[0.65rem] tracking-[0.16em] text-emerald-100/80">TU MANO · {h.value}</span>
+          <div className="flex -space-x-5">
+            {h.cards.map((c, i) => (
+              <PlayingCard key={`${i}-${c.rank}${c.suit}`} card={c} faceUp size="md" from={i >= 2 ? { x: 80, y: -120 } : undefined} />
+            ))}
+          </div>
+        </div>
+      </div>
+      {done && actions ? (
+        <Locked>
+          {h.status === "pasado" ? `Te pasaste con ${h.value}.` : h.status === "doblado" ? `Doblaste: ${h.value}.` : h.status === "blackjack" ? "¡Blackjack!" : `Te plantaste con ${h.value}.`} Mira la mesa en la TV.
+        </Locked>
+      ) : h.status === "blackjack" ? (
+        <button type="button" onClick={() => act("m")} className="btn-primary !min-h-[52px] w-full justify-center">
+          ¡Blackjack! Cobrar
+        </button>
+      ) : (
+        <div className="grid grid-cols-3 gap-2">
+          <button type="button" onClick={() => act("p")} className="btn-primary !min-h-[52px] justify-center">
+            Pedir carta
+          </button>
+          <button type="button" onClick={() => act("m")} className="btn-ghost !min-h-[52px] justify-center">
+            Plantarme
+          </button>
+          <button type="button" disabled={!bjCanDouble(h.cards, h.status)} onClick={() => act("d")} className="btn-ghost !min-h-[52px] justify-center disabled:opacity-40">
+            Doblar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * La ruleta en el celular: el paño vertical, como parado frente a la mesa. Cada toque pone una ficha (plenos, docenas,
+ * color, par o impar; hasta 5). «Apostar» las manda a la mesa; mientras no gire la bola se pueden cambiar.
+ */
+function RoulettePhone({ mine, onSend }: { mine?: string; onSend: (v: string) => void }) {
+  const [ids, setIds] = useState<string[]>(() => parseRouletteBets(mine ?? "").map((b) => (b.id === "cero" ? "cero" : b.id)));
+  const sent = mine ?? "";
+  const value = ids.join(".");
+  const full = ids.length >= MAX_FICHAS_RULETA;
+  return (
+    <div className="space-y-3">
+      <p className="text-center text-sm text-slate-300">
+        Fichas: <b className="font-led text-white">{ids.length}</b> / {MAX_FICHAS_RULETA} · toca el paño para apostar
+      </p>
+      <RouletteFelt
+        vertical
+        chips={ids.map((id) => ({ id, tag: "●" }))}
+        n={null}
+        disabled={full}
+        onBet={(id) => {
+          confirm();
+          setIds((x) => (x.length >= MAX_FICHAS_RULETA ? x : [...x, id]));
+        }}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        <button type="button" onClick={() => setIds([])} disabled={!ids.length} className="btn-ghost !min-h-[48px] justify-center disabled:opacity-40">
+          Borrar fichas
+        </button>
+        <button
+          type="button"
+          disabled={!ids.length || value === sent}
+          onClick={() => {
+            confirm();
+            onSend(value);
+          }}
+          className="btn-primary !min-h-[48px] justify-center disabled:opacity-50"
+        >
+          {sent && value === sent ? "En la mesa ✓" : "Apostar"}
+        </button>
+      </div>
+    </div>
+  );
 }

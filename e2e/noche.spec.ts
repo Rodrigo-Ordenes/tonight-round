@@ -199,26 +199,64 @@ test.describe("intro «La ronda»", () => {
 
 test.describe("portada en escritorio", () => {
   test.beforeEach(async ({ page }, info) => {
-    test.skip(info.project.name !== "escritorio", "El recorrido de módulos y el cajón son de escritorio");
+    test.skip(info.project.name !== "escritorio", "El lobby de escritorio y el cajón son de escritorio");
     await page.addInitScript(SEEN);
   });
 
-  test("las flechas del recorrido llegan al quinto módulo", async ({ page }) => {
+  test("la sala principal: se entra por la puerta, se mira alrededor y cada zona lleva directo a su apartado", async ({ page }) => {
     await page.goto("/");
+    // La puerta se abre con «Pasar» (o bajando) y adentro cabe todo en una pantalla: saludo, sala y la zona de enfrente
+    // En un equipo lento (CI dibuja por software) la puerta tarda: se espera a «Pasar» con el tiempo normal
+    await page.getByRole("button", { name: "Pasar" }).click({ timeout: 20_000 }).catch(() => undefined);
+    await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
+    await expect(page.getByRole("button", { name: /Crear sala/ })).toBeInViewport({ timeout: 10_000 });
     const next = page.getByRole("button", { name: "Módulo siguiente" });
-    await next.scrollIntoViewIfNeeded();
-    const sectionTop = () => page.evaluate(() => document.querySelector("[data-track-section]")!.getBoundingClientRect().top);
-    for (let i = 0; i < 4; i++) {
-      await next.click();
-      await page.waitForTimeout(1300);
-      // A mitad del recorrido la sección queda fija arriba (antes se iba con el scroll y los módulos no se alcanzaban)
-      if (i === 1) {
-        expect(Math.abs(await sectionTop())).toBeLessThanOrEqual(2);
-        await expect(page.locator("[data-track] a[href='/juegos']")).toBeInViewport();
-      }
+    // La barra de zonas solo se ve con la cámara adentro (visibility: hidden afuera); toBeInViewport no basta
+    await expect(next).toBeVisible({ timeout: 20_000 });
+    await expect(next).toBeInViewport();
+    const count = page.locator("[data-track-count]");
+    // Sin el desplazamiento previo de click(): aquí el scroll es la profundidad de la cámara y moverla oculta la barra
+    for (let i = 0; i < 5 && (await count.innerText()) !== "04"; i++) {
+      await expect(next).toBeVisible();
+      await next.dispatchEvent("click");
     }
-    await expect(page.locator("[data-track-count]")).toHaveText("05");
-    await expect(page.locator("[data-track] a[href='/dividir']")).toBeInViewport();
+    await expect(count).toHaveText("04");
+    const front = page.locator('[data-orbit-card][aria-current="true"]');
+    await expect(front).toHaveAttribute("href", "/musica");
+    // Profundizar: la cámara se mete en la zona y se llega directo a su apartado (la pista)
+    await front.click();
+    await page.waitForURL(/\/musica$/);
+    await expect(page.getByRole("heading", { level: 1, name: /La pista/ })).toBeVisible();
+  });
+
+  test("los apartados: la sala ofrece crear sala o la compra, y la cuenta vive dentro de la compra", async ({ page }) => {
+    await page.goto("/sala");
+    await expect(page.getByRole("heading", { level: 1, name: /La sala/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Crear sala/ })).toBeVisible();
+    await page.getByRole("link", { name: /Armar la compra/ }).click();
+    await page.waitForURL(/\/armar$/);
+    await page.getByRole("button", { name: /La cuenta/ }).click();
+    await expect(page.getByRole("tab", { name: "Varios pagaron" })).toBeVisible();
+    // La ruta antigua de la cuenta lleva directo a ella
+    await page.goto("/dividir");
+    await page.waitForURL(/\/armar\?ver=cuenta$/);
+    // Sin sala, el menú tiene cuatro apartados y no muestra Juegos
+    const nav = page.getByRole("navigation", { name: "Navegación principal" });
+    await expect(nav.getByRole("link")).toHaveCount(4);
+    await expect(nav.getByRole("link", { name: "Casino" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Juegos" })).toHaveCount(0);
+  });
+
+  test("las páginas de cuidado tienen entrada: el bar lleva a cuánto se pasa y a los mitos, la sala a volver seguro", async ({ page }) => {
+    await page.goto("/bar");
+    await expect(page.getByRole("link", { name: /En cuánto se me pasa/ })).toHaveAttribute("href", "/tiempo");
+    await page.getByRole("link", { name: /Mitos y verdades/ }).click();
+    await page.waitForURL(/\/mitos$/);
+    await expect(page.getByRole("heading", { level: 1, name: /Mitos y verdades/ })).toBeVisible();
+    await page.goto("/sala");
+    await page.getByRole("link", { name: /Volver seguro/ }).click();
+    await page.waitForURL(/\/seguridad$/);
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
   });
 
   test("«Ver la ronda» vuelve a mostrar la intro", async ({ page }) => {

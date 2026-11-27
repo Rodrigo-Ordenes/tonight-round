@@ -5,7 +5,8 @@ import SlidingIndicator, { useActiveRect } from "@/components/ui/SlidingIndicato
 import Modal from "@/components/ui/Modal";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Disc3, GlassWater, Gamepad2, Radio, Receipt, ShoppingBasket, Volume2, VolumeX, WifiOff, X } from "lucide-react";
+import { Disc3, GlassWater, Gamepad2, Radio, Sofa, Spade, Volume2, VolumeX, WifiOff, X } from "lucide-react";
+import MusicDock from "@/components/music/MusicDock";
 import { useActiveCode } from "@/lib/useActiveCode";
 import { SOLO, useCarreteStore } from "@/store/useCarreteStore";
 import { syncStatus } from "@/lib/syncStatus";
@@ -17,14 +18,18 @@ import CheersOverlay from "@/components/live/CheersOverlay";
 import { useDragDismiss } from "@/lib/useDragDismiss";
 import { FOTO_HOST_AVATAR } from "@/data/fotosEscena";
 
-const NAV = [
-  { key: "sala", label: "Sala", icon: Radio },
-  { key: "armar", href: "/armar", label: "Armar", icon: ShoppingBasket },
+/**
+ * Los apartados del club: Sala (crear sala, la compra y la cuenta), Bar, Casino y Música. Juegos aparece solo con una
+ * sala (son juegos para quienes entraron a ella).
+ */
+const NAV_BASE = [
+  { key: "sala", href: "/sala", label: "Sala", icon: Sofa },
   { key: "bar", href: "/bar", label: "Bar", icon: GlassWater },
-  { key: "juegos", href: "/juegos", label: "Juegos", icon: Gamepad2 },
+  { key: "casino", href: "/casino", label: "Casino", icon: Spade },
   { key: "musica", href: "/musica", label: "Música", icon: Disc3 },
-  { key: "dividir", href: "/dividir", label: "Cuentas", icon: Receipt },
 ] as const;
+const NAV_JUEGOS = { key: "juegos", href: "/juegos", label: "Juegos", icon: Gamepad2 } as const;
+type NavItem = (typeof NAV_BASE)[number] | typeof NAV_JUEGOS;
 
 export function BrandMark({ className = "" }: { className?: string }) {
   // Brindis: dos copas que chocan, como tubos de neón (azul y morado), con la chispa del choque
@@ -82,13 +87,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const hasRoom = hydrated && code !== SOLO;
   const room = useCarreteStore(hasRoom ? code : SOLO);
   const sync = syncStatus({ online: room.online, pending: room.pending });
-  const salaHref = `/carrete/${hydrated ? code : SOLO}`;
+  const NAV: readonly NavItem[] = hasRoom ? [...NAV_BASE, NAV_JUEGOS] : NAV_BASE;
 
+  // La Sala abarca la compra, la cuenta y la sala misma (no la TV)
   const isActive = (key: string, href?: string) =>
-    key === "sala" ? pathname.startsWith("/carrete/") : href ? pathname.startsWith(href) : false;
+    key === "sala" ? ["/sala", "/armar", "/dividir", "/carrete/"].some((p) => pathname.startsWith(p)) : href ? pathname.startsWith(href) : false;
 
   // Menú vivo (hooks antes del return de la TV: al volver de la TV cambiaba el número de hooks y React se caía): una píldora de neón viaja a la sección activa (dock del celular y barra lateral)
-  const activeKey = NAV.find((item) => isActive(item.key, "href" in item ? item.href : undefined))?.key ?? null;
+  const activeKey = NAV.find((item) => isActive(item.key, item.href))?.key ?? null;
   const dockRef = useRef<HTMLDivElement>(null);
   const dockRect = useActiveRect(dockRef, '[aria-current="page"]', activeKey);
 
@@ -167,6 +173,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
+      {/* El reproductor de la noche: vive aquí para que la música no se corte al cambiar de apartado */}
+      <MusicDock />
       {hasRoom && <LiveNudge code={code} />}
       {hasRoom && <CheersOverlay code={code} />}
 
@@ -175,11 +183,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         aria-label="Navegación principal"
         className="fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-40 mx-auto max-w-xl animate-dock-in rounded-[28px] border border-white/10 bg-night-900/80 p-1.5 shadow-lift backdrop-blur-2xl"
       >
-        <div ref={dockRef} className="relative grid grid-cols-6">
+        <div ref={dockRef} className="relative grid" style={{ gridTemplateColumns: `repeat(${NAV.length}, minmax(0, 1fr))` }}>
           <SlidingIndicator rect={dockRect} className="rounded-[22px] bg-indigo-500 shadow-neon" />
           {NAV.map((item) => {
-            const href = item.key === "sala" ? salaHref : item.href;
-            const active = isActive(item.key, "href" in item ? item.href : undefined);
+            const href = item.href;
+            const active = isActive(item.key, item.href);
             const Icon = item.icon;
             return (
               <Link

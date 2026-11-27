@@ -138,6 +138,7 @@ export type LiveGame =
   // Casino de puntos (src/lib/casinoGames.ts): sin dinero ni apuestas reales
   | "tragamonedas"
   | "tragabar"
+  | "frutillita"
   | "jackpot"
   | "ruleta"
   | "blackjack";

@@ -24,7 +24,7 @@ test.describe("accesibilidad", () => {
     await audit(page, "intro");
   });
 
-  for (const path of ["/", "/armar", "/bar", "/juegos", "/musica", "/dividir"]) {
+  for (const path of ["/", "/sala", "/armar", "/bar", "/casino", "/casino/blackjack", "/casino/ruleta", "/juegos", "/musica", "/dividir"]) {
     test(`vista ${path}`, async ({ page }) => {
       await page.addInitScript(SEEN);
       await page.goto(path);

@@ -41,6 +41,25 @@ class SoundEngine {
     }
   }
 
+  /**
+   * Crea el contexto de audio por adelantado, en un momento de calma (no lo arranca: los navegadores esperan un toque).
+   * Crearlo toma cientos de milisegundos en algunos equipos: si se hace al primer sonido, congela justo esa jugada.
+   */
+  warm() {
+    if (typeof window === "undefined" || this.isMuted() || this.ctx) return;
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      this.ctx = new AudioCtx();
+    } catch {
+      /* sin audio */
+    }
+  }
+
+  /** El mismo contexto para todos los sonidos de la app (uno solo: cada contexto nuevo cuesta) */
+  shared(): AudioContext | null {
+    return this.getContext();
+  }
+
   /** Nota corta programada en el reloj de audio (para secuencias exactas sin temporizadores) */
   private note(ctx: AudioContext, at: number, freq: number, dur: number, type: OscillatorType = "triangle", vol = 0.1) {
     const osc = ctx.createOscillator();

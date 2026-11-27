@@ -1,17 +1,17 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Metadata } from "next";
-import CarreteBasketView from "@/components/calculators/CarreteBasketView";
+import ArmarSection from "@/components/rooms/ArmarSection";
 
 export const metadata: Metadata = {
-  title: "Armar la previa · Tonight",
+  title: "La compra y la cuenta · Tonight",
   description:
-    "Lista de compras multi-licor con presupuesto por persona, precios por tienda y la vaca lista para WhatsApp.",
+    "Lista de compras multi-licor con presupuesto por persona y precios por tienda; después, la cuenta y la rendición entre todos.",
 };
 
 export default function ArmarPage() {
   return (
-    <div className="py-2">
-      <CarreteBasketView />
-    </div>
+    <Suspense fallback={<div className="min-h-[60dvh]" />}>
+      <ArmarSection />
+    </Suspense>
   );
 }

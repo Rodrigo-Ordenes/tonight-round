@@ -1,6 +1,6 @@
 import React from "react";
 
-export type Ambiente = "bar" | "club" | "casino";
+export type Ambiente = "bar" | "club" | "casino" | "musica" | "previa";
 
 /**
  * Foto real de ambiente (public/fotos/ambiente, Unsplash, ver CREDITOS.md) como el plano más lejano de una escena:
@@ -12,8 +12,8 @@ export default function AmbientPhoto({ name, className = "", veil = "left" }: { 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`/fotos/ambiente/${name}.webp`}
-        srcSet={`/fotos/ambiente/${name}-sm.webp 960w, /fotos/ambiente/${name}.webp 1920w`}
-        sizes="(min-width: 1024px) 1152px, 100vw"
+        srcSet={`/fotos/ambiente/${name}-sm.webp 1280w, /fotos/ambiente/${name}.webp 2560w`}
+        sizes="100vw"
         alt=""
         decoding="async"
         className="parallax-deep absolute inset-x-0 -top-[10%] h-[120%] w-full select-none object-cover"
