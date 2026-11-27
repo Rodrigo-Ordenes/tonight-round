@@ -14,7 +14,7 @@ import { FOTO_HOST } from "@/data/fotosEscena";
 import TvDepth from "@/components/live/TvDepth";
 import PartyStage from "@/components/party/PartyStage";
 import { PartyLeaderboard } from "@/components/party/PartyBoard";
-import { isPartyGame } from "@/lib/partyGames";
+import { PARTY_BY_ID, isPartyGame } from "@/lib/partyGames";
 import { roomEvents } from "@/lib/roomEvents";
 import ScrambleCode from "@/components/ui/ScrambleCode";
 import { CODE_RE } from "@/lib/carreteState";
@@ -160,7 +160,7 @@ function TvStage() {
   return (
     <div className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-[4vw] py-[3vh]">
       {/* El club de fondo (foto real): la sala se siente en el mismo lugar que la bienvenida */}
-      <AmbientPhoto name="club" className="inset-0" veil="full" />
+      <AmbientPhoto name={round && PARTY_BY_ID.get(round.game)?.category === "Casino" ? "casino" : "club"} className="inset-0" veil="full" />
       <TvDepth scene={round ? `${round.id}-${round.revealedAt ? "revelado" : "votacion"}` : "lobby"} />
       {!round && <SignalField people={people} events={events} seed={11} className="inset-0 h-full w-full" />}
       <CheersOverlay code={code} big />

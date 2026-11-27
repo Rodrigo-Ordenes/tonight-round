@@ -22,7 +22,7 @@ import { FOTO_HOST_SALUDO } from "@/data/fotosEscena";
  * Control del anfitrión: elige el juego, lanza la ronda, ve quién votó y revela.
  * Los votos llegan desde los celulares (LiveRoundCard) como acciones idempotentes.
  */
-export default function LiveGameHost({ store }: { store: CarreteStore }) {
+export default function LiveGameHost({ store, only }: { store: CarreteStore; only?: "casino" | "social" }) {
   const { state, participants, dispatch, isSolo, code, meId } = store;
   const live = state.live;
   const round = live?.round ?? null;
@@ -39,6 +39,20 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
   const drives = !!round && isRoundDriver(round, { tv: false, meId });
   const clock = useRoundClock(round, drives ? { participants, dispatch } : undefined);
 
+  // El casino se juega también sin sala (en este computador): sus mesas van directo, sin el aviso de la sala
+  if (isSolo && only === "casino") {
+    return (
+      <PartyCatalog
+        only="casino"
+        noRoom={
+          <Link href="/sala" className="btn-ghost mt-3 w-full !min-h-[44px]">
+            Crear sala para jugar en la TV
+          </Link>
+        }
+      />
+    );
+  }
+
   if (isSolo) {
     return (
       <div className="space-y-6">
@@ -48,7 +62,7 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
             <p className="mt-2 max-w-lg text-sm text-slate-400">
               En los juegos en vivo cada persona vota en secreto desde su celular y la TV revela los resultados. Crea una sala y compartan el código.
             </p>
-            <Link href="/" className="btn-primary mt-4">
+            <Link href="/sala" className="btn-primary mt-4">
               Crear sala
             </Link>
           </div>
@@ -64,8 +78,9 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
           />
         </div>
         <PartyCatalog
+          only={only}
           noRoom={
-            <Link href="/" className="btn-ghost mt-3 w-full !min-h-[44px]">
+            <Link href="/sala" className="btn-ghost mt-3 w-full !min-h-[44px]">
               Crear sala para jugar
             </Link>
           }
@@ -117,8 +132,10 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
       {/* El aviso va arriba de los catálogos: así se ve justo después de tocar «Jugar» */}
       <div aria-live="polite">{error && <p className="rounded-2xl border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-100">{error}</p>}</div>
 
-      <PartyCatalog onPlay={start} playing={round && !round.revealedAt ? round.game : null} />
+      <PartyCatalog only={only} onPlay={start} playing={round && !round.revealedAt ? round.game : null} />
 
+      {only !== "casino" && (
+        <>
       <h3 className="display pt-4 text-xl sm:text-2xl">Clásicos en vivo</h3>
       {/* Selector de juego */}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3">
@@ -143,7 +160,8 @@ export default function LiveGameHost({ store }: { store: CarreteStore }) {
           );
         })}
       </div>
-
+        </>
+      )}
 
       {/* Ronda actual */}
       {round && (

@@ -20,6 +20,7 @@ export default function PartyStage({ round, participants, size = "md" }: { round
   switch (round.game) {
     case "tragamonedas":
     case "tragabar":
+    case "frutillita":
     case "jackpot":
     case "ruleta":
     case "blackjack":

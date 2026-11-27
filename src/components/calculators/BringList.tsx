@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { useFlip } from "@/lib/useFlip";
+import { motion, useReducedMotion } from "framer-motion";
 import { useDeferredDelete } from "@/lib/useDeferredDelete";
 import UndoToast from "@/components/ui/UndoToast";
 import { Check, Plus, X } from "lucide-react";
@@ -43,7 +43,7 @@ export default function BringList({
   ];
   const items = compact ? ordered.slice(0, 6) : ordered;
   const listRef = useRef<HTMLUListElement>(null);
-  useFlip(listRef, items.map((i) => `${i.id}:${i.claimedBy ?? ""}`).join("|"));
+  const reduce = useReducedMotion();
   const firstDone = items.findIndex((i) => i.claimedBy);
   const pending = bring.items.filter((i) => !i.claimedBy).length;
 
@@ -91,8 +91,10 @@ export default function BringList({
                     Listo
                   </li>
                 )}
-                <li
+                <motion.li
                   data-flip={i.id}
+                  layout={reduce ? false : "position"}
+                  transition={{ type: "spring", stiffness: 420, damping: 34, mass: 0.8 }}
                   className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm ${i.claimedBy ? "bg-emerald-400/[0.05]" : "bg-white/[0.03]"}`}
                 >
                   <span
@@ -150,7 +152,7 @@ export default function BringList({
                       <X className="w-4 h-4" />
                     </button>
                   )}
-                </li>
+                </motion.li>
               </React.Fragment>
             );
           })}

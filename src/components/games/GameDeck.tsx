@@ -13,7 +13,6 @@ import FingerChooser from "./FingerChooser";
 import SeatShuffle from "./SeatShuffle";
 import LiveGameHost from "@/components/live/LiveGameHost";
 import LiveRoundCard from "@/components/live/LiveRoundCard";
-import PageHeader from "@/components/ui/PageHeader";
 import { audioEffects } from "@/lib/audioEffects";
 
 type Quick = "ruleta" | "bomba" | "nunca" | "dedazo" | "puestos";
@@ -26,7 +25,11 @@ const QUICK: { id: Quick; label: string; emoji: string; blurb: string }[] = [
   { id: "puestos", label: "Cambio de puestos", emoji: "🔀", blurb: "Mezcla puestos, parejas o equipos y lo muestra en la TV." },
 ];
 
-export default function GameDeck() {
+/**
+ * Los juegos de la sala (lo social): en vivo con la TV y los celulares, juegos rápidos con un celular y el catálogo de
+ * clásicos. Sin sala (`live={false}`) quedan los rápidos y los clásicos.
+ */
+export default function GameDeck({ live = true }: { live?: boolean }) {
   const { code } = useActiveCode();
   const store = useCarreteStore(code);
   const [quick, setQuick] = useState<Quick>("ruleta");
@@ -47,11 +50,7 @@ export default function GameDeck() {
   const me = store.participants.find((p) => p.id === store.meId);
 
   return (
-    <div className="space-y-16 pb-12">
-      <PageHeader eyebrow="Juegos" title="Que empiece el juego" scene="juegos" photo="casino">
-        La TV hace de escenario y cada celular vota en secreto. Si no hay TV, también hay juegos para un solo celular y un catálogo de clásicos.
-      </PageHeader>
-
+    <div className="space-y-16 pb-12 pt-8">
       {/* Si este celular es participante y hay ronda, primero su control */}
       {me && store.state.live?.round && (
         <section aria-label="Tu voto">
@@ -59,7 +58,7 @@ export default function GameDeck() {
         </section>
       )}
 
-      <LiveGameHost store={store} />
+      {live && <LiveGameHost store={store} only="social" />}
 
       <section aria-labelledby="rapidos-title" className="space-y-6">
         <div>

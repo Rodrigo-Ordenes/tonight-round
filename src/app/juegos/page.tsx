@@ -1,17 +1,12 @@
 import React from "react";
 import { Metadata } from "next";
-import GameDeck from "@/components/games/GameDeck";
+import JuegosSection from "@/components/rooms/JuegosSection";
 
 export const metadata: Metadata = {
-  title: "Juegos · Tonight",
-  description:
-    "Juegos en vivo con la TV y votos secretos desde el celular, juegos rápidos y clásicos de carrete.",
+  title: "Juegos de la sala · Tonight",
+  description: "Juegos de grupo en vivo con la TV y votos secretos desde el celular, juegos rápidos y clásicos de carrete.",
 };
 
 export default function JuegosPage() {
-  return (
-    <div className="py-2">
-      <GameDeck />
-    </div>
-  );
+  return <JuegosSection />;
 }

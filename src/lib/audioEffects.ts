@@ -57,6 +57,16 @@ class ExtendedAudioEffects {
     return baseAudioEffects.isMuted();
   }
 
+  /** Prepara el audio en un momento de calma (ver SoundEngine.warm) */
+  warm() {
+    baseAudioEffects.warm();
+  }
+
+  /** El contexto de audio compartido por toda la app */
+  shared() {
+    return baseAudioEffects.shared();
+  }
+
   playReels(ms?: number) {
     baseAudioEffects.playReels(ms);
   }

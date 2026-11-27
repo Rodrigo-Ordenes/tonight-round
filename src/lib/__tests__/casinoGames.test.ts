@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SLOT_BAR, SLOT_CLASSIC, blackjackDeal, blackjackOutcome, handValue, jackpotMachines, rouletteColor, rouletteNumber, rouletteWins, slotPayout, slotSpin } from "@/lib/casinoGames";
+import { SLOT_BAR, SLOT_CLASSIC, bjDealerHand, bjPlayerHand, blackjackOutcome, handValue, jackpotMachines, rouletteColor, rouletteNumber, rouletteWins, slotPayout, slotSpin } from "@/lib/casinoGames";
 import { resolveParty, type Card } from "@/lib/partyGames";
 import type { LiveRound, Participant } from "@/lib/carreteState";
 
@@ -31,10 +31,10 @@ describe("casino de puntos", () => {
     expect(jackpotMachines(7).map((m) => m.points).sort((x, y) => x - y)).toEqual([0, 10, 25]);
   });
 
-  it("ruleta europea: el cero es menta y solo paga a quien apostó al cero", () => {
-    expect(rouletteColor(0)).toBe("menta");
+  it("ruleta europea: el cero es verde y solo paga a quien apostó al cero", () => {
+    expect(rouletteColor(0)).toBe("verde");
     expect(rouletteColor(1)).toBe("morado");
-    expect(rouletteColor(2)).toBe("azul");
+    expect(rouletteColor(2)).toBe("negro");
     expect(rouletteWins("par", 0)).toBe(false);
     expect(rouletteWins("cero", 0)).toBe(true);
     expect(rouletteWins("d3", 36)).toBe(true);
@@ -47,20 +47,15 @@ describe("casino de puntos", () => {
     expect(handValue([card(14), card(13)])).toBe(21);
     expect(handValue([card(14), card(14), card(9)])).toBe(21);
     expect(handValue([card(10), card(9), card(5)])).toBe(24);
-    const plans = [
-      { id: "b", stand: 17 },
-      { id: "a", stand: 15 },
-    ];
-    const one = blackjackDeal(77, plans);
-    expect(blackjackDeal(77, [...plans].reverse())).toEqual(one);
-    expect(handValue(one.dealer)).toBeGreaterThanOrEqual(17);
+    expect(bjPlayerHand(77, "a", "p")).toEqual(bjPlayerHand(77, "a", "p"));
+    expect(handValue(bjDealerHand(77))).toBeGreaterThanOrEqual(17);
     expect(blackjackOutcome([card(14), card(13)], [card(10), card(7)]).points).toBe(30);
     expect(blackjackOutcome([card(10), card(9), card(5)], [card(10), card(7)]).lose).toBe(true);
   });
 
   it("la ronda se resuelve con puntos para cada participante que jugó", () => {
     for (const game of ["tragamonedas", "tragabar", "jackpot", "ruleta", "blackjack"] as const) {
-      const votes = game === "ruleta" ? { a: "par", b: "morado", c: "cero" } : game === "blackjack" ? { a: "15", b: "17", c: "19" } : game === "jackpot" ? { a: "1", b: "2", c: "3" } : { a: "tirar", b: "tirar", c: "tirar" };
+      const votes = game === "ruleta" ? { a: "par", b: "morado", c: "cero" } : game === "blackjack" ? { a: "m", b: "pm", c: "d" } : game === "jackpot" ? { a: "1", b: "2", c: "3" } : { a: "tirar", b: "tirar", c: "tirar" };
       const res = resolveParty(round(game, votes), people);
       expect(res.rows).toHaveLength(3);
       expect(res.headline.length).toBeGreaterThan(5);
@@ -68,5 +63,24 @@ describe("casino de puntos", () => {
       // Reducción de daños: en el casino perder no genera retos ni sorbos
       expect(res.loserIds).toHaveLength(0);
     }
+  });
+  it("blackjack mano a mano: pedir suma cartas, plantarse cierra y doblar da una sola carta", () => {
+    for (let k = 1; k < 300; k++) {
+      const start = bjPlayerHand(k, "a", "");
+      if (start.status !== "jugando") continue;
+      expect(start.cards).toHaveLength(2);
+      const pide = bjPlayerHand(k, "a", "p");
+      expect(pide.cards).toHaveLength(3);
+      expect(pide.cards.slice(0, 2)).toEqual(start.cards);
+      expect(bjPlayerHand(k, "a", "m").status).toBe("plantado");
+      const dobla = bjPlayerHand(k, "a", "dp");
+      expect(dobla.cards).toHaveLength(3);
+      expect(dobla.doubled).toBe(true);
+      expect(["doblado", "pasado"]).toContain(dobla.status);
+      // Después de pasarse no se sigue pidiendo
+      const muchas = bjPlayerHand(k, "a", "pppppppp");
+      if (muchas.status === "pasado") expect(handValue(muchas.cards.slice(0, -1))).toBeLessThanOrEqual(21);
+    }
+    expect(blackjackOutcome([card(10), card(9), card(2)], [card(10), card(8)], true).points).toBe(40);
   });
 });

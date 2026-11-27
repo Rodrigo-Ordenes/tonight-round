@@ -2,26 +2,35 @@
 
 import React from "react";
 import { Clock, Play, Sparkles, Users } from "lucide-react";
-import { PARTY_CATEGORIES, PARTY_GAMES, type PartyCategory } from "@/lib/partyGames";
+import { PARTY_GAMES } from "@/lib/partyGames";
 import type { LiveGame } from "@/lib/carreteState";
+import { useRouter } from "next/navigation";
 
 /**
  * Los imperdibles: seis juegos bien distintos (uno por tipo) para aprovechar los primeros segundos de atención. Dos
  * ocupan doble ancho: 2 × 2 + 4 = 8 celdas, la grilla de cuatro columnas cierra en dos filas sin huecos.
  */
-const FEATURED: LiveGame[] = ["ruleta", "blackjack", "cronometro", "infiltrado", "proximidad", "mayoria"];
-const FEATURED_WIDE = new Set<LiveGame>(["ruleta", "blackjack"]);
-
-/** El resto, agrupado por tipo para que no se vean iguales uno tras otro */
-const SECTIONS: { cat: PartyCategory; title: string; desc: string }[] = [
-  { cat: "Casino", title: "Más casino", desc: "Tragamonedas y el pozo de la sala. Solo puntos." },
-  { cat: "Azar", title: "Pura suerte", desc: "Dados, cajas y la casilla maldita." },
-  { cat: "Predicción", title: "Adivina qué pasa", desc: "Cartas y porcentajes de la sala." },
-  { cat: "Reflejos", title: "Dedos rápidos", desc: "Atentos a la señal." },
-  { cat: "Deducción", title: "¿Quién miente?", desc: "Para descubrir al que inventa." },
-  { cat: "Psicología", title: "La sala opina", desc: "Votos sobre los presentes." },
-  { cat: "Desafíos", title: "Desafíos", desc: "Hasta que alguien falle." },
+/**
+ * Dos apartados: Casino Night y Social Night. Cada uno abre con sus 3 imperdibles en grande (el casino: blackjack,
+ * ruleta y la Frutillita; lo social: los tres clásicos de grupo) y debajo el resto de sus juegos.
+ */
+const NIGHTS: { id: string; title: string; desc: string; top: LiveGame[]; more: LiveGame[] }[] = [
+  {
+    id: "casino",
+    title: "Casino Night",
+    desc: "Mesas y máquinas de verdad, solo con puntos: nadie apuesta plata.",
+    top: ["blackjack", "ruleta", "frutillita"],
+    more: ["tragamonedas", "tragabar", "jackpot"],
+  },
+  {
+    id: "social",
+    title: "Social Night",
+    desc: "Cada uno elige en secreto desde su celular y la TV revela.",
+    top: ["probable", "infiltrado", "cronometro"],
+    more: ["mentiroso", "mayoria", "proximidad", "porcentaje", "cajas", "dados", "casilla", "mayormenor", "reflejos", "ultimo"],
+  },
 ];
+const FEATURED_WIDE = new Set<LiveGame>(["blackjack", "ruleta", "frutillita"]);
 
 /**
  * Micro-escena SVG de cada Party Game: entra con el scroll y se anima al pasar o enfocar la tarjeta (en táctil, solo
@@ -45,6 +54,20 @@ function PartyMicroScene({ id, wide }: { id: LiveGame; wide: boolean }) {
             ))}
             <path d="M168 50 L176 40" stroke="#8B8C96" strokeWidth="3" strokeLinecap="round" />
             <circle cx="177" cy="38" r="5" fill="#B93EF3" className="bento-pulse" />
+          </svg>
+        )}
+        {id === "frutillita" && (
+          <svg viewBox="0 0 140 130" className="h-full w-full" fill="none">
+            <rect x="34" y="22" width="96" height="76" rx="14" fill="rgba(19,19,24,0.92)" stroke="#E4B853" strokeWidth="1.6" />
+            {["🍓", "🍓", "🍒"].map((f, k) => (
+              <g key={k} className={k < 2 ? "bento-float" : undefined} style={{ animationDelay: `${k * 0.25}s` }}>
+                <rect x={42 + k * 29} y="36" width="24" height="44" rx="6" fill="#090A0D" stroke="rgba(236,236,241,0.25)" />
+                <text x={54 + k * 29} y="64" textAnchor="middle" fontSize="16">
+                  {f}
+                </text>
+              </g>
+            ))}
+            <path d="M38 58 H126" stroke="#E4B853" strokeWidth="1" opacity="0.7" />
           </svg>
         )}
         {id === "tragabar" && (
@@ -257,7 +280,13 @@ function spotlight(e: React.PointerEvent<HTMLElement>) {
 }
 
 /** Tarjeta de un juego: grande (bento, con micro-escena) o compacta (en las secciones que se deslizan) */
-function GameCard({ g, wide, live, compact, onPlay, noRoom }: { g: (typeof PARTY_GAMES)[number]; wide: boolean; live: boolean; compact?: boolean; onPlay?: (id: LiveGame) => void; noRoom?: React.ReactNode }) {
+function GameCard({ g, wide, live, compact, onPlay, noRoom, onSolo }: { g: (typeof PARTY_GAMES)[number]; wide: boolean; live: boolean; compact?: boolean; onPlay?: (id: LiveGame) => void; noRoom?: React.ReactNode; onSolo?: (id: LiveGame) => void }) {
+  // El casino también se juega en este computador, sin sala ni celulares
+  const solo = g.category === "Casino" && onSolo ? (
+    <button type="button" onClick={() => onSolo(g.id)} className="btn-ghost mt-2 w-full !min-h-[44px]">
+      🎰 Jugar aquí
+    </button>
+  ) : null;
   if (compact)
     return (
       <article onPointerMove={spotlight} className={`magic-card surface group relative flex h-full flex-col justify-between p-4 ${live ? "ring-1 ring-indigo-400/60" : ""}`}>
@@ -277,6 +306,7 @@ function GameCard({ g, wide, live, compact, onPlay, noRoom }: { g: (typeof PARTY
           ) : (
             noRoom
           )}
+          {solo}
         </div>
       </article>
     );
@@ -301,7 +331,7 @@ function GameCard({ g, wide, live, compact, onPlay, noRoom }: { g: (typeof PARTY
           )}
           {live && <span className="chip !min-h-0 !py-0.5 text-xs !text-emerald-200">En juego</span>}
         </div>
-        <h3 className={`mt-3.5 font-display font-bold text-white ${wide ? "text-xl sm:text-2xl" : "text-lg"}`}>{g.name}</h3>
+        <h3 className={`relative z-10 mt-3.5 font-display font-bold text-white ${wide ? "pr-28 text-xl sm:pr-32 sm:text-2xl" : "text-lg"}`}>{g.name}</h3>
         <p className={`mt-1.5 ${wide ? "max-w-md text-sm leading-relaxed text-slate-300" : "text-xs leading-snug text-slate-400"}`}>{g.blurb}</p>
       </div>
 
@@ -322,6 +352,7 @@ function GameCard({ g, wide, live, compact, onPlay, noRoom }: { g: (typeof PARTY
         ) : (
           noRoom
         )}
+        {solo}
       </div>
     </article>
   );
@@ -333,76 +364,73 @@ function GameCard({ g, wide, live, compact, onPlay, noRoom }: { g: (typeof PARTY
  * que recorre su borde (Magic UI «Border Beam»). `onPlay` lanza la ronda en la sala; sin sala, el botón lleva a crearla
  * (`noRoom`).
  */
-export default function PartyCatalog({ onPlay, playing, noRoom }: { onPlay?: (id: LiveGame) => void; playing?: LiveGame | null; noRoom?: React.ReactNode }) {
-  const [cat, setCat] = React.useState<PartyCategory | "Todos">("Todos");
+export default function PartyCatalog({
+  onPlay,
+  playing,
+  noRoom,
+  only,
+}: {
+  onPlay?: (id: LiveGame) => void;
+  playing?: LiveGame | null;
+  noRoom?: React.ReactNode;
+  /** El casino muestra solo sus mesas; los juegos de la sala, solo lo social */
+  only?: "casino" | "social";
+}) {
+  // «Jugar aquí» lleva directo a la mesa del casino a pantalla completa (/casino/blackjack, /casino/ruleta…)
+  const router = useRouter();
+  const setSolo = (id: LiveGame) => router.push(`/casino/${id}`);
   // El casino va primero: es lo que más llama en la mesa (el orden relativo de cada grupo se mantiene)
-  const games = PARTY_GAMES.filter((g) => cat === "Todos" || g.category === cat).sort((x, y) => Number(y.category === "Casino") - Number(x.category === "Casino"));
+  const byId = (id: LiveGame) => PARTY_GAMES.find((x) => x.id === id)!;
 
   return (
     <section aria-labelledby="party-title" className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="eyebrow">Party Games</p>
-          <h2 id="party-title" className="display text-2xl sm:text-3xl">
-            Azar, predicción y faroles<span className="text-accent">.</span>
-          </h2>
-          <p className="meta mt-1">Cada uno elige en secreto desde su celular, la TV revela y suma puntos. Perder da un reto con alternativas, nunca obliga a tomar.</p>
-        </div>
+        {only === "casino" ? (
+          <div>
+            <p className="eyebrow !text-[#ECC85F]">Casino Night</p>
+            <h2 id="party-title" className="display casino-title text-2xl sm:text-3xl">
+              Las mesas de la casa.
+            </h2>
+            <p className="meta mt-1 !text-[#F5F0E6]/75">Mesas y máquinas de verdad, solo con puntos: nadie apuesta plata. Juega aquí mismo o, con sala, en la TV con los celulares.</p>
+          </div>
+        ) : (
+          <div>
+            <p className="eyebrow">Party Games</p>
+            <h2 id="party-title" className="display text-2xl sm:text-3xl">
+              Azar, predicción y faroles<span className="text-accent">.</span>
+            </h2>
+            <p className="meta mt-1">Cada uno elige en secreto desde su celular, la TV revela y suma puntos. Perder da un reto con alternativas, nunca obliga a tomar.</p>
+          </div>
+        )}
       </div>
 
-      <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="radiogroup" aria-label="Categoría">
-        {(["Todos", ...PARTY_CATEGORIES] as const).map((c) => (
-          <button key={c} type="button" role="radio" aria-checked={cat === c} onClick={() => setCat(c)} className={`chip shrink-0 ${cat === c ? "!border-indigo-300 !bg-indigo-500 !text-night-950" : ""}`}>
-            {c}
-          </button>
-        ))}
-      </div>
-
-      {cat === "Todos" ? (
-        <>
-          {/* Los imperdibles: uno distinto de cada tipo, lo primero que se ve */}
-          <ul className="grid grid-flow-row-dense grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4" aria-label="Los imperdibles">
-            {FEATURED.map((id) => PARTY_GAMES.find((x) => x.id === id)!).map((g) => (
-              <li key={g.id} className={FEATURED_WIDE.has(g.id) ? "sm:col-span-2" : ""}>
-                <GameCard g={g} wide={FEATURED_WIDE.has(g.id)} live={playing === g.id} onPlay={onPlay} noRoom={noRoom} />
+      {NIGHTS.filter((night) => !only || night.id === only).map((night) => (
+        <section key={night.id} aria-label={night.title} className="space-y-3.5">
+          <div>
+            <h3 className="display text-2xl text-white sm:text-3xl">
+              {night.title}
+              <span className="text-accent">.</span>
+            </h3>
+            <p className="text-sm text-slate-400">{night.desc}</p>
+          </div>
+          {/* Los 3 imperdibles de la noche, en grande */}
+          <ul className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3" aria-label={`Los imperdibles de ${night.title}`}>
+            {night.top.map(byId).map((g) => (
+              <li key={g.id}>
+                <GameCard onSolo={setSolo} g={g} wide={FEATURED_WIDE.has(g.id)} live={playing === g.id} onPlay={onPlay} noRoom={noRoom} />
               </li>
             ))}
           </ul>
-          {/* El resto, por tipo, en filas cortas que se deslizan de lado */}
-          {SECTIONS.map((sec) => {
-            const list = PARTY_GAMES.filter((x) => x.category === sec.cat && !FEATURED.includes(x.id));
-            if (!list.length) return null;
-            return (
-              <section key={sec.cat} aria-label={sec.title} className="space-y-2.5">
-                <div className="flex items-end justify-between gap-3">
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-white">{sec.title}</h3>
-                    <p className="text-xs text-slate-400">{sec.desc}</p>
-                  </div>
-                  <button type="button" onClick={() => setCat(sec.cat)} className="chip shrink-0 text-xs">
-                    Ver {sec.cat.toLowerCase()}
-                  </button>
-                </div>
-                <ul className="no-scrollbar -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
-                  {list.map((g) => (
-                    <li key={g.id} className="w-[15.5rem] shrink-0 snap-start">
-                      <GameCard g={g} wide={false} compact live={playing === g.id} onPlay={onPlay} noRoom={noRoom} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
-        </>
-      ) : (
-        <ul className="grid grid-flow-row-dense grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-          {games.map((g) => (
-            <li key={g.id}>
-              <GameCard g={g} wide={false} live={playing === g.id} onPlay={onPlay} noRoom={noRoom} />
-            </li>
-          ))}
-        </ul>
-      )}
+          {/* El resto, en una fila que se desliza de lado */}
+          <ul className="no-scrollbar -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1" aria-label={`Más de ${night.title}`}>
+            {night.more.map(byId).map((g) => (
+              <li key={g.id} className="w-[15.5rem] shrink-0 snap-start">
+                <GameCard onSolo={setSolo} g={g} wide={false} compact live={playing === g.id} onPlay={onPlay} noRoom={noRoom} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </section>
   );
 }

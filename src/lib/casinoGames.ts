@@ -34,10 +34,22 @@ export const SLOT_BAR: SlotSymbol[] = [
   { id: "agua", label: "Agua", weight: 2 },
 ];
 
-export type SlotKind = "clasica" | "bar";
+/** La Frutillita: la maquinita de frutas de los almacenes. Cada frutilla suma y adentro trae minijuegos */
+export const SLOT_FRUTAS: SlotSymbol[] = [
+  { id: "frutilla", label: "🍓", weight: 3 },
+  { id: "cereza", label: "🍒", weight: 4 },
+  { id: "sandia", label: "🍉", weight: 3 },
+  { id: "limon", label: "🍋", weight: 4 },
+  { id: "uva", label: "🍇", weight: 4 },
+  { id: "campana", label: "🔔", weight: 2 },
+  { id: "siete", label: "7", weight: 1 },
+];
+
+export type SlotKind = "clasica" | "bar" | "frutas";
 const TABLE: Record<SlotKind, { symbols: SlotSymbol[]; jackpot: string; wild: string | null }> = {
   clasica: { symbols: SLOT_CLASSIC, jackpot: "logo", wild: null },
   bar: { symbols: SLOT_BAR, jackpot: "terremoto", wild: "agua" },
+  frutas: { symbols: SLOT_FRUTAS, jackpot: "siete", wild: null },
 };
 
 const hash = (text: string) => [...text].reduce((h, ch) => Math.imul(h ^ ch.charCodeAt(0), 16777619), 2166136261) >>> 0;
@@ -54,7 +66,7 @@ const weighted = (symbols: SlotSymbol[], r: () => number) => {
 
 /** Los tres rodillos de un jugador: dependen de la ronda y de quién tira */
 export function slotSpin(seed: number, playerId: string, kind: SlotKind): SlotSymbol[] {
-  const r = rng(seed ^ hash(playerId), kind === "bar" ? 41 : 40);
+  const r = rng(seed ^ hash(playerId), kind === "bar" ? 41 : kind === "frutas" ? 46 : 40);
   return [0, 1, 2].map(() => weighted(TABLE[kind].symbols, r));
 }
 
@@ -89,10 +101,10 @@ export function jackpotMachines(seed: number): { machine: string; points: number
 
 /** Orden real de los números en el cilindro europeo */
 export const WHEEL_ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
-/** Los «rojos» del paño clásico van en morado neón; los «negros», en azul neón; el cero, en menta */
+/** Colores de casino de verdad: los «rojos» del paño clásico van en morado (nada rojo en Tonight), los negros en negro y el cero en verde */
 const UV_NUMBERS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
-export type RouletteColor = "menta" | "morado" | "azul";
-export const rouletteColor = (n: number): RouletteColor => (n === 0 ? "menta" : UV_NUMBERS.has(n) ? "morado" : "azul");
+export type RouletteColor = "verde" | "morado" | "negro";
+export const rouletteColor = (n: number): RouletteColor => (n === 0 ? "verde" : UV_NUMBERS.has(n) ? "morado" : "negro");
 
 export function rouletteNumber(seed: number): number {
   return Math.floor(rng(seed, 44)() * 37);
@@ -101,7 +113,7 @@ export function rouletteNumber(seed: number): number {
 /** Apuestas de fichas (sin plata): cada participante elige una */
 export const ROULETTE_BETS = [
   { id: "morado", label: "Morado", pays: 10 },
-  { id: "azul", label: "Azul", pays: 10 },
+  { id: "negro", label: "Negro", pays: 10 },
   { id: "par", label: "Par", pays: 10 },
   { id: "impar", label: "Impar", pays: 10 },
   { id: "d1", label: "1ª docena (1–12)", pays: 20 },
@@ -112,8 +124,9 @@ export const ROULETTE_BETS = [
 
 export function rouletteWins(bet: string, n: number): boolean {
   if (bet === "cero") return n === 0;
+  if (/^n\d{1,2}$/.test(bet)) return n === Number(bet.slice(1));
   if (n === 0) return false;
-  if (bet === "morado" || bet === "azul") return rouletteColor(n) === bet;
+  if (bet === "morado" || bet === "negro") return rouletteColor(n) === bet;
   if (bet === "par") return n % 2 === 0;
   if (bet === "impar") return n % 2 === 1;
   if (bet === "d1") return n <= 12;
@@ -122,13 +135,28 @@ export function rouletteWins(bet: string, n: number): boolean {
   return false;
 }
 
-/* ---------------- Blackjack contra el host ---------------- */
+/** Una apuesta de ruleta por su id: las de afuera, el cero o un pleno a un número («n17») */
+export function rouletteBet(id: string): { id: string; label: string; pays: number; odds: number } | null {
+  if (/^n\d{1,2}$/.test(id)) {
+    const n = Number(id.slice(1));
+    if (n < 0 || n > 36) return null;
+    return n === 0 ? { id: "cero", label: "Cero", pays: 60, odds: 35 } : { id, label: `Pleno al ${n}`, pays: 60, odds: 35 };
+  }
+  const b = ROULETTE_BETS.find((x) => x.id === id);
+  if (!b) return null;
+  return { ...b, odds: b.id === "cero" ? 35 : b.pays === 20 ? 2 : 1 };
+}
 
-export const BLACKJACK_PLANS = [
-  { id: "15", label: "Me planto en 15 (prudente)" },
-  { id: "17", label: "Me planto en 17 (como el host)" },
-  { id: "19", label: "Me planto en 19 (arriesgado)" },
-];
+/** Las fichas de un jugador viajan juntas en su voto: «morado.n17.d2» (una ficha por apuesta, hasta 5) */
+export const MAX_FICHAS_RULETA = 5;
+export const parseRouletteBets = (value: string) =>
+  value
+    .split(".")
+    .map((x) => rouletteBet(x.trim()))
+    .filter((b): b is NonNullable<ReturnType<typeof rouletteBet>> => !!b)
+    .slice(0, MAX_FICHAS_RULETA);
+
+/* ---------------- Blackjack contra el host ---------------- */
 
 /** Valor de una mano: el as vale 11 o 1, las figuras 10 */
 export function handValue(cards: Card[]): number {
@@ -149,42 +177,63 @@ export function handValue(cards: Card[]): number {
 
 export const isNatural = (cards: Card[]) => cards.length === 2 && handValue(cards) === 21;
 
-/**
- * Reparte un mazo barajado con la semilla: dos cartas a cada jugador (en orden por id) y al host, cada jugador pide
- * hasta su número de plantarse (o hasta pasarse) y el host pide hasta 17.
- */
-export function blackjackDeal(seed: number, plans: { id: string; stand: number }[]): { dealer: Card[]; hands: Record<string, Card[]> } {
-  const suits: Card["suit"][] = ["♠", "♥", "♦", "♣"];
-  const deck = suits.flatMap((suit) => Array.from({ length: 13 }, (_, i) => ({ rank: i + 2, suit })));
-  const r = rng(seed, 45);
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(r() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  let k = 0;
-  const draw = () => deck[k++ % deck.length];
-  const order = [...plans].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  const hands: Record<string, Card[]> = Object.fromEntries(order.map((p) => [p.id, [] as Card[]]));
-  const dealer: Card[] = [];
-  for (let round = 0; round < 2; round++) {
-    order.forEach((p) => hands[p.id].push(draw()));
-    dealer.push(draw());
-  }
-  order.forEach((p) => {
-    while (handValue(hands[p.id]) < p.stand) hands[p.id].push(draw());
-  });
-  while (handValue(dealer) < 17) dealer.push(draw());
-  return { dealer, hands };
-}
-
 /** Resultado de una mano contra el host, en puntos */
-export function blackjackOutcome(hand: Card[], dealer: Card[]): { points: number; label: string; win: boolean; lose: boolean } {
+export function blackjackOutcome(hand: Card[], dealer: Card[], doubled = false): { points: number; label: string; win: boolean; lose: boolean } {
   const me = handValue(hand);
   const host = handValue(dealer);
-  if (me > 21) return { points: 0, label: `Se pasó con ${me}`, win: false, lose: true };
+  const x = doubled ? 2 : 1;
+  const tag = doubled ? " (doblado)" : "";
+  if (me > 21) return { points: 0, label: `Se pasó con ${me}${tag}`, win: false, lose: true };
   if (isNatural(hand) && !isNatural(dealer)) return { points: 30, label: "¡Blackjack!", win: true, lose: false };
-  if (host > 21) return { points: 20, label: `${me}: el host se pasó`, win: true, lose: false };
-  if (me > host) return { points: 20, label: `${me} contra ${host}`, win: true, lose: false };
-  if (me === host) return { points: 5, label: `Empate en ${me}`, win: false, lose: false };
-  return { points: 0, label: `${me} contra ${host}`, win: false, lose: true };
+  if (host > 21) return { points: 20 * x, label: `${me}: el host se pasó${tag}`, win: true, lose: false };
+  if (me > host) return { points: 20 * x, label: `${me} contra ${host}${tag}`, win: true, lose: false };
+  if (me === host) return { points: 5 * x, label: `Empate en ${me}${tag}`, win: false, lose: false };
+  return { points: 0, label: `${me} contra ${host}${tag}`, win: false, lose: true };
 }
+
+/* ---------------- Blackjack mano a mano (como en la mesa real) ---------------- */
+
+/**
+ * Jugadas de una mano: «p» pedir carta, «m» plantarse, «d» doblar (una sola carta más y paga el doble). Viajan como
+ * texto en el voto («ppm» = pidió dos y se plantó) y la mano se recalcula igual en la TV y en cada celular.
+ */
+export type BjAction = "p" | "m" | "d";
+export type BjStatus = "jugando" | "plantado" | "pasado" | "doblado" | "blackjack";
+
+const SUITS: Card["suit"][] = ["♠", "♥", "♦", "♣"];
+/** Sabot continuo: cada carta sale al azar con la semilla (como la barajadora automática del casino) */
+const drawFrom = (r: () => number): Card => ({ rank: 2 + Math.floor(r() * 13), suit: SUITS[Math.floor(r() * 4)] });
+
+/** La mano de un jugador después de sus jugadas */
+export function bjPlayerHand(seed: number, playerId: string, actions = ""): { cards: Card[]; value: number; status: BjStatus; doubled: boolean } {
+  const r = rng(seed ^ hash(playerId), 52);
+  const cards = [drawFrom(r), drawFrom(r)];
+  let doubled = false;
+  let status: BjStatus = isNatural(cards) ? "blackjack" : "jugando";
+  for (const a of actions) {
+    if (status !== "jugando") break;
+    if (a === "m") status = "plantado";
+    else if (a === "p") {
+      cards.push(drawFrom(r));
+      const v = handValue(cards);
+      if (v > 21) status = "pasado";
+      else if (v === 21) status = "plantado";
+    } else if (a === "d" && cards.length === 2) {
+      cards.push(drawFrom(r));
+      doubled = true;
+      status = handValue(cards) > 21 ? "pasado" : "doblado";
+    }
+  }
+  return { cards, value: handValue(cards), status, doubled };
+}
+
+/** La mano del host: dos cartas (una tapada hasta el final) y pide hasta 17 */
+export function bjDealerHand(seed: number): Card[] {
+  const r = rng(seed, 53);
+  const cards = [drawFrom(r), drawFrom(r)];
+  while (handValue(cards) < 17) cards.push(drawFrom(r));
+  return cards;
+}
+
+/** Qué jugadas se pueden hacer ahora */
+export const bjCanDouble = (cards: Card[], status: BjStatus) => status === "jugando" && cards.length === 2;

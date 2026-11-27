@@ -52,7 +52,8 @@ const BUDGET_PRESETS = [
   { label: "$120.000", value: 120000, desc: "VIP" },
 ];
 
-export default function CarreteBasketView() {
+/** `bare`: dentro del apartado Sala (que ya pone la escena y el título) queda solo la acción de sumar producto */
+export default function CarreteBasketView({ bare = false }: { bare?: boolean } = {}) {
   const { code } = useActiveCode();
   const { locale, formatCurrency, country } = useLocale();
   const store = useCarreteStore(code);
@@ -233,6 +234,14 @@ export default function CarreteBasketView() {
 
   return (
     <div className="space-y-6 pb-12 animate-fade-in">
+      {bare ? (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="meta">{code !== "SOLO" ? `Sala ${code}` : "Modo planificador"} · precios reales por tienda, primero el alcohol, el hielo y el agua.</p>
+          <button type="button" onClick={() => setModalOpen(true)} className="btn-primary">
+            <Plus className="w-4 h-4" /> Sumar producto
+          </button>
+        </div>
+      ) : (
       <PageHeader
         eyebrow={code !== "SOLO" ? `Armar · sala ${code}` : "Armar · modo planificador"}
         title="La lista de compras"
@@ -247,6 +256,7 @@ export default function CarreteBasketView() {
         Dinos cuántos son, cuánto tienen y qué quieren tomar: armamos la canasta con precios reales por tienda, priorizando
         el alcohol, el hielo y el agua.
       </PageHeader>
+      )}
 
       <BudgetPanel
         attendees={basket.attendees}
